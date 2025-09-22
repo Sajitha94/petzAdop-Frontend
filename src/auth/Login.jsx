@@ -13,7 +13,7 @@ function LoginPage() {
     <Box
       sx={{
         minHeight: "100vh",
-        position: "relative", // needed for overlay
+        position: "relative",
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
@@ -28,7 +28,7 @@ function LoginPage() {
         sx={{
           position: "absolute",
           inset: 0,
-          bgcolor: "rgba(255, 255, 255, 0.7)", // semi-transparent overlay
+          bgcolor: "rgba(255, 255, 255, 0.7)",
           zIndex: 1,
         }}
       />
@@ -37,12 +37,12 @@ function LoginPage() {
       <Card
         sx={{
           position: "relative",
-          zIndex: 2, // above overlay
+          zIndex: 2,
           maxWidth: 400,
           width: "100%",
           borderRadius: 4,
           boxShadow: "0 8px 30px rgba(0,0,0,0.3)",
-          backgroundColor: "rgba(255, 255, 255, 0.95)", // card transparency
+          backgroundColor: "rgba(255, 255, 255, 0.95)",
         }}
       >
         <CardContent sx={{ p: 4 }}>
@@ -117,11 +117,16 @@ function LoginPage() {
               variant="body2"
               textAlign="center"
               sx={{ mt: 2, color: "#555" }}
+              href="/register"
             >
               Don’t have an account?{" "}
-              <span style={{ color: "#ff7043", cursor: "pointer" }}>
+              <Link
+                href="/register"
+                underline="hover"
+                sx={{ color: "#ff7043" }}
+              >
                 Sign Up
-              </span>
+              </Link>
             </Typography>
           </Box>
         </CardContent>

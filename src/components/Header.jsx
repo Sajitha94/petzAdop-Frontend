@@ -18,7 +18,7 @@ import PetzAdop from "../assets/PetzAdop Logo.png";
 const pages = ["Find Pets", "Shelters", "Foster", "Adopt", "About"];
 const settings = ["Profile", "Account", "Dashboard", "Logout"];
 
-export default function PlatformHeader() {
+export default function PlatformHeader({ user }) {
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
 
@@ -104,27 +104,45 @@ export default function PlatformHeader() {
             </Menu>
           </Box>
 
-          {/* Profile Avatar */}
+          {/* Profile Avatar or Login */}
           <Box sx={{ flexGrow: 0 }}>
-            <Tooltip title="Open settings">
-              <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <Avatar alt="User" src="/static/images/avatar/2.jpg" />
-              </IconButton>
-            </Tooltip>
-            <Menu
-              sx={{ mt: "45px" }}
-              anchorEl={anchorElUser}
-              open={Boolean(anchorElUser)}
-              onClose={handleCloseUserMenu}
-              anchorOrigin={{ vertical: "top", horizontal: "right" }}
-              transformOrigin={{ vertical: "top", horizontal: "right" }}
-            >
-              {settings.map((setting) => (
-                <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                  <Typography textAlign="center">{setting}</Typography>
-                </MenuItem>
-              ))}
-            </Menu>
+            {user ? (
+              <>
+                <Tooltip title="Open settings">
+                  <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+                    <Avatar alt="User" src="/static/images/avatar/2.jpg" />
+                  </IconButton>
+                </Tooltip>
+                <Menu
+                  sx={{ mt: "45px" }}
+                  anchorEl={anchorElUser}
+                  open={Boolean(anchorElUser)}
+                  onClose={handleCloseUserMenu}
+                  anchorOrigin={{ vertical: "top", horizontal: "right" }}
+                  transformOrigin={{ vertical: "top", horizontal: "right" }}
+                >
+                  {settings.map((setting) => (
+                    <MenuItem key={setting} onClick={handleCloseUserMenu}>
+                      <Typography textAlign="center">{setting}</Typography>
+                    </MenuItem>
+                  ))}
+                </Menu>
+              </>
+            ) : (
+              <Button
+                variant="contained"
+                sx={{
+                  backgroundColor: "#ff7043",
+                  color: "white",
+                  textTransform: "none",
+                  fontWeight: "bold",
+                  "&:hover": { backgroundColor: "#e85d30" },
+                }}
+                onClick={() => navigate("/login")}
+              >
+                Login
+              </Button>
+            )}
           </Box>
         </Toolbar>
       </Container>

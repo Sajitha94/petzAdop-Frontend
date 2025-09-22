@@ -5,14 +5,16 @@ import SearchBar from "./components/SearchBar";
 import PetsCard from "./components/Card";
 import Footer from "./components/Footer";
 import PetDetailsPage from "./pages/PetDetailsPage";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 import PostPetForm from "./pages/PostPetForm";
 import LoginPage from "./auth/Login";
 import RegisterPage from "./auth/Register";
 function App() {
+  const location = useLocation();
+  const hideHeaderFooter = ["/login", "/register"].includes(location.pathname);
   return (
     <>
-      <Header />
+      {!hideHeaderFooter && <Header />}
       <Routes>
         <Route
           path="/"
@@ -28,7 +30,7 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
       </Routes>
-      <Footer />
+      {!hideHeaderFooter && <Footer />}
     </>
   );
 }
