@@ -16,14 +16,14 @@ import EmailIcon from "@mui/icons-material/Email";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import StarIcon from "@mui/icons-material/Star";
 
-import catImg from "../../assets/cat1.png"; // Replace with your image path
+import catImg from "../assets/cat1.png"; // Replace with your image path
 
 function PetDetailsPage() {
   return (
     <Box sx={{ p: 4, display: "flex", justifyContent: "center" }}>
       <Box sx={{ maxWidth: 900, width: "100%" }}>
         {/* Top Section with Image & Basic Info */}
-        <Card sx={{ borderRadius: 3, mb: 3 }}>
+        <Card sx={{ borderRadius: 3, mb: 3, border: "1px solid #ddd" }}>
           <CardMedia
             component="img"
             height="400"
@@ -81,7 +81,7 @@ function PetDetailsPage() {
         </Card>
 
         {/* Personality & Compatibility Section (Original Code) */}
-        <Card sx={{ borderRadius: 3, mb: 3 }}>
+        <Card sx={{ borderRadius: 3, mb: 3, border: "1px solid #ddd" }}>
           <CardContent>
             <Typography variant="h6" fontWeight="bold" gutterBottom>
               Personality & Compatibility
@@ -103,7 +103,13 @@ function PetDetailsPage() {
         </Card>
 
         {/* Health & Care Information Section (Original Code) */}
-        <Card sx={{ borderRadius: 3, mb: 3 }}>
+        <Card
+          sx={{
+            borderRadius: 3,
+            mb: 3,
+            border: "1px solid #ddd",
+          }}
+        >
           <CardContent>
             <Typography variant="h6" fontWeight="bold" gutterBottom>
               Health & Care Information
@@ -128,7 +134,7 @@ function PetDetailsPage() {
 
         {/* --- */}
         {/* Adoption Information Section */}
-        <Card sx={{ borderRadius: 3, mb: 3 }}>
+        <Card sx={{ borderRadius: 3, mb: 3, border: "1px solid #ddd" }}>
           <CardContent>
             <Typography variant="h6" fontWeight="bold" gutterBottom>
               Adoption Information
@@ -167,7 +173,7 @@ function PetDetailsPage() {
 
         {/* --- */}
         {/* Shelter Information Section */}
-        <Card sx={{ borderRadius: 3, mb: 3 }}>
+        <Card sx={{ borderRadius: 3, mb: 3, border: "1px solid #ddd" }}>
           <CardContent>
             <Typography variant="h6" fontWeight="bold" gutterBottom>
               Shelter Information

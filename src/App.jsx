@@ -4,8 +4,9 @@ import Header from "./components/Header";
 import SearchBar from "./components/SearchBar";
 import PetsCard from "./components/Card";
 import Footer from "./components/Footer";
-import PetDetailsPage from "./components/pages/PetDetailsPage";
+import PetDetailsPage from "./pages/PetDetailsPage";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import PostPetForm from "./pages/PostPetForm";
 function App() {
   return (
     <>
@@ -21,6 +22,7 @@ function App() {
           }
         />
         <Route path="/petdetails" element={<PetDetailsPage />} />
+        <Route path="/postpet" element={<PostPetForm />} />
       </Routes>
       <Footer />
     </>
