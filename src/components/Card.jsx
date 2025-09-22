@@ -109,7 +109,7 @@ function PetsCard() {
             variant="outlined"
             size="small"
             sx={{
-              fontSize: { xs: "12px", lg: "14px" },
+              fontSize: { xs: "14px", sm: "12px", lg: "14px" },
               border: "2px solid transparent",
               background: "linear-gradient(to right, #00bcd4, #ff7043)",
               textTransform: "none",
@@ -125,7 +125,7 @@ function PetsCard() {
             sx={{
               background: "linear-gradient(to right, #00bcd4, #ff7043)",
               textTransform: "none",
-              fontSize: { xs: "12px", lg: "14px" },
+              fontSize: { xs: "14px", sm: "12px", lg: "14px" },
             }}
           >
             Meet Charlie
@@ -226,7 +226,7 @@ function PetsCard() {
             variant="outlined"
             size="small"
             sx={{
-              fontSize: { xs: "12px", lg: "14px" },
+              fontSize: { xs: "14px", sm: "12px", lg: "14px" },
               border: "2px solid transparent",
               background: "linear-gradient(to right, #00bcd4, #ff7043)",
               textTransform: "none",
@@ -242,7 +242,7 @@ function PetsCard() {
             sx={{
               background: "linear-gradient(to right, #00bcd4, #ff7043)",
               textTransform: "none",
-              fontSize: { xs: "12px", lg: "14px" },
+              fontSize: { xs: "14px", sm: "12px", lg: "14px" },
             }}
           >
             Meet Charlie
@@ -343,7 +343,7 @@ function PetsCard() {
             variant="outlined"
             size="small"
             sx={{
-              fontSize: { xs: "12px", lg: "14px" },
+              fontSize: { xs: "14px", sm: "12px", lg: "14px" },
               border: "2px solid transparent",
               background: "linear-gradient(to right, #00bcd4, #ff7043)",
               textTransform: "none",
@@ -359,7 +359,7 @@ function PetsCard() {
             sx={{
               background: "linear-gradient(to right, #00bcd4, #ff7043)",
               textTransform: "none",
-              fontSize: { xs: "12px", lg: "14px" },
+              fontSize: { xs: "14px", sm: "12px", lg: "14px" },
             }}
           >
             Meet Charlie
@@ -460,7 +460,7 @@ function PetsCard() {
             variant="outlined"
             size="small"
             sx={{
-              fontSize: { xs: "12px", lg: "14px" },
+              fontSize: { xs: "14px", sm: "12px", lg: "14px" },
               border: "2px solid transparent",
               background: "linear-gradient(to right, #00bcd4, #ff7043)",
               textTransform: "none",
@@ -476,7 +476,7 @@ function PetsCard() {
             sx={{
               background: "linear-gradient(to right, #00bcd4, #ff7043)",
               textTransform: "none",
-              fontSize: { xs: "12px", lg: "14px" },
+              fontSize: { xs: "14px", sm: "12px", lg: "14px" },
             }}
           >
             Meet Charlie
