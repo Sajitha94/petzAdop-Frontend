@@ -8,6 +8,7 @@ import PetDetailsPage from "./pages/PetDetailsPage";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import PostPetForm from "./pages/PostPetForm";
 import LoginPage from "./auth/Login";
+import RegisterPage from "./auth/Register";
 function App() {
   return (
     <>
@@ -25,6 +26,7 @@ function App() {
         <Route path="/petdetails" element={<PetDetailsPage />} />
         <Route path="/postpet" element={<PostPetForm />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
       </Routes>
       <Footer />
     </>
