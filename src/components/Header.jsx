@@ -62,7 +62,7 @@ function ResponsiveAppBar() {
             }}
           >
             <img
-              src="src/assets/PetzAdop Logo.png"
+              src="./src/assets/PetzAdop Logo.png"
               alt="logo"
               className="w-30 h-12"
             />

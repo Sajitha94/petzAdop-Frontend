@@ -6,7 +6,7 @@ function SearchBar() {
     <div
       className="relative h-[70vh] flex flex-col justify-center items-center text-center px-5"
       style={{
-        backgroundImage: "url('src/assets/allpet.png')",
+        backgroundImage: "url('./src/assets/allpet.png')",
         backgroundSize: "cover",
         backgroundPosition: "center",
       }}
