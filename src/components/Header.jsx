@@ -14,11 +14,13 @@ import {
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import PetzAdop from "../assets/PetzAdop Logo.png";
+import { useNavigate } from "react-router-dom";
 
 const pages = ["Find Pets", "Shelters", "Foster", "Adopt", "About"];
 const settings = ["Profile", "Account", "Dashboard", "Logout"];
 
 export default function PlatformHeader({ user }) {
+  const navigate = useNavigate();
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
 
@@ -40,7 +42,10 @@ export default function PlatformHeader({ user }) {
           }}
         >
           {/* Logo */}
-          <Box sx={{ display: "flex", alignItems: "center" }}>
+          <Box
+            sx={{ display: "flex", alignItems: "center", cursor: "pointer" }}
+            onClick={() => navigate("/")}
+          >
             <Typography
               variant="h6"
               component="a"

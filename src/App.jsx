@@ -14,7 +14,7 @@ function App() {
   const hideHeaderFooter = ["/login", "/register"].includes(location.pathname);
   return (
     <>
-      {!hideHeaderFooter && <Header />}
+      <Header />
       <Routes>
         <Route
           path="/"

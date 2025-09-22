@@ -1,12 +1,12 @@
 import {
   Box,
   Card,
+  CardContent,
   CardMedia,
   Typography,
   Chip,
   Grid,
   Stack,
-  CardContent,
   Button,
   Divider,
 } from "@mui/material";
@@ -20,8 +20,10 @@ import catImg from "../assets/cat1.png"; // Replace with your image path
 
 function PetDetailsPage() {
   return (
-    <Box sx={{ p: 4, display: "flex", justifyContent: "center" }}>
-      <Box sx={{ maxWidth: 900, width: "100%" }}>
+    <Box
+      sx={{ p: { xs: 2, sm: 4 }, display: "flex", justifyContent: "center" }}
+    >
+      <Box sx={{ width: "100%", maxWidth: 900 }}>
         {/* Top Section with Image & Basic Info */}
         <Card sx={{ borderRadius: 3, mb: 3, border: "1px solid #ddd" }}>
           <CardMedia
@@ -29,7 +31,7 @@ function PetDetailsPage() {
             height="400"
             image={catImg}
             alt="Pet"
-            sx={{ borderRadius: "12px 12px 0 0" }}
+            sx={{ borderRadius: "12px 12px 0 0", objectFit: "cover" }}
           />
           <CardContent>
             <Typography variant="h4" fontWeight="bold">
@@ -80,7 +82,7 @@ function PetDetailsPage() {
           </CardContent>
         </Card>
 
-        {/* Personality & Compatibility Section (Original Code) */}
+        {/* Personality & Compatibility Section */}
         <Card sx={{ borderRadius: 3, mb: 3, border: "1px solid #ddd" }}>
           <CardContent>
             <Typography variant="h6" fontWeight="bold" gutterBottom>
@@ -102,14 +104,8 @@ function PetDetailsPage() {
           </CardContent>
         </Card>
 
-        {/* Health & Care Information Section (Original Code) */}
-        <Card
-          sx={{
-            borderRadius: 3,
-            mb: 3,
-            border: "1px solid #ddd",
-          }}
-        >
+        {/* Health & Care Information Section */}
+        <Card sx={{ borderRadius: 3, mb: 3, border: "1px solid #ddd" }}>
           <CardContent>
             <Typography variant="h6" fontWeight="bold" gutterBottom>
               Health & Care Information
@@ -132,7 +128,6 @@ function PetDetailsPage() {
           </CardContent>
         </Card>
 
-        {/* --- */}
         {/* Adoption Information Section */}
         <Card sx={{ borderRadius: 3, mb: 3, border: "1px solid #ddd" }}>
           <CardContent>
@@ -140,7 +135,11 @@ function PetDetailsPage() {
               Adoption Information
             </Typography>
             <Box sx={{ textAlign: "center", my: 2 }}>
-              <Typography variant="h4" color="primary" fontWeight="bold">
+              <Typography
+                variant="h4"
+                fontWeight="bold"
+                sx={{ color: "#00bcd4" }}
+              >
                 $150
               </Typography>
               <Typography variant="body2" color="text.secondary">
@@ -157,21 +156,49 @@ function PetDetailsPage() {
                 • Patient family for kitten energy
               </Typography>
             </Stack>
-            <Button
-              variant="contained"
-              color="primary"
-              fullWidth
+
+            {/* Buttons with Gradient */}
+            <Stack
+              direction={{ xs: "column", sm: "row" }}
+              spacing={2}
               sx={{ mt: 3 }}
             >
-              Apply to Adopt Luna
-            </Button>
-            <Button variant="outlined" fullWidth sx={{ mt: 1 }}>
-              Schedule a Meet & Greet
-            </Button>
+              <Button
+                fullWidth
+                sx={{
+                  py: 1.5,
+                  borderRadius: 3,
+                  fontWeight: "bold",
+                  background: "linear-gradient(to right, #00bcd4, #ff7043)",
+                  color: "white",
+                  textTransform: "none",
+                  "&:hover": {
+                    background: "linear-gradient(to right, #00acc1, #f4511e)",
+                  },
+                }}
+              >
+                Apply to Adopt Luna
+              </Button>
+              <Button
+                fullWidth
+                sx={{
+                  py: 1.5,
+                  borderRadius: 3,
+                  fontWeight: "bold",
+                  background: "linear-gradient(to right, #00bcd4, #ff7043)",
+                  color: "white",
+                  textTransform: "none",
+                  "&:hover": {
+                    background: "linear-gradient(to right, #00acc1, #f4511e)",
+                  },
+                }}
+              >
+                Schedule a Meet & Greet
+              </Button>
+            </Stack>
           </CardContent>
         </Card>
 
-        {/* --- */}
         {/* Shelter Information Section */}
         <Card sx={{ borderRadius: 3, mb: 3, border: "1px solid #ddd" }}>
           <CardContent>
@@ -184,38 +211,39 @@ function PetDetailsPage() {
             <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
               456 Whisker Lane, Berkeley, CA 94704
             </Typography>
-            <Box
-              sx={{
-                mb: 1,
-                display: "flex",
-                alignItems: "center",
-                border: 1,
-                borderColor: "grey.300",
-                p: 1,
-                borderRadius: 1,
-              }}
-            >
-              <PhoneIcon sx={{ mr: 1, color: "text.secondary" }} />
-              <Typography variant="body2">(510) 555-0456</Typography>
-            </Box>
-            <Box
-              sx={{
-                mb: 2,
-                display: "flex",
-                alignItems: "center",
-                border: 1,
-                borderColor: "grey.300",
-                p: 1,
-                borderRadius: 1,
-              }}
-            >
-              <EmailIcon sx={{ mr: 1, color: "text.secondary" }} />
-              <Typography variant="body2">hello@berkeleycats.org</Typography>
-            </Box>
-            <Box sx={{ display: "flex", alignItems: "center" }}>
-              <StarIcon color="warning" sx={{ mr: 0.5 }} />
-              <Typography variant="body2">4.9 Shelter Rating</Typography>
-            </Box>
+
+            <Stack spacing={1}>
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  border: 1,
+                  borderColor: "grey.300",
+                  p: 1,
+                  borderRadius: 1,
+                }}
+              >
+                <PhoneIcon sx={{ mr: 1, color: "text.secondary" }} />
+                <Typography variant="body2">(510) 555-0456</Typography>
+              </Box>
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  border: 1,
+                  borderColor: "grey.300",
+                  p: 1,
+                  borderRadius: 1,
+                }}
+              >
+                <EmailIcon sx={{ mr: 1, color: "text.secondary" }} />
+                <Typography variant="body2">hello@berkeleycats.org</Typography>
+              </Box>
+              <Box sx={{ display: "flex", alignItems: "center" }}>
+                <StarIcon color="warning" sx={{ mr: 0.5 }} />
+                <Typography variant="body2">4.9 Shelter Rating</Typography>
+              </Box>
+            </Stack>
           </CardContent>
         </Card>
       </Box>
