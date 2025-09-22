@@ -7,12 +7,12 @@ function Footer() {
       component="footer"
       sx={{
         mt: 8,
-        py: 8,
-        px: { xs: 3, sm: 6 },
+        padding: 0,
         bgcolor: "#f5f5f5",
+        paddingTop: "40px",
       }}
     >
-      <Container maxWidth="xl">
+      <Container maxWidth="xl" sx={{ padding: 0 }}>
         {/* Footer Grid */}
         <Box
           sx={{
@@ -20,6 +20,8 @@ function Footer() {
             gridTemplateColumns: { xs: "1fr", sm: "repeat(4, 1fr)" },
             gap: 4,
             textAlign: { xs: "center", sm: "left" },
+            justifyItems: "center",
+            alignItems: "center",
           }}
         >
           {/* About */}
