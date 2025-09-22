@@ -43,9 +43,10 @@ function ResponsiveAppBar() {
             gridTemplateColumns: "auto 1fr auto",
             alignItems: "center",
             justifyContent: "space-between",
-            justifyItems:{ sm:"center",xs:"end"},
+            justifyItems: { sm: "center", xs: "end" },
           }}
         >
+          {/* Logo */}
           <Typography
             variant="h6"
             noWrap
@@ -66,7 +67,7 @@ function ResponsiveAppBar() {
               className="w-30 h-12"
             />
           </Typography>
-
+          {/* menu */}
           <Box
             sx={{
               flexGrow: 1,
@@ -95,6 +96,7 @@ function ResponsiveAppBar() {
               </Button>
             ))}
           </Box>
+          {/* profile */}
           <Box sx={{ flexGrow: 0 }}>
             <Tooltip title="Open settings">
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
