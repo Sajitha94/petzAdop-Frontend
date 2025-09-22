@@ -1,12 +1,14 @@
 import SearchIcon from "@mui/icons-material/Search";
 import { Button } from "@mui/material";
 import PlaceIcon from "@mui/icons-material/Place";
+import allpetImg from "../assets/allpet.png";
+
 function SearchBar() {
   return (
     <div
       className="relative h-[70vh] flex flex-col justify-center items-center text-center px-5"
       style={{
-        backgroundImage: "url('./src/assets/allpet.png')",
+        backgroundImage: `url(${allpetImg})`,
         backgroundSize: "cover",
         backgroundPosition: "center",
       }}

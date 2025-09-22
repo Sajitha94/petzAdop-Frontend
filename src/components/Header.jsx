@@ -11,7 +11,8 @@ import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
-import AdbIcon from "@mui/icons-material/Adb";
+import PetzAdop from "../assets/PetzAdop Logo.png";
+
 import { useState } from "react";
 
 const pages = ["Find Pets", "Shelters", "Foster"];
@@ -61,11 +62,7 @@ function ResponsiveAppBar() {
               textDecoration: "none",
             }}
           >
-            <img
-              src="./src/assets/PetzAdop Logo.png"
-              alt="logo"
-              className="w-30 h-12"
-            />
+            <img src={PetzAdop} alt="logo" className="w-30 h-12" />
           </Typography>
           {/* menu */}
           <Box
