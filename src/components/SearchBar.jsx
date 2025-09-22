@@ -64,7 +64,7 @@ function SearchBar() {
         </div>
 
         {/* Stats */}
-        <div className="flex justify-around items-center w-full mt-6 text-center">
+        <div className="flex justify-around items-center gap-3 w-full mt-6 text-center">
           <div>
             <h4 className="sm:text-2xl text-lg font-bold text-sky-600">
               12,000+
