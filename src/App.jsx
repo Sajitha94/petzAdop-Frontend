@@ -7,6 +7,7 @@ import Footer from "./components/Footer";
 import PetDetailsPage from "./pages/PetDetailsPage";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import PostPetForm from "./pages/PostPetForm";
+import LoginPage from "./auth/Login";
 function App() {
   return (
     <>
@@ -23,6 +24,7 @@ function App() {
         />
         <Route path="/petdetails" element={<PetDetailsPage />} />
         <Route path="/postpet" element={<PostPetForm />} />
+        <Route path="/login" element={<LoginPage />} />
       </Routes>
       <Footer />
     </>
