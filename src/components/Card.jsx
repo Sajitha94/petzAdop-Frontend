@@ -108,7 +108,14 @@ function PetsCard() {
           <Button
             variant="outlined"
             size="small"
-            sx={{ fontSize: { xs: "12px", lg: "14px" } }}
+            sx={{
+              fontSize: { xs: "12px", lg: "14px" },
+              border: "2px solid transparent",
+              background: "linear-gradient(to right, #00bcd4, #ff7043)",
+              textTransform: "none",
+              color: "transparent",
+              WebkitBackgroundClip: "text",
+            }}
           >
             Learn More
           </Button>
@@ -218,7 +225,14 @@ function PetsCard() {
           <Button
             variant="outlined"
             size="small"
-            sx={{ fontSize: { xs: "12px", lg: "14px" } }}
+            sx={{
+              fontSize: { xs: "12px", lg: "14px" },
+              border: "2px solid transparent",
+              background: "linear-gradient(to right, #00bcd4, #ff7043)",
+              textTransform: "none",
+              color: "transparent",
+              WebkitBackgroundClip: "text",
+            }}
           >
             Learn More
           </Button>
@@ -328,7 +342,14 @@ function PetsCard() {
           <Button
             variant="outlined"
             size="small"
-            sx={{ fontSize: { xs: "12px", lg: "14px" } }}
+            sx={{
+              fontSize: { xs: "12px", lg: "14px" },
+              border: "2px solid transparent",
+              background: "linear-gradient(to right, #00bcd4, #ff7043)",
+              textTransform: "none",
+              color: "transparent",
+              WebkitBackgroundClip: "text",
+            }}
           >
             Learn More
           </Button>
@@ -438,7 +459,14 @@ function PetsCard() {
           <Button
             variant="outlined"
             size="small"
-            sx={{ fontSize: { xs: "12px", lg: "14px" } }}
+            sx={{
+              fontSize: { xs: "12px", lg: "14px" },
+              border: "2px solid transparent",
+              background: "linear-gradient(to right, #00bcd4, #ff7043)",
+              textTransform: "none",
+              color: "transparent",
+              WebkitBackgroundClip: "text",
+            }}
           >
             Learn More
           </Button>
