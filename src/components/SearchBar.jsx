@@ -2,8 +2,10 @@ import SearchIcon from "@mui/icons-material/Search";
 import { Button } from "@mui/material";
 import PlaceIcon from "@mui/icons-material/Place";
 import allpetImg from "../assets/allpet.png";
+import { useNavigate } from "react-router-dom";
 
 function SearchBar() {
+  const navigate = useNavigate();
   return (
     <div
       className="relative h-[70vh] flex flex-col justify-center items-center text-center px-5"
@@ -58,6 +60,7 @@ function SearchBar() {
               textTransform: "none",
               fontWeight: "bold",
             }}
+             onClick={() => navigate("/searchpage")}
           >
             Search Pets
           </Button>

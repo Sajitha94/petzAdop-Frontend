@@ -10,27 +10,60 @@ import PostPetForm from "./pages/PostPetForm";
 import LoginPage from "./auth/Login";
 import RegisterPage from "./auth/Register";
 import ProfilePage from "./pages/ProfilePage";
+import SearchPage from "./pages/SearchPage";
+import HomePage from "./pages/HomePage";
 function App() {
   const location = useLocation();
   const hideHeaderFooter = ["/login", "/register"].includes(location.pathname);
+  const dummyPets = [
+    {
+      id: 1,
+      name: "Charlie",
+      breed: "Golden Retriever",
+      size: "Large",
+      gender: "Male",
+      age: 2,
+      location: "San Francisco, CA",
+      rating: 4.8,
+      description: "Charlie is a friendly golden retriever...",
+      image: "/cat1.png",
+    },
+    {
+      id: 2,
+      name: "Bella",
+      breed: "Persian Cat",
+      size: "Small",
+      gender: "Female",
+      age: 1,
+      location: "Los Angeles, CA",
+      rating: 4.5,
+      description: "Bella is calm and affectionate...",
+      image: "/cat1.png",
+    },
+    {
+      id: 3,
+      name: "Max",
+      breed: "Beagle",
+      size: "Medium",
+      gender: "Male",
+      age: 3,
+      location: "New York, NY",
+      rating: 4.2,
+      description: "Max is energetic and playful...",
+      image: "/cat1.png",
+    },
+  ];
   return (
     <>
       <Header />
       <Routes>
-        <Route
-          path="/"
-          element={
-            <>
-              <SearchBar />
-              <PetsCard />
-            </>
-          }
-        />
+        <Route path="/" element={<HomePage />} />
         <Route path="/petdetails" element={<PetDetailsPage />} />
         <Route path="/postpet" element={<PostPetForm />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/profilepage" element={<ProfilePage />} />
+        <Route path="/searchpage" element={<SearchPage />} />
       </Routes>
       {!hideHeaderFooter && <Footer />}
     </>

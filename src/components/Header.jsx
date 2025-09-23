@@ -19,7 +19,7 @@ import { useNavigate } from "react-router-dom";
 const pages = ["Find Pets", "Shelters", "Foster", "Adopt", "About"];
 const settings = ["Profile", "Account", "Dashboard", "Logout"];
 
-export default function PlatformHeader({ user }) {
+export default function Header({ user }) {
   const navigate = useNavigate();
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);

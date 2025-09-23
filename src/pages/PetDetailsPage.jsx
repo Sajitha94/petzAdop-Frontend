@@ -140,7 +140,7 @@ function PetDetailsPage() {
                 fontWeight="bold"
                 sx={{ color: "#00bcd4" }}
               >
-                $150
+                {/* $150 */}
               </Typography>
               <Typography variant="body2" color="text.secondary">
                 Adoption Fee
