@@ -66,7 +66,7 @@ function App() {
         <Route path="/forgotpage" element={<ForgotPasswordPage />} />
 
         <Route path="/register" element={<RegisterPage />} />
-        <Route path="/profilepage" element={<ProfilePage />} />
+        <Route path="/profile" element={<ProfilePage />} />
         <Route path="/searchpage" element={<SearchPage />} />
         <Route path="/chatpage" element={<ChatPage />} />
       </Routes>

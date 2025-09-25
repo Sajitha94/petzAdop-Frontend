@@ -8,8 +8,119 @@ import {
   Button,
   MenuItem,
 } from "@mui/material";
+import { useState } from "react";
+import { apiRequest } from "../api"; // adjust path
+import { useLocation } from "react-router-dom";
+import { useEffect } from "react";
+export default function PostPetForm({ initialData, onClose }) {
+  const location = useLocation();
+  const pet = location.state?.pet || initialData || null;
+  const [formData, setFormData] = useState(
+    initialData || {
+      name: "",
+      age: "",
+      breed: "",
+      size: "Medium",
+      gender: "Female",
+      color: "",
+      location: "",
+      medical_history: "",
+      description: "",
+      adoption_fee: "",
+    }
+  );
+  const [photoFiles, setPhotoFiles] = useState([]);
+  const [videoFile, setVideoFile] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
 
-function PostPetForm() {
+  useEffect(() => {
+    if (pet) {
+      setFormData({
+        name: pet.name || "",
+        age: pet.age || "",
+        breed: pet.breed || "",
+        size: pet.size
+          ? pet.size.charAt(0).toUpperCase() + pet.size.slice(1).toLowerCase()
+          : "Medium",
+        gender: pet.gender
+          ? pet.gender.charAt(0).toUpperCase() +
+            pet.gender.slice(1).toLowerCase()
+          : "Female",
+        color: pet.color || "",
+        location: pet.location || "",
+        medical_history: pet.medical_history || "",
+        description: pet.description || "",
+        adoption_fee: pet.adoption_fee || "",
+      });
+    }
+  }, [pet]);
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handlePhotoChange = (e) => {
+    setPhotoFiles(Array.from(e.target.files));
+  };
+
+  const handleVideoChange = (e) => {
+    setVideoFile(e.target.files[0]);
+  };
+  const token = localStorage.getItem("token");
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setMessage("");
+
+    // Use FormData for file upload
+    const data = new FormData();
+    Object.keys(formData).forEach((key) => {
+      data.append(key, formData[key]);
+    });
+
+    photoFiles.forEach((file, idx) => {
+      data.append("photos", file); // backend should accept 'photos' as array
+    });
+
+    if (videoFile) {
+      data.append("video", videoFile);
+    }
+
+    try {
+      const url = pet
+        ? `http://localhost:3000/api/postpet/${pet._id}`
+        : "http://localhost:3000/api/postpet/";
+
+      const method = pet ? "PUT" : "POST";
+      const response = await fetch(url, {
+        method,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: data,
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        setMessage(
+          initialData
+            ? "Pet updated successfully ✅"
+            : "Pet posted successfully ✅"
+        );
+        if (onClose) onClose(); // 👈 close dialog after submit
+      } else {
+        setMessage(result.message || "Something went wrong ❌");
+      }
+    } catch (error) {
+      console.error(error);
+      setMessage("Network error ❌");
+    }
+    setLoading(false);
+  };
+
   return (
     <Box
       sx={{
@@ -31,7 +142,6 @@ function PostPetForm() {
           }}
         >
           <CardContent sx={{ px: { xs: 2, sm: 4 }, py: { xs: 3, sm: 4 } }}>
-            {/* Title */}
             <Typography
               variant="h5"
               fontWeight="bold"
@@ -43,170 +153,220 @@ function PostPetForm() {
                 mb: 3,
               }}
             >
-              Post a Pet for Adoption
+              {pet ? "Edit Pet" : "Post a New Pet"}
             </Typography>
 
-            <Grid container spacing={3.5}>
-              {/* Pet Name */}
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  label="Pet Name"
-                  fullWidth
-                  variant="outlined"
-                  required
-                />
-              </Grid>
+            <form onSubmit={handleSubmit}>
+              <Grid container spacing={3.5}>
+                {/* Text Fields */}
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    name="name"
+                    label="Pet Name"
+                    fullWidth
+                    value={formData.name}
+                    onChange={handleChange}
+                    required
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    name="age"
+                    label="Age"
+                    fullWidth
+                    value={formData.age}
+                    onChange={handleChange}
+                    placeholder="e.g. 2 years"
+                    required
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    name="breed"
+                    label="Breed"
+                    fullWidth
+                    value={formData.breed}
+                    onChange={handleChange}
+                    required
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    name="size"
+                    label="Size"
+                    fullWidth
+                    select
+                    value={formData.size || "Medium"}
+                    onChange={handleChange}
+                  >
+                    <MenuItem value="Small">Small</MenuItem>
+                    <MenuItem value="Medium">Medium</MenuItem>
+                    <MenuItem value="Large">Large</MenuItem>
+                  </TextField>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    name="gender"
+                    label="Gender"
+                    fullWidth
+                    select
+                    value={formData.gender || "Female"}
+                    onChange={handleChange}
+                  >
+                    <MenuItem value="Male">Male</MenuItem>
+                    <MenuItem value="Female">Female</MenuItem>
+                  </TextField>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    name="color"
+                    label="Color"
+                    fullWidth
+                    value={formData.color}
+                    onChange={handleChange}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    name="location"
+                    label="Location"
+                    fullWidth
+                    value={formData.location}
+                    onChange={handleChange}
+                    placeholder="City, State"
+                    required
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    name="medical_history"
+                    label="Medical History"
+                    fullWidth
+                    multiline
+                    rows={3}
+                    value={formData.medical_history}
+                    onChange={handleChange}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    name="description"
+                    label="Description"
+                    fullWidth
+                    multiline
+                    rows={4}
+                    value={formData.description}
+                    onChange={handleChange}
+                    placeholder="Tell adopters about the pet’s personality, behavior, and needs"
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    name="adoption_fee"
+                    label="Adoption Fee"
+                    fullWidth
+                    value={formData.adoption_fee}
+                    onChange={handleChange}
+                    placeholder="$100"
+                  />
+                </Grid>
 
-              {/* Age */}
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  label="Age"
-                  fullWidth
-                  variant="outlined"
-                  placeholder="e.g. 2 years"
-                  required
-                />
-              </Grid>
+                {/* Photo Upload */}
+                <Grid item xs={12} sm={6}>
+                  <Button
+                    variant="outlined"
+                    component="label"
+                    fullWidth
+                    sx={{
+                      border: "2px dashed #ccc",
+                      color: "gray",
+                      textTransform: "none",
+                      py: 2,
+                    }}
+                  >
+                    Upload Photos
+                    <input
+                      type="file"
+                      hidden
+                      multiple
+                      accept="image/*"
+                      onChange={handlePhotoChange}
+                    />
+                  </Button>
+                  {photoFiles.length > 0 && (
+                    <Typography mt={1}>
+                      {photoFiles.length} photo(s) selected
+                    </Typography>
+                  )}
+                </Grid>
 
-              {/* Breed */}
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  label="Breed"
-                  fullWidth
-                  variant="outlined"
-                  required
-                />
-              </Grid>
+                {/* Video Upload */}
+                <Grid item xs={12} sm={6}>
+                  <Button
+                    variant="outlined"
+                    component="label"
+                    fullWidth
+                    sx={{
+                      border: "2px dashed #ccc",
+                      color: "gray",
+                      textTransform: "none",
+                      py: 2,
+                    }}
+                  >
+                    Upload Video
+                    <input
+                      type="file"
+                      hidden
+                      accept="video/*"
+                      onChange={handleVideoChange}
+                    />
+                  </Button>
+                  {videoFile && (
+                    <Typography mt={1}>{videoFile.name} selected</Typography>
+                  )}
+                </Grid>
 
-              {/* Size */}
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  label="Size"
-                  fullWidth
-                  select
-                  variant="outlined"
-                  defaultValue="Medium"
-                >
-                  <MenuItem value="Small">Small</MenuItem>
-                  <MenuItem value="Medium">Medium</MenuItem>
-                  <MenuItem value="Large">Large</MenuItem>
-                </TextField>
-              </Grid>
+                {/* Submit */}
+                <Grid item xs={12}>
+                  <Button
+                    type="submit"
+                    variant="contained"
+                    fullWidth
+                    disabled={loading}
+                    sx={{
+                      background: "linear-gradient(to right, #00bcd4, #ff7043)",
+                      textTransform: "none",
+                      fontSize: "16px",
+                      fontWeight: "bold",
+                      borderRadius: 3,
+                      py: 1.5,
+                    }}
+                  >
+                    {loading
+                      ? pet
+                        ? "Updating..."
+                        : "Posting..."
+                      : pet
+                      ? "Update Pet"
+                      : "Post Pet for Adoption"}
+                  </Button>
+                </Grid>
 
-              {/* Gender */}
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  label="Gender"
-                  fullWidth
-                  select
-                  variant="outlined"
-                  defaultValue="Female"
-                >
-                  <MenuItem value="Male">Male</MenuItem>
-                  <MenuItem value="Female">Female</MenuItem>
-                </TextField>
+                {message && (
+                  <Grid item xs={12}>
+                    <Typography
+                      align="center"
+                      color={message.includes("success") ? "green" : "red"}
+                    >
+                      {message}
+                    </Typography>
+                  </Grid>
+                )}
               </Grid>
-
-              {/* Color */}
-              <Grid item xs={12} sm={6}>
-                <TextField label="Color" fullWidth variant="outlined" />
-              </Grid>
-              {/* Location */}
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  label="Location"
-                  fullWidth
-                  placeholder="City, State"
-                  variant="outlined"
-                  required
-                />
-              </Grid>
-              {/* Medical History */}
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  label="Medical History"
-                  fullWidth
-                  multiline
-                  rows={3}
-                  variant="outlined"
-                />
-              </Grid>
-
-              {/* Upload Pet Photos next to Medical History */}
-              <Grid item xs={12} sm={6}>
-                <Button
-                  variant="outlined"
-                  component="label"
-                  fullWidth
-                  sx={{
-                    border: "2px dashed #ccc",
-                    color: "gray",
-                    textTransform: "none",
-                    py: 2,
-                    px: 4,
-                    mx: 1,
-                  }}
-                >
-                  Upload Pet Photos
-                  <input type="file" hidden multiple accept="image/*" />
-                </Button>
-              </Grid>
-
-              {/* Description */}
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  label="Description"
-                  fullWidth
-                  multiline
-                  rows={4}
-                  placeholder="Tell adopters about the pet’s personality, behavior, and needs"
-                  variant="outlined"
-                />
-              </Grid>
-
-              {/* Location */}
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  label="Location"
-                  fullWidth
-                  placeholder="City, State"
-                  variant="outlined"
-                  required
-                />
-              </Grid>
-              {/* Submit */}
-              <Grid item xs={12}>
-                <Button
-                  variant="contained"
-                  fullWidth
-                  sx={{
-                    background: "linear-gradient(to right, #00bcd4, #ff7043)",
-                    textTransform: "none",
-                    fontSize: "16px",
-                    fontWeight: "bold",
-                    borderRadius: 3,
-                    py: 1.5,
-                  }}
-                >
-                  Post Pet for Adoption
-                </Button>
-              </Grid>
-
-              {/* Adoption Fee */}
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  label="Adoption Fee"
-                  fullWidth
-                  variant="outlined"
-                  placeholder="$100"
-                />
-              </Grid>
-            </Grid>
+            </form>
           </CardContent>
         </Card>
       </Box>
     </Box>
   );
 }
-
-export default PostPetForm;

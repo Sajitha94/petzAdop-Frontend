@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Card,
@@ -7,20 +7,82 @@ import {
   Avatar,
   Grid,
   Button,
+  Dialog,
   Stack,
   Divider,
   Chip,
 } from "@mui/material";
-import PetsIcon from "@mui/icons-material/Pets";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import StarIcon from "@mui/icons-material/Star";
-
+import { useNavigate } from "react-router-dom";
 // Sample images for pets
 import catImg from "../assets/login background.png";
 import dogImg from "../assets/allpet.png";
 import rabbitImg from "../assets/Kitten and Puppy.png";
+import PostPetForm from "./PostPetForm";
 
 function ProfilePage() {
+  const navigate = useNavigate();
+  const [pets, setPets] = useState([]);
+  const [editPet, setEditPet] = useState(null);
+  // Fetch pets from API
+  useEffect(() => {
+    const fetchPets = async () => {
+      try {
+        const token = localStorage.getItem("token"); // 👈 get token
+        const res = await fetch("http://localhost:3000/api/postpet", {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`, // 👈 send token
+            "Content-Type": "application/json",
+          },
+        });
+
+        const data = await res.json();
+        if (data.status === "success") {
+          setPets(data.pets);
+        }
+      } catch (error) {
+        console.error("Error fetching pets:", error);
+      }
+    };
+
+    fetchPets();
+  }, []);
+  // Inside your ProfilePage component
+
+  const handleDeletePet = async (petId) => {
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this pet?"
+    );
+    if (!confirmDelete) return;
+
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(
+        `http://localhost:3000/api/postpet/${petId}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const result = await response.json();
+
+      if (response.ok) {
+        alert("Pet deleted successfully ✅");
+        // Update state so the UI removes the deleted pet
+        setPets((prev) => prev.filter((p) => p._id !== petId));
+      } else {
+        alert(result.message || "Failed to delete ❌");
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Network error ❌");
+    }
+  };
+
   return (
     <Box
       sx={{
@@ -72,7 +134,7 @@ function ProfilePage() {
         </CardContent>
       </Card>
 
-      {/* Saved / Favorite Pets */}
+      {/* Favorite Pets */}
       <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>
         Favorite Pets
       </Typography>
@@ -87,7 +149,7 @@ function ProfilePage() {
                   alt="pet"
                   sx={{
                     width: "100%",
-                    height: 150, 
+                    height: 150,
                     objectFit: "cover",
                     borderRadius: 2,
                     mb: 1,
@@ -106,52 +168,165 @@ function ProfilePage() {
         ))}
       </Grid>
 
-      {/* Adoption Applications */}
+      {/* Your Pet Poster */}
+      <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>
+        Your pet Poster
+      </Typography>
+      <Stack spacing={2} sx={{ mb: 4 }}>
+        {pets.length > 0 ? (
+          pets.map((pet) => (
+            <Card
+              key={pet._id}
+              sx={{ borderRadius: 3, border: "1px solid #ddd" }}
+            >
+              <CardContent
+                sx={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  flexWrap: "wrap",
+                  gap: 2,
+                }}
+              >
+                <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                  <Box
+                    component="img"
+                    src={pet.photo[0]}
+                    alt={pet.name}
+                    sx={{
+                      width: 80,
+                      height: 80,
+                      objectFit: "cover",
+                      borderRadius: 2,
+                    }}
+                  />
+                  <Box>
+                    <Typography variant="subtitle1" fontWeight="bold">
+                      {pet.name}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      {pet.breed} • {pet.age} • {pet.gender}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      Location: {pet.location}
+                    </Typography>
+                  </Box>
+                </Box>
+                <Box sx={{ display: "flex", gap: "5px" }}>
+                  <Button
+                    sx={{
+                      background: "linear-gradient(to right, #00bcd4, #ff7043)",
+                      color: "white",
+                      fontWeight: "bold",
+                      textTransform: "none",
+                      borderRadius: 3,
+                      px: 2,
+                      "&:hover": {
+                        background:
+                          "linear-gradient(to right, #00acc1, #f4511e)",
+                      },
+                    }}
+                    onClick={() => navigate("/postpet", { state: { pet } })} // 👈 open dialog with pet data
+                  >
+                    Edit
+                  </Button>
+                  <Button
+                    sx={{
+                      background: "linear-gradient(to right, #00bcd4, #ff7043)",
+                      color: "white",
+                      fontWeight: "bold",
+                      textTransform: "none",
+                      borderRadius: 3,
+                      px: 2,
+                      "&:hover": {
+                        background:
+                          "linear-gradient(to right, #00acc1, #f4511e)",
+                      },
+                    }}
+                    onClick={() => handleDeletePet(pet._id)}
+                  >
+                    Delete
+                  </Button>
+                </Box>
+              </CardContent>
+            </Card>
+          ))
+        ) : (
+          <Typography variant="body2" color="text.secondary">
+            No pets posted yet.
+          </Typography>
+        )}
+      </Stack>
+
+      {/* Adoption Applications - Dynamic */}
       <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>
         Adoption Applications
       </Typography>
       <Stack spacing={2} sx={{ mb: 4 }}>
-        {[
-          { pet: "Luna", status: "Pending" },
-          { pet: "Buddy", status: "Approved" },
-        ].map((app, index) => (
-          <Card key={index} sx={{ borderRadius: 3, border: "1px solid #ddd" }}>
-            <CardContent
-              sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-              }}
+        {pets.length > 0 ? (
+          pets.map((pet) => (
+            <Card
+              key={pet._id}
+              sx={{ borderRadius: 3, border: "1px solid #ddd" }}
             >
-              <Box>
-                <Typography variant="subtitle1" fontWeight="bold">
-                  {app.pet}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Status: {app.status}
-                </Typography>
-              </Box>
-              <Button
+              <CardContent
                 sx={{
-                  background: "linear-gradient(to right, #00bcd4, #ff7043)",
-                  color: "white",
-                  fontWeight: "bold",
-                  textTransform: "none",
-                  borderRadius: 3,
-                  px: 2,
-                  "&:hover": {
-                    background: "linear-gradient(to right, #00acc1, #f4511e)",
-                  },
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  flexWrap: "wrap",
+                  gap: 2,
                 }}
               >
-                View Details
-              </Button>
-            </CardContent>
-          </Card>
-        ))}
+                <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                  <Box
+                    component="img"
+                    src={pet.photo[0]}
+                    alt={pet.name}
+                    sx={{
+                      width: 80,
+                      height: 80,
+                      objectFit: "cover",
+                      borderRadius: 2,
+                    }}
+                  />
+                  <Box>
+                    <Typography variant="subtitle1" fontWeight="bold">
+                      {pet.name}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      {pet.breed} • {pet.age} • {pet.gender}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      Location: {pet.location}
+                    </Typography>
+                  </Box>
+                </Box>
+                <Button
+                  sx={{
+                    background: "linear-gradient(to right, #00bcd4, #ff7043)",
+                    color: "white",
+                    fontWeight: "bold",
+                    textTransform: "none",
+                    borderRadius: 3,
+                    px: 2,
+                    "&:hover": {
+                      background: "linear-gradient(to right, #00acc1, #f4511e)",
+                    },
+                  }}
+                >
+                  View Details
+                </Button>
+              </CardContent>
+            </Card>
+          ))
+        ) : (
+          <Typography variant="body2" color="text.secondary">
+            No adoption applications found.
+          </Typography>
+        )}
       </Stack>
-
-      {/* User Reviews */}
+      {/* My Reviews */}
       <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>
         My Reviews
       </Typography>
