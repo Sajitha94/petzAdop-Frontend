@@ -8,7 +8,60 @@ import {
   Link,
 } from "@mui/material";
 import backgroundImg from "../assets/login background.png";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { apiRequest } from "../api";
+
 function LoginPage() {
+  const navigate = useNavigate();
+
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const { email, password } = formData;
+    // Basic validation
+    if (!email || !password) {
+      setMessage("❌ Please fill in all fields");
+      return;
+    }
+    setLoading(true);
+    setMessage("");
+
+    try {
+      const { ok, data } = await apiRequest("/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      if (ok) {
+        setMessage("✅ Login successful!");
+        console.log("User data:", data);
+
+        // Save token to localStorage or context
+        localStorage.setItem("token", data.data.token);
+
+        // Navigate to dashboard or home page
+        navigate("/");
+      } else {
+        setMessage(`❌ ${data.message || "Login failed"}`);
+      }
+    } catch (error) {
+      console.error(error);
+      setMessage("❌ Server error. Please try again later.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <Box
       sx={{
@@ -65,20 +118,28 @@ function LoginPage() {
           </Typography>
 
           {/* Login Form */}
-          <Box component="form" noValidate>
+          <Box component="form" noValidate onSubmit={handleSubmit}>
             <TextField
               label="Email"
               type="email"
+              name="email"
               fullWidth
               variant="outlined"
               sx={{ mb: 2 }}
+              value={formData.email}
+              onChange={handleChange}
+              required
             />
             <TextField
               label="Password"
               type="password"
+              name="password"
               fullWidth
               variant="outlined"
               sx={{ mb: 1 }}
+              value={formData.password}
+              onChange={handleChange}
+              required
             />
 
             {/* Forgot Password */}
@@ -95,7 +156,9 @@ function LoginPage() {
             {/* Login Button */}
             <Button
               fullWidth
+              type="submit"
               variant="contained"
+              disabled={loading}
               sx={{
                 backgroundColor: "#ff7043",
                 color: "white",
@@ -109,9 +172,20 @@ function LoginPage() {
                 },
               }}
             >
-              Login
+              {loading ? "Logging In..." : "Login"}
             </Button>
 
+            {message && (
+              <Typography
+                textAlign="center"
+                sx={{
+                  mt: 2,
+                  color: message.startsWith("✅") ? "green" : "red",
+                }}
+              >
+                {message}
+              </Typography>
+            )}
             {/* Extra Links */}
             <Typography
               variant="body2"
