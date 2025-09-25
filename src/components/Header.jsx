@@ -15,11 +15,13 @@ import {
 import MenuIcon from "@mui/icons-material/Menu";
 import PetzAdop from "../assets/PetzAdop Logo.png";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/useContext";
 
 const pages = ["Find Pets", "Shelters", "Foster", "Adopt", "About"];
-const settings = ["Profile", "Account", "Dashboard", "Logout"];
+const settings = ["Profile", "Account", "Logout"];
 
-export default function Header({ user }) {
+export default function Header() {
+  const { user, setUser } = useAuth(); // ✅ only use context
   const navigate = useNavigate();
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
@@ -28,6 +30,13 @@ export default function Header({ user }) {
   const handleCloseNavMenu = () => setAnchorElNav(null);
   const handleOpenUserMenu = (event) => setAnchorElUser(event.currentTarget);
   const handleCloseUserMenu = () => setAnchorElUser(null);
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    setUser(null); // clears from context
+    handleCloseUserMenu();
+    navigate("/login");
+  };
 
   return (
     <AppBar position="static" sx={{ backgroundColor: "white", boxShadow: 1 }}>
@@ -113,9 +122,9 @@ export default function Header({ user }) {
           <Box sx={{ flexGrow: 0 }}>
             {user ? (
               <>
-                <Tooltip title="Open settings">
+                <Tooltip title={user.name}>
                   <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                    <Avatar alt="User" src="/static/images/avatar/2.jpg" />
+                    <Avatar alt={user.name} src="/default-avatar.png" />
                   </IconButton>
                 </Tooltip>
                 <Menu
@@ -126,11 +135,23 @@ export default function Header({ user }) {
                   anchorOrigin={{ vertical: "top", horizontal: "right" }}
                   transformOrigin={{ vertical: "top", horizontal: "right" }}
                 >
-                  {settings.map((setting) => (
-                    <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                      <Typography textAlign="center">{setting}</Typography>
-                    </MenuItem>
-                  ))}
+                  {settings.map((setting) =>
+                    setting === "Logout" ? (
+                      <MenuItem key={setting} onClick={handleLogout}>
+                        <Typography textAlign="center">{setting}</Typography>
+                      </MenuItem>
+                    ) : (
+                      <MenuItem
+                        key={setting}
+                        onClick={() => {
+                          handleCloseUserMenu();
+                          navigate(`/${setting.toLowerCase()}`);
+                        }}
+                      >
+                        <Typography textAlign="center">{setting}</Typography>
+                      </MenuItem>
+                    )
+                  )}
                 </Menu>
               </>
             ) : (

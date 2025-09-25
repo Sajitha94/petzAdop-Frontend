@@ -11,10 +11,11 @@ import backgroundImg from "../assets/login background.png";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { apiRequest } from "../api";
-
+import { jwtDecode } from "jwt-decode";
+import { useAuth } from "../context/useContext";
 function LoginPage() {
   const navigate = useNavigate();
-
+  const { setUser } = useAuth();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -37,7 +38,7 @@ function LoginPage() {
     setMessage("");
 
     try {
-      const { ok, data } = await apiRequest("/auth/login", {
+      const { ok, data } = await apiRequest("api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
@@ -45,7 +46,8 @@ function LoginPage() {
       if (ok) {
         setMessage("✅ Login successful!");
         console.log("User data:", data);
-
+        const decoded = jwtDecode(data.data.token);
+        setUser({ name: decoded.name, role: decoded.role });
         // Save token to localStorage or context
         localStorage.setItem("token", data.data.token);
 
