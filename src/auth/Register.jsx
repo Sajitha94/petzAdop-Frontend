@@ -30,11 +30,57 @@ function RegisterPage() {
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
+
+  const validateEmail = (email) => {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(email);
+  };
+
+  const validatePhone = (phone) => {
+    const re = /^[0-9]{10,15}$/; // 10-15 digits
+    return re.test(phone);
+  };
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    const {
+      name,
+      email,
+      password,
+      confirmPassword,
+      phonenumber,
+      location,
+      usertype,
+    } = formData;
+    if (
+      !name ||
+      !email ||
+      !password ||
+      !confirmPassword ||
+      !phonenumber ||
+      !location ||
+      !usertype
+    ) {
+      setMessage("❌ Please fill in all required fields");
+      return;
+    }
+
     if (formData.password !== formData.confirmPassword) {
       setMessage("Passwords do not match");
+      return;
+    }
+    if (password.length < 6 || password.length > 8) {
+      setMessage("❌ Password must be between 6 and 8 characters");
+      return;
+    }
+    if (!validateEmail(email)) {
+      setMessage("❌ Please enter a valid email address");
+      return;
+    }
+
+    // 4. Phone number format
+    if (!validatePhone(phonenumber)) {
+      setMessage("❌ Please enter a valid phone number (10-15 digits)");
       return;
     }
 
