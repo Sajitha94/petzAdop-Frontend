@@ -3,7 +3,7 @@ import SearchBar from "../components/SearchBar";
 import PetCard from "../components/Card";
 import catImg from "../assets/cat1.png";
 import { Box, Button } from "@mui/material";
-
+import { useNavigate } from "react-router-dom";
 const pets = [
   {
     id: 1,
@@ -68,6 +68,7 @@ const pets = [
 ];
 
 function HomePage() {
+  const navigate = useNavigate();
   return (
     <>
       <SearchBar />

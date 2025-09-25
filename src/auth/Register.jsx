@@ -7,9 +7,63 @@ import {
   Button,
   Link,
   Grid,
+  MenuItem,
 } from "@mui/material";
 import backgroundImg from "../assets/login background.png";
+import { useState } from "react";
+import { apiRequest } from "../api";
+import { useNavigate } from "react-router-dom";
 function RegisterPage() {
+  const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    phonenumber: "",
+    location: "",
+    usertype: "adopter", // default
+  });
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (formData.password !== formData.confirmPassword) {
+      setMessage("Passwords do not match");
+      return;
+    }
+
+    setLoading(true);
+    setMessage("");
+
+    const { ok, data } = await apiRequest("/auth/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
+        phonenumber: formData.phonenumber,
+        location: formData.location,
+        usertype: formData.usertype,
+      }),
+    });
+
+    if (ok) {
+      setMessage("✅ Registration successful!");
+      console.log("Registered User:", data);
+      navigate("/");
+    } else {
+      setMessage(`❌ ${data.message || "Something went wrong"}`);
+    }
+
+    setLoading(false);
+  };
   return (
     <Box
       sx={{
@@ -66,7 +120,7 @@ function RegisterPage() {
           </Typography>
 
           {/* Registration Form */}
-          <Box component="form" noValidate>
+          <Box component="form" noValidate onSubmit={handleSubmit}>
             <Grid
               container
               spacing={2}
@@ -77,8 +131,11 @@ function RegisterPage() {
                 <TextField
                   label="Full Name"
                   fullWidth
+                  name="name"
                   variant="outlined"
                   required
+                  value={formData.name}
+                  onChange={handleChange}
                 />
               </Grid>
 
@@ -87,9 +144,12 @@ function RegisterPage() {
                 <TextField
                   label="Email"
                   type="email"
+                  name="email"
                   fullWidth
                   variant="outlined"
                   required
+                  value={formData.email}
+                  onChange={handleChange}
                 />
               </Grid>
 
@@ -98,9 +158,12 @@ function RegisterPage() {
                 <TextField
                   label="Password"
                   type="password"
+                  name="password"
                   fullWidth
                   variant="outlined"
                   required
+                  value={formData.password}
+                  onChange={handleChange}
                 />
               </Grid>
 
@@ -109,9 +172,12 @@ function RegisterPage() {
                 <TextField
                   label="Confirm Password"
                   type="password"
+                  name="confirmPassword"
                   fullWidth
                   variant="outlined"
                   required
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
                 />
               </Grid>
 
@@ -120,31 +186,59 @@ function RegisterPage() {
                 <TextField
                   label="Phone Number"
                   type="tel"
+                  name="phonenumber"
                   fullWidth
                   variant="outlined"
+                  value={formData.phonenumber}
+                  onChange={handleChange}
                 />
               </Grid>
 
               {/* City */}
               <Grid item xs={12} sm={6}>
-                <TextField label="City" fullWidth variant="outlined" />
+                <TextField
+                  label="City"
+                  fullWidth
+                  name="location"
+                  variant="outlined"
+                  value={formData.location}
+                  onChange={handleChange}
+                />
               </Grid>
 
               {/* Optional: Shelter/Organization */}
-              <Grid item xs={12} sm={6} mx={3}>
+              <Grid
+                item
+                xs={12}
+                sm={6}
+                sx={{ minWidth: { sm: "40%", xs: "60vw" } }}
+              >
                 <TextField
-                  label="Organization (if any)"
+                  select
+                  label="User Type"
+                  name="usertype"
                   fullWidth
                   variant="outlined"
-                  placeholder="Optional for shelters/foster organizations"
-                />
+                  value={formData.usertype}
+                  onChange={handleChange}
+                  className="px-6"
+                  sx={{ padding: "10px !important" }}
+                >
+                  <MenuItem value="adopter">Adopter</MenuItem>
+                  <MenuItem value="shelter">Shelter</MenuItem>
+                  <MenuItem value="foster organization">
+                    Foster Organization
+                  </MenuItem>
+                </TextField>
               </Grid>
 
               {/* Submit Button */}
               <Grid item xs={12} sm={6} mx={3}>
                 <Box sx={{ display: "flex", justifyContent: "center" }}>
                   <Button
+                    type="submit"
                     variant="contained"
+                    disabled={loading}
                     sx={{
                       backgroundColor: "#ff7043",
                       color: "white",
@@ -159,7 +253,7 @@ function RegisterPage() {
                       },
                     }}
                   >
-                    Sign Up
+                    {loading ? "Signing Up..." : "Sign Up"}
                   </Button>
                 </Box>
               </Grid>
@@ -182,6 +276,18 @@ function RegisterPage() {
                 </Typography>
               </Grid>
             </Grid>
+            {/* Message */}
+            {message && (
+              <Typography
+                textAlign="center"
+                sx={{
+                  mt: 2,
+                  color: message.startsWith("✅") ? "green" : "red",
+                }}
+              >
+                {message}
+              </Typography>
+            )}
           </Box>
         </CardContent>
       </Card>

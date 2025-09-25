@@ -1,5 +1,7 @@
 // SearchPage.jsx
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+
 import {
   Checkbox,
   FormControlLabel,
@@ -82,6 +84,7 @@ const breeds = ["Dog", "Cat", "Rabbit", "Bird"];
 const sizes = ["Small", "Medium", "Large"];
 
 function SearchPage() {
+  const navigate = useNavigate();
   const [filters, setFilters] = useState({ breed: [], age: [0, 15], size: [] });
   const [page, setPage] = useState(1);
   const petsPerPage = 3;

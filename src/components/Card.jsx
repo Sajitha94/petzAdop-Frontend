@@ -141,6 +141,7 @@ function PetCard({ pet = defaultPet }) {
             textTransform: "none",
             fontSize: { xs: "14px", sm: "12px", lg: "14px" },
           }}
+          onClick={() => navigate(`/chatpage`)}
         >
           Meet {pet.name}
         </Button>

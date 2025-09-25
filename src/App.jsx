@@ -12,6 +12,7 @@ import RegisterPage from "./auth/Register";
 import ProfilePage from "./pages/ProfilePage";
 import SearchPage from "./pages/SearchPage";
 import HomePage from "./pages/HomePage";
+import ChatPage from "./pages/Chat";
 function App() {
   const location = useLocation();
   const hideHeaderFooter = ["/login", "/register"].includes(location.pathname);
@@ -64,6 +65,7 @@ function App() {
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/profilepage" element={<ProfilePage />} />
         <Route path="/searchpage" element={<SearchPage />} />
+        <Route path="/chatpage" element={<ChatPage />} />
       </Routes>
       {!hideHeaderFooter && <Footer />}
     </>
