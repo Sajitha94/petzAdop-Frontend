@@ -87,7 +87,7 @@ function RegisterPage() {
     setLoading(true);
     setMessage("");
 
-    const { ok, data } = await apiRequest("/auth/register", {
+    const { ok, data } = await apiRequest("api/auth/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

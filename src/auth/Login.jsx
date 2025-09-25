@@ -145,7 +145,7 @@ function LoginPage() {
             {/* Forgot Password */}
             <Box sx={{ textAlign: "right", mb: 2 }}>
               <Link
-                href="/forgot-password"
+                href="/forgotpage"
                 underline="hover"
                 sx={{ color: "#ff7043", fontSize: "14px" }}
               >
