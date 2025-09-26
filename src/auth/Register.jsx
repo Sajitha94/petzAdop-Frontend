@@ -13,18 +13,54 @@ import backgroundImg from "../assets/login background.png";
 import { useState } from "react";
 import { apiRequest } from "../api";
 import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 function RegisterPage() {
   const navigate = useNavigate();
-   const editUser = location.state?.user;
-    const [formData, setFormData] = useState({
+  const editUser = location.state?.user;
+
+  const [user, setUser] = useState(editUser || null);
+  const [isEdit, setIsEdit] = useState(!!editUser);
+
+  const [formData, setFormData] = useState({
     name: editUser?.name || "",
     email: editUser?.email || "",
     password: "",
     confirmPassword: "",
     phonenumber: editUser?.phonenumber || "",
-    location: editUser?.location || "",
+    location: editUser?.location || "", // <-- this will be "" if editUser is undefined
     usertype: editUser?.usertype || "adopter",
   });
+
+  useEffect(() => {
+    if (!editUser && window.location.pathname.includes("/register")) {
+      const fetchUser = async () => {
+        try {
+          const token = localStorage.getItem("token");
+          const res = await fetch("http://localhost:3000/api/auth/profile", {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          const data = await res.json();
+          if (data.status === "success") {
+            setFormData({
+              name: data.data.name || "",
+              email: data.data.email || "",
+              password: "",
+              confirmPassword: "",
+              phonenumber: data.data.phonenumber || "",
+              location: data.data.location || "",
+              usertype: data.data.usertype || "adopter",
+            });
+            setUser(data.data); // <-- store the fetched user
+            setIsEdit(true);
+          }
+        } catch (err) {
+          console.error(err);
+        }
+      };
+      fetchUser();
+    }
+  }, [editUser]);
+
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 
@@ -88,19 +124,25 @@ function RegisterPage() {
     setLoading(true);
     setMessage("");
 
-      const url = editUser
-      ? `api/auth/update/${editUser._id}`
+    const url = isEdit
+      ? `api/auth/update/${user._id}` // <-- use user from state
       : "api/auth/register";
 
-      
+    const token = localStorage.getItem("token");
+
+    const headers = {
+      "Content-Type": "application/json",
+      ...(isEdit && token ? { Authorization: `Bearer ${token}` } : {}),
+    };
+
     const { ok, data } = await apiRequest(url, {
-      method: editUser ? "PUT" : "POST",
-      headers: { "Content-Type": "application/json" },
+      method: isEdit ? "PUT" : "POST",
+      headers,
       body: JSON.stringify(formData),
     });
- if (ok) {
+    if (ok) {
       setMessage(
-        editUser
+        isEdit
           ? "✅ Profile updated successfully!"
           : "✅ Registration successful!"
       );
@@ -156,7 +198,7 @@ function RegisterPage() {
             gutterBottom
             sx={{ color: "#ff7043", mb: 1 }}
           >
-           {editUser ? "Edit Your Profile" : "Create Your Account"}
+            {isEdit ? "Edit Your Profile" : "Create Your Account"}
           </Typography>
           <Typography
             variant="body1"
@@ -301,12 +343,12 @@ function RegisterPage() {
                     }}
                   >
                     {loading
-                ? editUser
-                  ? "Updating..."
-                  : "Signing Up..."
-                : editUser
-                ? "Update Profile"
-                : "Sign Up"}
+                      ? isEdit
+                        ? "Updating..."
+                        : "Signing Up..."
+                      : isEdit
+                      ? "Update Profile"
+                      : "Sign Up"}
                   </Button>
                 </Box>
               </Grid>
