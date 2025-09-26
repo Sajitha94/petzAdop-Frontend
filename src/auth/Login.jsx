@@ -10,9 +10,9 @@ import {
 import backgroundImg from "../assets/login background.png";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { apiRequest } from "../api";
 import { jwtDecode } from "jwt-decode";
 import { useAuth } from "../context/useContext";
+import { API_BASE_URL } from "../config";
 function LoginPage() {
   const navigate = useNavigate();
   const { setUser } = useAuth();
@@ -38,12 +38,13 @@ function LoginPage() {
     setMessage("");
 
     try {
-      const { ok, data } = await apiRequest("api/auth/login", {
+      const res = await fetch(`${API_BASE_URL}/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
-      if (ok) {
+      const data = await res.json();
+      if (res.ok) {
         setMessage("✅ Login successful!");
         console.log("User data:", data);
         const decoded = jwtDecode(data.data.token);

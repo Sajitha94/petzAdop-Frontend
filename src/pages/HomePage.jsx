@@ -5,6 +5,7 @@ import catImg from "../assets/cat1.png";
 import { Box, Button } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { API_BASE_URL } from "../config";
 
 function HomePage() {
   const navigate = useNavigate();
@@ -17,7 +18,7 @@ function HomePage() {
     try {
       const token = localStorage.getItem("token");
       const res = await fetch(
-        `http://localhost:3000/api/postpet?limit=${limit}`,
+        `${API_BASE_URL}/api/postpet?limit=${limit}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }

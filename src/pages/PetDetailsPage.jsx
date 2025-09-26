@@ -17,6 +17,7 @@ import LocationOnIcon from "@mui/icons-material/LocationOn";
 import StarIcon from "@mui/icons-material/Star";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import { API_BASE_URL } from "../config";
 
 function PetDetailsPage() {
   const { id } = useParams();
@@ -27,7 +28,7 @@ function PetDetailsPage() {
   useEffect(() => {
     const fetchPet = async () => {
       try {
-        const res = await fetch(`http://localhost:3000/api/postpet/${id}`);
+        const res = await fetch(`${API_BASE_URL}/api/postpet/${id}`);
         const data = await res.json();
         if (res.ok) {
           setPet(data.pet);
@@ -47,7 +48,7 @@ function PetDetailsPage() {
     const fetchUser = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await fetch("http://localhost:3000/api/auth/profile", {
+        const res = await fetch(`${API_BASE_URL}/api/auth/profile`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = await res.json();
@@ -87,7 +88,7 @@ function PetDetailsPage() {
             <>
               {mediaFiles[currentIndex].endsWith(".mp4") ? (
                 <video
-                  src={`http://localhost:3000/uploads/${mediaFiles[currentIndex]}`}
+                  src={`${API_BASE_URL}/uploads/${mediaFiles[currentIndex]}`}
                   controls
                   className="w-full rounded-lg bg-gray-100"
                   style={{ height: 400, objectFit: "cover" }}
@@ -95,7 +96,7 @@ function PetDetailsPage() {
               ) : (
                 <CardMedia
                   component="img"
-                  image={`http://localhost:3000/uploads/${mediaFiles[currentIndex]}`}
+                  image={`${API_BASE_URL}/uploads/${mediaFiles[currentIndex]}`}
                   alt={pet.name}
                   sx={{
                     height: 400,

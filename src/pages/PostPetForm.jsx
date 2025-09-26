@@ -9,9 +9,9 @@ import {
   MenuItem,
 } from "@mui/material";
 import { useState } from "react";
-import { apiRequest } from "../api"; // adjust path
 import { useLocation } from "react-router-dom";
 import { useEffect } from "react";
+import { API_BASE_URL } from "../config";
 export default function PostPetForm({ initialData, onClose }) {
   const location = useLocation();
   const pet = location.state?.pet || initialData || null;
@@ -90,8 +90,8 @@ export default function PostPetForm({ initialData, onClose }) {
 
     try {
       const url = pet
-        ? `http://localhost:3000/api/postpet/${pet._id}`
-        : "http://localhost:3000/api/postpet/";
+        ? `${API_BASE_URL}/api/postpet/${pet._id}`
+        : `${API_BASE_URL}/api/postpet/`;
 
       const method = pet ? "PUT" : "POST";
       const response = await fetch(url, {

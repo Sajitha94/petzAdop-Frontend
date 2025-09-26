@@ -19,6 +19,7 @@ import catImg from "../assets/login background.png";
 import dogImg from "../assets/allpet.png";
 import rabbitImg from "../assets/Kitten and Puppy.png";
 import PostPetForm from "./PostPetForm";
+import { API_BASE_URL } from "../config";
 
 function ProfilePage() {
   const navigate = useNavigate();
@@ -30,7 +31,7 @@ function ProfilePage() {
     const fetchPets = async () => {
       try {
         const token = localStorage.getItem("token"); // 👈 get token
-        const res = await fetch("http://localhost:3000/api/postpet", {
+        const res = await fetch(`${API_BASE_URL}/api/postpet`, {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`, // 👈 send token
@@ -54,7 +55,7 @@ function ProfilePage() {
     const fetchUser = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await fetch("http://localhost:3000/api/auth/profile", {
+        const res = await fetch(`${API_BASE_URL}/api/auth/profile`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = await res.json();
@@ -67,6 +68,7 @@ function ProfilePage() {
   }, []);
 
   if (!user) return <p>Loading...</p>; // or a skeleton
+
   const handleDeletePet = async (petId) => {
     const confirmDelete = window.confirm(
       "Are you sure you want to delete this pet?"
@@ -75,15 +77,12 @@ function ProfilePage() {
 
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch(
-        `http://localhost:3000/api/postpet/${petId}`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await fetch(`${API_BASE_URL}/api/postpet/${petId}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       const result = await response.json();
 
@@ -107,7 +106,7 @@ function ProfilePage() {
     try {
       const token = localStorage.getItem("token");
       const response = await fetch(
-        `http://localhost:3000/api/postpet/photo/${petId}`,
+        `${API_BASE_URL}/api/postpet/photo/${petId}`,
         {
           method: "PUT",
           headers: {
@@ -129,6 +128,38 @@ function ProfilePage() {
         );
       } else {
         alert(result.message || "Failed to delete photo ❌");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Network error ❌");
+    }
+  };
+
+  const handleDeleteVideo = async (petId, filename) => {
+    const confirmDelete = window.confirm("Delete this video?");
+    if (!confirmDelete) return;
+
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(
+        `${API_BASE_URL}/api/postpet/video/${petId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ filename }),
+        }
+      );
+
+      const result = await response.json();
+      if (response.ok) {
+        setPets((prev) =>
+          prev.map((p) => (p._id === petId ? { ...p, video: null } : p))
+        );
+      } else {
+        alert(result.message || "Failed to delete video ❌");
       }
     } catch (err) {
       console.error(err);
@@ -263,7 +294,7 @@ function ProfilePage() {
                         {isVideo ? (
                           <Box
                             component="video"
-                            src={`http://localhost:3000/uploads/${file}`}
+                            src={`${API_BASE_URL}/uploads/${file}`}
                             controls
                             sx={{
                               width: 80,
@@ -276,7 +307,7 @@ function ProfilePage() {
                         ) : (
                           <Box
                             component="img"
-                            src={`http://localhost:3000/uploads/${file}`}
+                            src={`${API_BASE_URL}/uploads/${file}`}
                             alt={`${pet.name}-${index}`}
                             sx={{
                               width: 80,

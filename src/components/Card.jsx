@@ -16,6 +16,7 @@ import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import { useNavigate } from "react-router-dom";
 import catImg from "../assets/cat1.png";
 import { useState } from "react";
+import { API_BASE_URL } from "../config";
 
 // Default dummy pet
 const defaultPet = {
@@ -55,7 +56,7 @@ function PetCard({ pet = defaultPet }) {
           <>
             {mediaFiles[currentIndex].endsWith(".mp4") ? (
               <video
-                src={`http://localhost:3000/uploads/${mediaFiles[currentIndex]}`}
+                src={`${API_BASE_URL}/uploads/${mediaFiles[currentIndex]}`}
                 controls
                 className="w-full rounded-lg bg-gray-100 cursor-pointer"
                 style={{ height: 250, objectFit: "cover" }} // fixed height
@@ -65,7 +66,7 @@ function PetCard({ pet = defaultPet }) {
               <CardMedia
                 component="img"
                 alt={pet.name}
-                image={`http://localhost:3000/uploads/${mediaFiles[currentIndex]}`}
+                image={`${API_BASE_URL}/uploads/${mediaFiles[currentIndex]}`}
                 className="w-full rounded-lg bg-gray-100 cursor-pointer"
                 style={{ height: 250, objectFit: "cover" }} // fixed height
                 onClick={() => navigate(`/petdetails/${pet._id}`)}

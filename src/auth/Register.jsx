@@ -11,9 +11,9 @@ import {
 } from "@mui/material";
 import backgroundImg from "../assets/login background.png";
 import { useState } from "react";
-import { apiRequest } from "../api";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
+import { API_BASE_URL } from "../config";
 function RegisterPage() {
   const navigate = useNavigate();
   const editUser = location.state?.user;
@@ -36,7 +36,7 @@ function RegisterPage() {
       const fetchUser = async () => {
         try {
           const token = localStorage.getItem("token");
-          const res = await fetch("http://localhost:3000/api/auth/profile", {
+          const res = await fetch(`${API_BASE_URL}/api/auth/profile`, {
             headers: { Authorization: `Bearer ${token}` },
           });
           const data = await res.json();
@@ -125,8 +125,8 @@ function RegisterPage() {
     setMessage("");
 
     const url = isEdit
-      ? `api/auth/update/${user._id}` // <-- use user from state
-      : "api/auth/register";
+      ? `${API_BASE_URL}/api/auth/update/${user._id}` // <-- use user from state
+      : `${API_BASE_URL}/api/auth/register`;
 
     const token = localStorage.getItem("token");
 
@@ -135,12 +135,14 @@ function RegisterPage() {
       ...(isEdit && token ? { Authorization: `Bearer ${token}` } : {}),
     };
 
-    const { ok, data } = await apiRequest(url, {
+    const res = await fetch(url, {
       method: isEdit ? "PUT" : "POST",
       headers,
       body: JSON.stringify(formData),
     });
-    if (ok) {
+
+    const data = await res.json();
+    if (res.ok) {
       setMessage(
         isEdit
           ? "✅ Profile updated successfully!"
