@@ -23,7 +23,7 @@ function PetDetailsPage() {
   const [pet, setPet] = useState(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [mediaFiles, setMediaFiles] = useState([]);
-
+  const [user, setUser] = useState(null);
   useEffect(() => {
     const fetchPet = async () => {
       try {
@@ -42,6 +42,25 @@ function PetDetailsPage() {
     };
     fetchPet();
   }, [id]);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const res = await fetch("http://localhost:3000/api/auth/profile", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const data = await res.json();
+        if (data.status === "success") {
+          setUser(data.data);
+        }
+      } catch (err) {
+        console.error("Error fetching user profile:", err);
+      }
+    };
+    fetchUser();
+  }, []);
+  if (!user) return null;
 
   const handlePrev = () =>
     setCurrentIndex((prev) => (prev > 0 ? prev - 1 : prev));
@@ -253,10 +272,10 @@ function PetDetailsPage() {
               Shelter Information
             </Typography>
             <Typography variant="subtitle1" fontWeight="bold">
-              Berkeley Cat Sanctuary
+              {user.name}
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-              456 Whisker Lane, Berkeley, CA 94704
+              {user.location}
             </Typography>
 
             <Stack spacing={1}>
@@ -271,7 +290,7 @@ function PetDetailsPage() {
                 }}
               >
                 <PhoneIcon sx={{ mr: 1, color: "text.secondary" }} />
-                <Typography variant="body2">(510) 555-0456</Typography>
+                <Typography variant="body2">{user.phonenumber}</Typography>
               </Box>
               <Box
                 sx={{
@@ -284,7 +303,7 @@ function PetDetailsPage() {
                 }}
               >
                 <EmailIcon sx={{ mr: 1, color: "text.secondary" }} />
-                <Typography variant="body2">hello@berkeleycats.org</Typography>
+                <Typography variant="body2">{user.email}</Typography>
               </Box>
               <Box sx={{ display: "flex", alignItems: "center" }}>
                 <StarIcon color="warning" sx={{ mr: 0.5 }} />
