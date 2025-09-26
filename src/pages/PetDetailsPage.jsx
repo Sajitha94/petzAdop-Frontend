@@ -150,56 +150,6 @@ function PetDetailsPage() {
               <LocationOnIcon sx={{ fontSize: 16, mr: 0.5 }} />
               {pet.location}
             </Typography>
-
-            <Typography variant="body1" sx={{ mt: 2 }}>
-              {pet.description}
-            </Typography>
-          </CardContent>
-        </Card>
-
-        {/* Personality & Compatibility Section */}
-        <Card sx={{ borderRadius: 3, mb: 3, border: "1px solid #ddd" }}>
-          <CardContent>
-            <Typography variant="h6" fontWeight="bold" gutterBottom>
-              Personality & Compatibility
-            </Typography>
-            <Stack direction="row" spacing={1} flexWrap="wrap" sx={{ mb: 2 }}>
-              <Chip label="Sweet" sx={{ margin: "5px !important" }} />
-              <Chip label="Playful" sx={{ margin: "5px !important" }} />
-              <Chip label="Curious" sx={{ margin: "5px !important" }} />
-              <Chip label="Affectionate" sx={{ margin: "5px !important" }} />
-            </Stack>
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-              Good With:
-            </Typography>
-            <Stack direction="row" spacing={1} flexWrap="wrap">
-              <Chip label="Children" sx={{ margin: "5px !important" }} />
-              <Chip label="Other Cats" sx={{ margin: "5px !important" }} />
-            </Stack>
-          </CardContent>
-        </Card>
-
-        {/* Health & Care Information Section */}
-        <Card sx={{ borderRadius: 3, mb: 3, border: "1px solid #ddd" }}>
-          <CardContent>
-            <Typography variant="h6" fontWeight="bold" gutterBottom>
-              Health & Care Information
-            </Typography>
-            <Grid container spacing={2}>
-              {[
-                "Vaccinated",
-                "Spayed/Neutered",
-                "House Trained",
-                "Microchipped",
-              ].map((item) => (
-                <Grid item xs={6} sm={3} key={item}>
-                  <Stack direction="row" spacing={1} alignItems="center">
-                    <CheckCircleIcon color="success" fontSize="small" />
-                    <Typography variant="body2">{item}</Typography>
-                  </Stack>
-                </Grid>
-              ))}
-            </Grid>
           </CardContent>
         </Card>
 
@@ -209,28 +159,50 @@ function PetDetailsPage() {
             <Typography variant="h6" fontWeight="bold" gutterBottom>
               Adoption Information
             </Typography>
-            <Box sx={{ textAlign: "center", my: 2 }}>
+
+            {/* Description */}
+            <Box sx={{ display: "flex", alignItems: "flex-start", mt: 2 }}>
               <Typography
-                variant="h4"
-                fontWeight="bold"
-                sx={{ color: "#00bcd4" }}
+                sx={{
+                  mr: 1.5,
+                  color: "#00bcd4",
+                  fontSize: 20,
+                  lineHeight: "24px",
+                }}
               >
-                {/* $150 */}
+                📝
               </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Adoption Fee
-              </Typography>
+              <Box>
+                <Typography variant="subtitle1" fontWeight="bold">
+                  Description
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {pet.description || "No description available"}
+                </Typography>
+              </Box>
             </Box>
-            <Divider sx={{ my: 2 }} />
-            <Typography variant="h6" fontWeight="bold" gutterBottom>
-              Requirements
-            </Typography>
-            <Stack spacing={1}>
-              <Typography variant="body2">• Indoor home only</Typography>
-              <Typography variant="body2">
-                • Patient family for kitten energy
+
+            {/* Medical History */}
+            <Box sx={{ display: "flex", alignItems: "flex-start", mt: 2 }}>
+              <Typography
+                sx={{
+                  mr: 1.5,
+                  color: "#ff7043",
+                  fontSize: 20,
+                  lineHeight: "24px",
+                }}
+              >
+                🩺
               </Typography>
-            </Stack>
+              <Box>
+                <Typography variant="subtitle1" fontWeight="bold">
+                  Medical History
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {pet.medical_history || "No medical history provided"}
+                </Typography>
+              </Box>
+            </Box>
 
             {/* Buttons with Gradient */}
             <Stack
@@ -252,7 +224,7 @@ function PetDetailsPage() {
                   },
                 }}
               >
-                Apply to Adopt Luna
+                Apply to Adopt {pet.name}
               </Button>
               <Button
                 fullWidth
