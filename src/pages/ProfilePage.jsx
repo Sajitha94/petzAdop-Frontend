@@ -189,17 +189,21 @@ function ProfilePage() {
                 }}
               >
                 <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                  <Box
-                    component="img"
-                    src={pet.photo[0]}
-                    alt={pet.name}
-                    sx={{
-                      width: 80,
-                      height: 80,
-                      objectFit: "cover",
-                      borderRadius: 2,
-                    }}
-                  />
+                  {pet.photo.map((img, index) => (
+                    <Box
+                      key={index}
+                      component="img"
+                      src={`http://localhost:3000/uploads/${img}`}
+                      alt={`${pet.name}-${index}`}
+                      sx={{
+                        width: 80,
+                        height: 80,
+                        objectFit: "cover",
+                        borderRadius: 2,
+                        mr: 1,
+                      }}
+                    />
+                  ))}
                   <Box>
                     <Typography variant="subtitle1" fontWeight="bold">
                       {pet.name}
