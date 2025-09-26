@@ -225,45 +225,75 @@ function ProfilePage() {
                 }}
               >
                 <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                  {pet.photo.map((img, index) => (
-                    <Box
-                      key={index}
-                      sx={{
-                        position: "relative",
-                        display: "inline-block",
-                        mr: 1,
-                      }}
-                    >
+                  {[
+                    ...(pet.photo || []),
+                    ...(pet.video ? [pet.video] : []),
+                  ].map((file, index) => {
+                    const isVideo =
+                      file.endsWith(".mp4") ||
+                      file.endsWith(".webm") ||
+                      file.endsWith(".ogg");
+
+                    return (
                       <Box
-                        component="img"
-                        src={`http://localhost:3000/uploads/${img}`}
-                        alt={`${pet.name}-${index}`}
+                        key={index}
                         sx={{
-                          width: 80,
-                          height: 80,
-                          objectFit: "cover",
-                          borderRadius: 2,
-                        }}
-                      />
-                      <Button
-                        size="small"
-                        onClick={() => handleDeletePhoto(pet._id, img)}
-                        sx={{
-                          position: "absolute",
-                          top: -8,
-                          right: -8,
-                          minWidth: 0,
-                          padding: "2px 6px",
-                          borderRadius: "50%",
-                          backgroundColor: "gray",
-                          color: "white",
-                          fontWeight: "bold",
+                          position: "relative",
+                          display: "inline-block",
+                          mr: 1,
                         }}
                       >
-                        X
-                      </Button>
-                    </Box>
-                  ))}
+                        {isVideo ? (
+                          <Box
+                            component="video"
+                            src={`http://localhost:3000/uploads/${file}`}
+                            controls
+                            sx={{
+                              width: 80,
+                              height: 80,
+                              borderRadius: 2,
+                              objectFit: "cover",
+                              backgroundColor: "#000",
+                            }}
+                          />
+                        ) : (
+                          <Box
+                            component="img"
+                            src={`http://localhost:3000/uploads/${file}`}
+                            alt={`${pet.name}-${index}`}
+                            sx={{
+                              width: 80,
+                              height: 80,
+                              objectFit: "cover",
+                              borderRadius: 2,
+                            }}
+                          />
+                        )}
+
+                        <Button
+                          size="small"
+                          onClick={() =>
+                            isVideo
+                              ? handleDeleteVideo(pet._id, file) // 👈 you need a delete handler for videos too
+                              : handleDeletePhoto(pet._id, file)
+                          }
+                          sx={{
+                            position: "absolute",
+                            top: -8,
+                            right: -8,
+                            minWidth: 0,
+                            padding: "2px 6px",
+                            borderRadius: "50%",
+                            backgroundColor: "gray",
+                            color: "white",
+                            fontWeight: "bold",
+                          }}
+                        >
+                          X
+                        </Button>
+                      </Box>
+                    );
+                  })}
 
                   <Box>
                     <Typography variant="subtitle1" fontWeight="bold">
@@ -277,6 +307,7 @@ function ProfilePage() {
                     </Typography>
                   </Box>
                 </Box>
+
                 <Box sx={{ display: "flex", gap: "5px" }}>
                   <Button
                     sx={{
