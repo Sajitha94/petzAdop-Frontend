@@ -24,6 +24,7 @@ function ProfilePage() {
   const navigate = useNavigate();
   const [pets, setPets] = useState([]);
   const [editPet, setEditPet] = useState(null);
+  const [user, setUser] = useState(null);
   // Fetch pets from API
   useEffect(() => {
     const fetchPets = async () => {
@@ -49,7 +50,23 @@ function ProfilePage() {
     fetchPets();
   }, []);
   // Inside your ProfilePage component
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const res = await fetch("http://localhost:3000/api/auth/profile", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const data = await res.json();
+        if (data.status === "success") setUser(data.data);
+      } catch (err) {
+        console.error("Error fetching user profile:", err);
+      }
+    };
+    fetchUser();
+  }, []);
 
+  if (!user) return <p>Loading...</p>; // or a skeleton
   const handleDeletePet = async (petId) => {
     const confirmDelete = window.confirm(
       "Are you sure you want to delete this pet?"
@@ -127,7 +144,6 @@ function ProfilePage() {
         minHeight: "100vh",
       }}
     >
-      {/* User Info */}
       <Card sx={{ mb: 4, borderRadius: 3, border: "1px solid #ddd" }}>
         <CardContent
           sx={{
@@ -139,17 +155,17 @@ function ProfilePage() {
         >
           <Avatar
             sx={{ width: 100, height: 100 }}
-            src="/static/images/avatar/1.jpg"
+            src={user.avatar || "/static/images/avatar/1.jpg"}
           />
           <Box sx={{ flex: 1 }}>
             <Typography variant="h5" fontWeight="bold">
-              Jane Doe
+              {user.name}
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              jane.doe@example.com
+              {user.email}
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              Member since Jan 2025
+              Member since {user.createdAt?.slice(0, 10)}
             </Typography>
           </Box>
           <Button
@@ -164,6 +180,7 @@ function ProfilePage() {
                 background: "linear-gradient(to right, #00acc1, #f4511e)",
               },
             }}
+            onClick={() => navigate("/register", { state: { user } })}
           >
             Edit Profile
           </Button>

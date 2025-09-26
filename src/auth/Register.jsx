@@ -15,14 +15,15 @@ import { apiRequest } from "../api";
 import { useNavigate } from "react-router-dom";
 function RegisterPage() {
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
+   const editUser = location.state?.user;
+    const [formData, setFormData] = useState({
+    name: editUser?.name || "",
+    email: editUser?.email || "",
     password: "",
     confirmPassword: "",
-    phonenumber: "",
-    location: "",
-    usertype: "adopter", // default
+    phonenumber: editUser?.phonenumber || "",
+    location: editUser?.location || "",
+    usertype: editUser?.usertype || "adopter",
   });
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
@@ -87,23 +88,23 @@ function RegisterPage() {
     setLoading(true);
     setMessage("");
 
-    const { ok, data } = await apiRequest("api/auth/register", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name: formData.name,
-        email: formData.email,
-        password: formData.password,
-        phonenumber: formData.phonenumber,
-        location: formData.location,
-        usertype: formData.usertype,
-      }),
-    });
+      const url = editUser
+      ? `api/auth/update/${editUser._id}`
+      : "api/auth/register";
 
-    if (ok) {
-      setMessage("✅ Registration successful!");
-      console.log("Registered User:", data);
-      navigate("/");
+      
+    const { ok, data } = await apiRequest(url, {
+      method: editUser ? "PUT" : "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(formData),
+    });
+ if (ok) {
+      setMessage(
+        editUser
+          ? "✅ Profile updated successfully!"
+          : "✅ Registration successful!"
+      );
+      navigate("/profile"); // go back to profile
     } else {
       setMessage(`❌ ${data.message || "Something went wrong"}`);
     }
@@ -155,7 +156,7 @@ function RegisterPage() {
             gutterBottom
             sx={{ color: "#ff7043", mb: 1 }}
           >
-            Create Your Account
+           {editUser ? "Edit Your Profile" : "Create Your Account"}
           </Typography>
           <Typography
             variant="body1"
@@ -299,7 +300,13 @@ function RegisterPage() {
                       },
                     }}
                   >
-                    {loading ? "Signing Up..." : "Sign Up"}
+                    {loading
+                ? editUser
+                  ? "Updating..."
+                  : "Signing Up..."
+                : editUser
+                ? "Update Profile"
+                : "Sign Up"}
                   </Button>
                 </Box>
               </Grid>
