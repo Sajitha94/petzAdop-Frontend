@@ -60,7 +60,8 @@ function App() {
       <Header />
       <Routes>
         <Route path="/" element={<HomePage />} />
-        <Route path="/petdetails" element={<PetDetailsPage />} />
+        <Route path="/petdetails/:id" element={<PetDetailsPage />} />
+
         <Route path="/postpet" element={<PostPetForm />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/forgotpage" element={<ForgotPasswordPage />} />

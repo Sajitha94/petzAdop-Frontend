@@ -15,55 +15,132 @@ import PhoneIcon from "@mui/icons-material/Phone";
 import EmailIcon from "@mui/icons-material/Email";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import StarIcon from "@mui/icons-material/Star";
-
-import catImg from "../assets/cat1.png"; // Replace with your image path
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 
 function PetDetailsPage() {
+  const { id } = useParams();
+  const [pet, setPet] = useState(null);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [mediaFiles, setMediaFiles] = useState([]);
+
+  useEffect(() => {
+    const fetchPet = async () => {
+      try {
+        const res = await fetch(`http://localhost:3000/api/postpet/${id}`);
+        const data = await res.json();
+        if (res.ok) {
+          setPet(data.pet);
+          // merge photos + video into one array
+          const files = [...(data.pet.photo || [])];
+          if (data.pet.video) files.push(data.pet.video);
+          setMediaFiles(files);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchPet();
+  }, [id]);
+
+  const handlePrev = () =>
+    setCurrentIndex((prev) => (prev > 0 ? prev - 1 : prev));
+  const handleNext = () =>
+    setCurrentIndex((prev) => (prev < mediaFiles.length - 1 ? prev + 1 : prev));
+
+  if (!pet) return <p>Loading...</p>;
+
   return (
     <Box
       sx={{ p: { xs: 2, sm: 4 }, display: "flex", justifyContent: "center" }}
     >
       <Box sx={{ width: "100%", maxWidth: 900 }}>
-        {/* Top Section with Image & Basic Info */}
-        <Card sx={{ borderRadius: 3, mb: 3, border: "1px solid #ddd" }}>
-          <CardMedia
-            component="img"
-            height="400"
-            image={catImg}
-            alt="Pet"
-            sx={{ borderRadius: "12px 12px 0 0", objectFit: "cover" }}
-          />
+        {/* Top Section with Carousel */}
+        <Card
+          sx={{
+            borderRadius: 3,
+            mb: 3,
+            border: "1px solid #ddd",
+            position: "relative",
+          }}
+        >
+          {mediaFiles.length > 0 && (
+            <>
+              {mediaFiles[currentIndex].endsWith(".mp4") ? (
+                <video
+                  src={`http://localhost:3000/uploads/${mediaFiles[currentIndex]}`}
+                  controls
+                  className="w-full rounded-lg bg-gray-100"
+                  style={{ height: 400, objectFit: "cover" }}
+                />
+              ) : (
+                <CardMedia
+                  component="img"
+                  image={`http://localhost:3000/uploads/${mediaFiles[currentIndex]}`}
+                  alt={pet.name}
+                  sx={{
+                    height: 400,
+                    objectFit: "cover",
+                    borderRadius: "12px 12px 0 0",
+                  }}
+                />
+              )}
+
+              {/* Left Arrow */}
+              {currentIndex > 0 && (
+                <Box
+                  sx={{
+                    position: "absolute",
+                    top: "50%",
+                    left: 10,
+                    transform: "translateY(-50%)",
+                    cursor: "pointer",
+                    px: 1,
+                    backgroundColor: "rgba(0,0,0,0.3)",
+                    borderRadius: "50%",
+                    color: "white",
+                  }}
+                  onClick={handlePrev}
+                >
+                  ❮
+                </Box>
+              )}
+
+              {/* Right Arrow */}
+              {currentIndex < mediaFiles.length - 1 && (
+                <Box
+                  sx={{
+                    position: "absolute",
+                    top: "50%",
+                    right: 10,
+                    transform: "translateY(-50%)",
+                    cursor: "pointer",
+                    px: 1,
+                    backgroundColor: "rgba(0,0,0,0.3)",
+                    borderRadius: "50%",
+                    color: "white",
+                  }}
+                  onClick={handleNext}
+                >
+                  ❯
+                </Box>
+              )}
+            </>
+          )}
+
           <CardContent>
             <Typography variant="h4" fontWeight="bold">
-              Luna
+              {pet.name}
             </Typography>
             <Typography variant="h6" color="text.secondary">
-              Domestic Shorthair
+              {pet.breed}
             </Typography>
 
             <Stack direction="row" spacing={1} sx={{ mt: 1, flexWrap: "wrap" }}>
-              <Chip
-                label="Female"
-                color="primary"
-                size="small"
-                sx={{ margin: "5px !important" }}
-              />
-              <Chip
-                label="Small"
-                color="secondary"
-                size="small"
-                sx={{ margin: "5px !important" }}
-              />
-              <Chip
-                label="1 year"
-                size="small"
-                sx={{ margin: "5px !important" }}
-              />
-              <Chip
-                label="Gray and White"
-                size="small"
-                sx={{ margin: "5px !important" }}
-              />
+              <Chip label={pet.gender} size="small" />
+              <Chip label={pet.size} size="small" />
+              <Chip label={`${pet.age} years`} size="small" />
+              <Chip label={pet.color} size="small" />
             </Stack>
 
             <Typography
@@ -71,13 +148,11 @@ function PetDetailsPage() {
               sx={{ mt: 2, display: "flex", alignItems: "center" }}
             >
               <LocationOnIcon sx={{ fontSize: 16, mr: 0.5 }} />
-              Berkeley, CA
+              {pet.location}
             </Typography>
 
             <Typography variant="body1" sx={{ mt: 2 }}>
-              Luna is a sweet and playful kitten who loves to chase toys and
-              curl up in sunny spots. She’s looking for a loving home where she
-              can grow and thrive!
+              {pet.description}
             </Typography>
           </CardContent>
         </Card>
