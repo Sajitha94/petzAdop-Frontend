@@ -83,6 +83,42 @@ function ProfilePage() {
     }
   };
 
+  const handleDeletePhoto = async (petId, filename) => {
+    const confirmDelete = window.confirm("Delete this photo?");
+    if (!confirmDelete) return;
+
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(
+        `http://localhost:3000/api/postpet/photo/${petId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ filename }),
+        }
+      );
+
+      const result = await response.json();
+      if (response.ok) {
+        setPets((prev) =>
+          prev.map((p) =>
+            p._id === petId
+              ? { ...p, photo: p.photo.filter((img) => img !== filename) }
+              : p
+          )
+        );
+      } else {
+        alert(result.message || "Failed to delete photo ❌");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Network error ❌");
+    }
+  };
+
   return (
     <Box
       sx={{
@@ -192,18 +228,43 @@ function ProfilePage() {
                   {pet.photo.map((img, index) => (
                     <Box
                       key={index}
-                      component="img"
-                      src={`http://localhost:3000/uploads/${img}`}
-                      alt={`${pet.name}-${index}`}
                       sx={{
-                        width: 80,
-                        height: 80,
-                        objectFit: "cover",
-                        borderRadius: 2,
+                        position: "relative",
+                        display: "inline-block",
                         mr: 1,
                       }}
-                    />
+                    >
+                      <Box
+                        component="img"
+                        src={`http://localhost:3000/uploads/${img}`}
+                        alt={`${pet.name}-${index}`}
+                        sx={{
+                          width: 80,
+                          height: 80,
+                          objectFit: "cover",
+                          borderRadius: 2,
+                        }}
+                      />
+                      <Button
+                        size="small"
+                        onClick={() => handleDeletePhoto(pet._id, img)}
+                        sx={{
+                          position: "absolute",
+                          top: -8,
+                          right: -8,
+                          minWidth: 0,
+                          padding: "2px 6px",
+                          borderRadius: "50%",
+                          backgroundColor: "gray",
+                          color: "white",
+                          fontWeight: "bold",
+                        }}
+                      >
+                        X
+                      </Button>
+                    </Box>
                   ))}
+
                   <Box>
                     <Typography variant="subtitle1" fontWeight="bold">
                       {pet.name}
