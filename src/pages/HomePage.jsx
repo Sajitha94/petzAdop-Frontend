@@ -4,71 +4,26 @@ import PetCard from "../components/Card";
 import catImg from "../assets/cat1.png";
 import { Box, Button } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-const pets = [
-  {
-    id: 1,
-    name: "Charlie",
-    breed: "Golden Retriever",
-    size: "Large",
-    gender: "Male",
-    age: 2,
-    location: "San Francisco, CA",
-    image: catImg,
-  },
-  {
-    id: 2,
-    name: "Bella",
-    breed: "Persian Cat",
-    size: "Small",
-    gender: "Female",
-    age: 1,
-    location: "Los Angeles, CA",
-    image: catImg,
-  },
-  {
-    id: 3,
-    name: "Max",
-    breed: "Beagle",
-    size: "Medium",
-    gender: "Male",
-    age: 3,
-    location: "New York, NY",
-    image: catImg,
-  },
-  {
-    id: 4,
-    name: "Luna",
-    breed: "Siamese Cat",
-    size: "Small",
-    gender: "Female",
-    age: 2,
-    location: "Chicago, IL",
-    image: catImg,
-  },
-  {
-    id: 5,
-    name: "Rocky",
-    breed: "Bulldog",
-    size: "Large",
-    gender: "Male",
-    age: 4,
-    location: "Houston, TX",
-    image: catImg,
-  },
-  {
-    id: 6,
-    name: "Milo",
-    breed: "Rabbit",
-    size: "Small",
-    gender: "Male",
-    age: 1,
-    location: "Miami, FL",
-    image: catImg,
-  },
-];
+import { useEffect, useState } from "react";
 
 function HomePage() {
   const navigate = useNavigate();
+  const [pets, setPets] = useState([]);
+  useEffect(() => {
+    const fetchPets = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const res = await fetch("http://localhost:3000/api/postpet", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const data = await res.json();
+        if (res.ok) setPets(data.pets);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchPets();
+  }, []);
   return (
     <>
       <SearchBar />
