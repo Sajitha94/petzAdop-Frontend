@@ -9,21 +9,47 @@ import { useEffect, useState } from "react";
 function HomePage() {
   const navigate = useNavigate();
   const [pets, setPets] = useState([]);
-  useEffect(() => {
-    const fetchPets = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        const res = await fetch("http://localhost:3000/api/postpet", {
+  const [visibleStart, setVisibleStart] = useState(0); // index of first visible pet
+  const [total, setTotal] = useState(0);
+  const limit = 10; //
+
+  const fetchPets = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(
+        `http://localhost:3000/api/postpet?limit=${limit}`,
+        {
           headers: { Authorization: `Bearer ${token}` },
-        });
-        const data = await res.json();
-        if (res.ok) setPets(data.pets);
-      } catch (err) {
-        console.error(err);
+        }
+      );
+      const data = await res.json();
+      if (res.ok) {
+        setPets(data.pets);
+        setTotal(data.total);
       }
-    };
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  useEffect(() => {
     fetchPets();
   }, []);
+
+  const handleNext = () => {
+    if (visibleStart + 4 < pets.length) {
+      setVisibleStart(visibleStart + 1); // slide by 1
+    }
+  };
+
+  const handlePrev = () => {
+    if (visibleStart > 0) {
+      setVisibleStart(visibleStart - 1); // slide by 1
+    }
+  };
+
+  const visiblePets = pets.slice(visibleStart, visibleStart + 4); // show 4 at a time
+
   return (
     <>
       <SearchBar />
@@ -87,10 +113,41 @@ function HomePage() {
             </Button>
           </Box>
         </Box>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full p-5">
-          {pets.map((pet) => (
-            <PetCard key={pet.id} pet={pet} />
-          ))}
+        <div className="relative w-full">
+          {/* Pet list */}
+          <div
+            className="
+      flex flex-row gap-4 overflow-x-auto p-5
+      sm:grid sm:grid-cols-2 sm:gap-6 sm:p-5
+      lg:grid lg:grid-cols-4
+    "
+          >
+            {visiblePets.map((pet) => (
+              <div key={pet._id} className="flex-shrink-0  sm:w-auto lg:w-auto">
+                <PetCard pet={pet} />
+              </div>
+            ))}
+          </div>
+
+          {/* Prev Button */}
+          {visibleStart > 0 && (
+            <button
+              onClick={handlePrev}
+              className="absolute left-2 top-1/2 transform -translate-y-1/2 px-5 py-3 bg-[#00bcd4] hover:bg-gray-400  rounded-full  z-20"
+            >
+              ❮
+            </button>
+          )}
+
+          {/* Next Button */}
+          {visibleStart + 4 < total && (
+            <button
+              onClick={handleNext}
+              className="absolute right-2 top-1/2 transform -translate-y-1/2 px-5 py-3 bg-[#00bcd4] hover:bg-gray-400  rounded-full z-20"
+            >
+              ❯
+            </button>
+          )}
         </div>
       </Box>
     </>
