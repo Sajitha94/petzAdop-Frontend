@@ -53,6 +53,8 @@ export default function Header() {
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = await res.json();
+        console.log(data, "kl");
+
         if (data.status === "success") setUser(data.data);
         console.log(user, "user123");
       } catch (err) {
@@ -152,7 +154,7 @@ export default function Header() {
                       alt={user.name}
                       src={
                         user?.profilePictures && user.profilePictures.length > 0
-                          ? `${API_BASE_URL}${user.profilePictures[0]}`
+                          ? `${API_BASE_URL}/uploads/${user.profilePictures[0]}`
                           : "/static/images/avatar/1.jpg"
                       }
                     />

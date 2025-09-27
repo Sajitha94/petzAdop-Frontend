@@ -197,7 +197,7 @@ function ProfilePage() {
             sx={{ width: 100, height: 100 }}
             src={
               user?.profilePictures && user.profilePictures.length > 0
-                ? `${API_BASE_URL}${user.profilePictures[0]}`
+                ? `${API_BASE_URL}/uploads/${user.profilePictures[0]}`
                 : "/static/images/avatar/1.jpg"
             }
           />
