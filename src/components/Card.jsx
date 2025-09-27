@@ -18,21 +18,6 @@ import catImg from "../assets/cat1.png";
 import { useState } from "react";
 import { API_BASE_URL } from "../config";
 
-// Default dummy pet
-const defaultPet = {
-  id: 0,
-  name: "Charlie",
-  breed: "Golden Retriever",
-  size: "Large",
-  gender: "Male",
-  age: 2,
-  location: "San Francisco, CA",
-  rating: 4.8,
-  description:
-    "Charlie is a friendly and energetic golden retriever who loves playing fetch and swimming. He's great with kids...",
-  image: catImg,
-};
-
 function PetCard({ pet = defaultPet }) {
   const navigate = useNavigate();
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -112,36 +97,44 @@ function PetCard({ pet = defaultPet }) {
             )}
 
             {/* Chips */}
-            <Box
-              sx={{
-                position: "absolute",
-                bottom: 8,
-                left: 8,
-                display: "flex",
-                gap: 1,
-              }}
-            >
-              <Chip
-                label={pet.gender}
-                size="small"
-                sx={{ backgroundColor: "#e3dfdf" }}
-              />
-              <Chip
-                label={pet.size}
-                size="small"
-                sx={{ backgroundColor: "#e3dfdf" }}
-              />
-            </Box>
+            {(pet.gender || pet.size) && (
+              <Box
+                sx={{
+                  position: "absolute",
+                  bottom: 8,
+                  left: 8,
+                  display: "flex",
+                  gap: 1,
+                }}
+              >
+                {pet.gender && (
+                  <Chip
+                    label={pet.gender}
+                    size="small"
+                    sx={{ backgroundColor: "#e3dfdf" }}
+                  />
+                )}
+                {pet.size && (
+                  <Chip
+                    label={pet.size}
+                    size="small"
+                    sx={{ backgroundColor: "#e3dfdf" }}
+                  />
+                )}
+              </Box>
+            )}
           </>
         )}
       </Box>
 
       {/* Content */}
       <CardContent style={{ padding: 0 }}>
+        {/* Name + Rating */}
         <Box sx={{ display: "flex", justifyContent: "space-between" }}>
           <Typography gutterBottom variant="h6">
             {pet.name}
           </Typography>
+
           <Box
             sx={{
               top: 8,
@@ -160,43 +153,63 @@ function PetCard({ pet = defaultPet }) {
           </Box>
         </Box>
 
-        <Typography variant="subtitle2" sx={{ color: "text.secondary" }}>
-          {pet.breed}
-        </Typography>
+        {/* Breed */}
+        {pet.breed && (
+          <Typography variant="subtitle2" sx={{ color: "text.secondary" }}>
+            {pet.breed}
+          </Typography>
+        )}
 
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            gap: 2,
-            my: 1,
-            color: "text.secondary",
-            fontSize: 14,
-          }}
-        >
-          <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-            <CalendarTodayIcon fontSize="small" /> {pet.age} years
+        {/* Age + Location */}
+        {(pet.age || pet.location) && (
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 2,
+              my: 1,
+              color: "text.secondary",
+              fontSize: 14,
+            }}
+          >
+            {pet.age && (
+              <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                <CalendarTodayIcon fontSize="small" /> {pet.age} years
+              </Box>
+            )}
+            {pet.location && (
+              <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                <LocationOnIcon fontSize="small" /> {pet.location}
+              </Box>
+            )}
           </Box>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-            <LocationOnIcon fontSize="small" /> {pet.location}
-          </Box>
-        </Box>
+        )}
 
-        <Typography variant="body2" color="text.secondary">
-          {pet.description}
-        </Typography>
+        {/* Description */}
+        {pet.description && (
+          <Typography variant="body2" color="text.secondary">
+            {pet.description}
+          </Typography>
+        )}
       </CardContent>
 
-      {/* Buttons */}
+      {/* Buttons + Posted By */}
       <CardActions
         sx={{
-          display: " flex",
+          display: "flex",
           flexDirection: "column",
           justifyContent: "space-between",
           WebkitAlignItems: "inherit",
         }}
       >
-        <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+        {/* Buttons Row */}
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            width: "100%",
+          }}
+        >
           <Button
             variant="outlined"
             size="small"
@@ -225,24 +238,27 @@ function PetCard({ pet = defaultPet }) {
             Meet {pet.name}
           </Button>
         </Box>
-        {/* Posted by */}
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            gap: 1,
-            mt: 1, // margin top to separate from buttons
-          }}
-        >
-          <Avatar
-            src={pet.post_user?.avatar || "/default-avatar.png"} // fallback avatar
-            alt={pet.post_user?.name}
-            sx={{ width: 24, height: 24, fontSize: 12 }}
-          />
-          <Typography variant="body2" color="text.secondary">
-            Posted by: {pet.post_user?.name || "Unknown"}
-          </Typography>
-        </Box>
+
+        {/* Posted By */}
+        {pet.post_user?.name && (
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 1,
+              mt: 1,
+            }}
+          >
+            <Avatar
+              src={pet.post_user?.avatar || "/default-avatar.png"}
+              alt={pet.post_user?.name}
+              sx={{ width: 24, height: 24, fontSize: 12 }}
+            />
+            <Typography variant="body2" color="text.secondary">
+              Posted by: {pet.post_user?.name}
+            </Typography>
+          </Box>
+        )}
       </CardActions>
     </Card>
   );
