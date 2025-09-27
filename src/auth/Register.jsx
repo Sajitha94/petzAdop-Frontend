@@ -14,6 +14,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { API_BASE_URL } from "../config";
+import { jwtDecode } from "jwt-decode";
 function RegisterPage() {
   const navigate = useNavigate();
   const editUser = location.state?.user;
@@ -36,9 +37,14 @@ function RegisterPage() {
       const fetchUser = async () => {
         try {
           const token = localStorage.getItem("token");
-          const res = await fetch(`${API_BASE_URL}/api/auth/profile`, {
-            headers: { Authorization: `Bearer ${token}` },
-          });
+          const decoded = jwtDecode(token);
+          const userId = decoded.id;
+          const res = await fetch(
+            `${API_BASE_URL}/api/auth/profile/${userId}`,
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            }
+          );
           const data = await res.json();
           if (data.status === "success") {
             setFormData({

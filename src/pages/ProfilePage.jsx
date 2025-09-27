@@ -20,17 +20,24 @@ import dogImg from "../assets/allpet.png";
 import rabbitImg from "../assets/Kitten and Puppy.png";
 import PostPetForm from "./PostPetForm";
 import { API_BASE_URL } from "../config";
+import { jwtDecode } from "jwt-decode"; // ✅ correct for v4
 
 function ProfilePage() {
   const navigate = useNavigate();
   const [pets, setPets] = useState([]);
   const [editPet, setEditPet] = useState(null);
   const [user, setUser] = useState(null);
+  const token = localStorage.getItem("token");
+  const decoded = jwtDecode(token);
+
+  const userId = decoded.id;
   // Fetch pets from API
   useEffect(() => {
     const fetchPets = async () => {
       try {
-        const token = localStorage.getItem("token"); // 👈 get token
+        // 👈 get token
+        if (!token) return;
+
         const res = await fetch(`${API_BASE_URL}/api/postpet`, {
           method: "GET",
           headers: {
@@ -55,7 +62,7 @@ function ProfilePage() {
     const fetchUser = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await fetch(`${API_BASE_URL}/api/auth/profile`, {
+        const res = await fetch(`${API_BASE_URL}/api/auth/profile/${userId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = await res.json();

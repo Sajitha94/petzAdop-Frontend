@@ -32,6 +32,8 @@ function PetDetailsPage() {
         const data = await res.json();
         if (res.ok) {
           setPet(data.pet);
+          console.log(data.pet.post_user._id, "pet"); // ✅ use data.pet, not pet
+
           // merge photos + video into one array
           const files = [...(data.pet.photo || [])];
           if (data.pet.video) files.push(data.pet.video);
@@ -43,14 +45,20 @@ function PetDetailsPage() {
     };
     fetchPet();
   }, [id]);
-
   useEffect(() => {
+    if (!pet) return; // don't run until pet is loaded
+
     const fetchUser = async () => {
       try {
+        console.log(pet.post_user._id, "saji");
+
         const token = localStorage.getItem("token");
-        const res = await fetch(`${API_BASE_URL}/api/auth/profile`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await fetch(
+          `${API_BASE_URL}/api/auth/profile/${pet.post_user._id}`, // ✅ use slash, not colon
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
         const data = await res.json();
         if (data.status === "success") {
           setUser(data.data);
@@ -59,8 +67,10 @@ function PetDetailsPage() {
         console.error("Error fetching user profile:", err);
       }
     };
+
     fetchUser();
-  }, []);
+  }, [pet]); // ✅ run when pet is available
+
   if (!user) return null;
 
   const handlePrev = () =>
