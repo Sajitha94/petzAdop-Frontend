@@ -62,11 +62,13 @@ function ProfilePage() {
     const fetchUser = async () => {
       try {
         const token = localStorage.getItem("token");
+        if (!token) return;
         const res = await fetch(`${API_BASE_URL}/api/auth/profile/${userId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = await res.json();
         if (data.status === "success") setUser(data.data);
+        console.log(user, "user123");
       } catch (err) {
         console.error("Error fetching user profile:", err);
       }
@@ -193,8 +195,13 @@ function ProfilePage() {
         >
           <Avatar
             sx={{ width: 100, height: 100 }}
-            src={user.avatar || "/static/images/avatar/1.jpg"}
+            src={
+              user?.profilePictures && user.profilePictures.length > 0
+                ? `${API_BASE_URL}${user.profilePictures[0]}`
+                : "/static/images/avatar/1.jpg"
+            }
           />
+
           <Box sx={{ flex: 1 }}>
             <Typography variant="h5" fontWeight="bold">
               {user.name}

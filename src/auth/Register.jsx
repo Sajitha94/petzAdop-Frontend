@@ -343,41 +343,44 @@ function RegisterPage() {
                   </MenuItem>
                 </TextField>
               </Grid>
-              <Grid item xs={12}>
-                <Button
-                  variant="outlined"
-                  component="label"
-                  sx={{ borderRadius: 3 }}
-                >
-                  Upload Profile Pictures
-                  <input
-                    type="file"
-                    name="profilePictures"
-                    multiple
-                    accept="image/*"
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        profilePictures: [...e.target.files],
-                      })
-                    }
-                  />
-                </Button>
+              {!isEdit && (
+                <Grid item xs={12}>
+                  <Button
+                    variant="outlined"
+                    component="label"
+                    sx={{ borderRadius: 3 }}
+                  >
+                    Upload Profile Pictures
+                    <input
+                      type="file"
+                      name="profilePictures"
+                      multiple
+                      accept="image/*"
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          profilePictures: [...e.target.files],
+                        })
+                      }
+                    />
+                  </Button>
 
-                {formData.profilePictures.length > 0 && (
-                  <Box mt={2} display="flex" flexDirection="column" gap={1}>
-                    {Array.from(formData.profilePictures).map((pic, index) => (
-                      <span
-                        key={index}
-                        style={{ fontSize: "14px", color: "#555" }}
-                      >
-                        {typeof pic === "string" ? pic : pic.name}
-                      </span>
-                    ))}
-                  </Box>
-                )}
-              </Grid>
-
+                  {formData.profilePictures.length > 0 && (
+                    <Box mt={2} display="flex" flexDirection="column" gap={1}>
+                      {Array.from(formData.profilePictures).map(
+                        (pic, index) => (
+                          <span
+                            key={index}
+                            style={{ fontSize: "14px", color: "#555" }}
+                          >
+                            {typeof pic === "string" ? pic : pic.name}
+                          </span>
+                        )
+                      )}
+                    </Box>
+                  )}
+                </Grid>
+              )}
               {/* Submit Button */}
               <Grid item xs={12} sm={6} mx={3}>
                 <Box sx={{ display: "flex", justifyContent: "center" }}>

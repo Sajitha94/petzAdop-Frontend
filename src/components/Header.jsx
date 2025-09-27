@@ -16,7 +16,9 @@ import MenuIcon from "@mui/icons-material/Menu";
 import PetzAdop from "../assets/PetzAdop Logo.png";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/useContext";
-
+import { jwtDecode } from "jwt-decode";
+import { useEffect } from "react";
+import { API_BASE_URL } from "../config";
 const pages = ["Find Pets", "Shelters", "Foster", "Adopt", "About"];
 const settings = ["Profile", "Account", "Logout"];
 
@@ -37,6 +39,28 @@ export default function Header() {
     handleCloseUserMenu();
     navigate("/login");
   };
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) return;
+
+        const decoded = jwtDecode(token);
+
+        const userId = decoded.id;
+        const res = await fetch(`${API_BASE_URL}/api/auth/profile/${userId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const data = await res.json();
+        if (data.status === "success") setUser(data.data);
+        console.log(user, "user123");
+      } catch (err) {
+        console.error("Error fetching user profile:", err);
+      }
+    };
+    fetchUser();
+  }, []);
 
   return (
     <AppBar position="static" sx={{ backgroundColor: "white", boxShadow: 1 }}>
@@ -124,7 +148,14 @@ export default function Header() {
               <>
                 <Tooltip title={user.name}>
                   <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                    <Avatar alt={user.name} src="/default-avatar.png" />
+                    <Avatar
+                      alt={user.name}
+                      src={
+                        user?.profilePictures && user.profilePictures.length > 0
+                          ? `${API_BASE_URL}${user.profilePictures[0]}`
+                          : "/static/images/avatar/1.jpg"
+                      }
+                    />
                   </IconButton>
                 </Tooltip>
                 <Menu
