@@ -18,6 +18,7 @@ import { jwtDecode } from "jwt-decode";
 function RegisterPage() {
   const navigate = useNavigate();
   const editUser = location.state?.user;
+  console.log(editUser, "edituser");
 
   const [user, setUser] = useState(editUser || null);
   const [isEdit, setIsEdit] = useState(!!editUser);
@@ -30,13 +31,17 @@ function RegisterPage() {
     phonenumber: editUser?.phonenumber || "",
     location: editUser?.location || "", // <-- this will be "" if editUser is undefined
     usertype: editUser?.usertype || "adopter",
+    profilePictures: [],
   });
 
   useEffect(() => {
+    console.log("saji1");
+
     if (!editUser && window.location.pathname.includes("/register")) {
       const fetchUser = async () => {
         try {
           const token = localStorage.getItem("token");
+          if (!token) return;
           const decoded = jwtDecode(token);
           const userId = decoded.id;
           const res = await fetch(
@@ -83,6 +88,7 @@ function RegisterPage() {
     const re = /^[0-9]{10,15}$/; // 10-15 digits
     return re.test(phone);
   };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -94,7 +100,9 @@ function RegisterPage() {
       phonenumber,
       location,
       usertype,
+      profilePictures,
     } = formData;
+
     if (
       !name ||
       !email ||
@@ -130,37 +138,44 @@ function RegisterPage() {
     setLoading(true);
     setMessage("");
 
-    const url = isEdit
-      ? `${API_BASE_URL}/api/auth/update/${user._id}` // <-- use user from state
-      : `${API_BASE_URL}/api/auth/register`;
+    const formDataToSend = new FormData();
+    formDataToSend.append("name", name);
+    formDataToSend.append("email", email);
+    formDataToSend.append("password", password);
+    formDataToSend.append("phonenumber", phonenumber);
+    formDataToSend.append("location", location);
+    formDataToSend.append("usertype", usertype);
+
+    // Append each selected file
+    profilePictures.forEach((file) => {
+      formDataToSend.append("profilePictures", file);
+    });
 
     const token = localStorage.getItem("token");
-
-    const headers = {
-      "Content-Type": "application/json",
-      ...(isEdit && token ? { Authorization: `Bearer ${token}` } : {}),
-    };
+    const url = isEdit
+      ? `${API_BASE_URL}/api/auth/update/${user._id}`
+      : `${API_BASE_URL}/api/auth/register`;
 
     const res = await fetch(url, {
       method: isEdit ? "PUT" : "POST",
-      headers,
-      body: JSON.stringify(formData),
+      body: formDataToSend,
+      headers: {
+        ...(isEdit && token ? { Authorization: `Bearer ${token}` } : {}),
+        // ❌ DO NOT set "Content-Type" here
+      },
     });
 
     const data = await res.json();
     if (res.ok) {
-      setMessage(
-        isEdit
-          ? "✅ Profile updated successfully!"
-          : "✅ Registration successful!"
-      );
-      navigate("/profile"); // go back to profile
+      // Redirect to homepage
+      navigate("/"); // <-- go to homepage
     } else {
       setMessage(`❌ ${data.message || "Something went wrong"}`);
     }
 
     setLoading(false);
   };
+
   return (
     <Box
       sx={{
@@ -327,6 +342,40 @@ function RegisterPage() {
                     Foster Organization
                   </MenuItem>
                 </TextField>
+              </Grid>
+              <Grid item xs={12}>
+                <Button
+                  variant="outlined"
+                  component="label"
+                  sx={{ borderRadius: 3 }}
+                >
+                  Upload Profile Pictures
+                  <input
+                    type="file"
+                    name="profilePictures"
+                    multiple
+                    accept="image/*"
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        profilePictures: [...e.target.files],
+                      })
+                    }
+                  />
+                </Button>
+
+                {formData.profilePictures.length > 0 && (
+                  <Box mt={2} display="flex" flexDirection="column" gap={1}>
+                    {Array.from(formData.profilePictures).map((pic, index) => (
+                      <span
+                        key={index}
+                        style={{ fontSize: "14px", color: "#555" }}
+                      >
+                        {typeof pic === "string" ? pic : pic.name}
+                      </span>
+                    ))}
+                  </Box>
+                )}
               </Grid>
 
               {/* Submit Button */}

@@ -38,7 +38,7 @@ function ForgotPasswordPage() {
     setLoading(true);
     setMessage("");
     try {
-      const res = await fetch(`${API_BASE_URL}/api/auth/forgotPassword1`, {
+      const res = await fetch(`${API_BASE_URL}/api/auth/forgotPassword`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
@@ -68,14 +68,14 @@ function ForgotPasswordPage() {
     setLoading(true);
     setMessage("");
     try {
-      const res = await fetch(`${API_BASE_URL}api/auth/verify`, {
+      const res = await fetch(`${API_BASE_URL}/api/auth/verify`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, token }),
       });
 
       const data = await res.json();
-      if (ok) {
+      if (res.ok) {
         setMessage("✅ Code verified! Set your new password.");
         setStep(3);
       } else {
@@ -107,13 +107,13 @@ function ForgotPasswordPage() {
     setLoading(true);
     setMessage("");
     try {
-      const res = await fetch(`${API_BASE_URL}api/auth/setPassword1`, {
+      const res = await fetch(`${API_BASE_URL}/api/auth/setPassword`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, token, password }),
       });
       const data = await res.json();
-      if (ok) {
+      if (res.ok) {
         setMessage("✅ Password reset successfully! You can login now.");
         navigate("/");
         setFormData({
