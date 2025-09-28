@@ -198,7 +198,7 @@ function PetCard({ pet = defaultPet, type = "pet" }) {
 
         {/* Description */}
         {pet.description && (
-          <Typography variant="body2" color="text.secondary">
+          <Typography variant="body2" color="text.secondary" component="div">
             {pet.description}
           </Typography>
         )}
