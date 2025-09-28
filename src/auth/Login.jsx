@@ -46,7 +46,6 @@ function LoginPage() {
       const data = await res.json();
       if (res.ok) {
         setMessage("✅ Login successful!");
-        console.log("User data:", data);
         const decoded = jwtDecode(data.data.token);
         setUser({ name: decoded.name, role: decoded.role });
         // Save token to localStorage or context

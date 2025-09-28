@@ -53,10 +53,8 @@ export default function Header() {
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = await res.json();
-        console.log(data, "kl");
 
         if (data.status === "success") setUser(data.data);
-        console.log(user, "user123");
       } catch (err) {
         console.error("Error fetching user profile:", err);
       }

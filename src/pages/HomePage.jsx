@@ -1,7 +1,6 @@
 import React from "react";
 import SearchBar from "../components/SearchBar";
 import PetCard from "../components/Card";
-import catImg from "../assets/cat1.png";
 import { Box, Button, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
@@ -11,13 +10,12 @@ import PhoneIcon from "@mui/icons-material/Phone";
 function HomePage() {
   const navigate = useNavigate();
   const [pets, setPets] = useState([]);
-  const [visibleStart, setVisibleStart] = useState(0); // index of first visible pet
+  const [visibleStart, setVisibleStart] = useState(0);
   const [total, setTotal] = useState(0);
   const limit = 10; //
   const [fosterPets, setFosterPets] = useState([]);
   const [fosterVisibleStart, setFosterVisibleStart] = useState(0);
-  const fosterLimit = 4; // number of cards visible at a time
-
+  const fosterLimit = 4;
   const fetchPets = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -41,7 +39,6 @@ function HomePage() {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
-      console.log(data, "data");
 
       if (res.ok) {
         setFosterPets(data.data); // backend sends data under "data"
@@ -184,7 +181,7 @@ function HomePage() {
           >
             {visiblePets.map((pet) => (
               <div key={pet._id} className="flex-shrink-0  sm:w-auto lg:w-auto">
-                <PetCard pet={pet} />
+                <PetCard pet={pet} type="pet" />
               </div>
             ))}
           </div>
@@ -220,12 +217,12 @@ function HomePage() {
           <div className="flex flex-row gap-4 overflow-x-auto p-5 sm:grid sm:grid-cols-2 sm:gap-6 lg:grid lg:grid-cols-4">
             {mappedFosterPets
               .slice(fosterVisibleStart, fosterVisibleStart + fosterLimit)
-              .map((pet) => (
+              .map((org) => (
                 <div
-                  key={pet._id}
+                  key={org._id}
                   className="flex-shrink-0 sm:w-auto lg:w-auto"
                 >
-                  <PetCard pet={pet} />
+                  <PetCard pet={org} type="foster" />
                 </div>
               ))}
           </div>

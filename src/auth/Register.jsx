@@ -18,7 +18,6 @@ import { jwtDecode } from "jwt-decode";
 function RegisterPage() {
   const navigate = useNavigate();
   const editUser = location.state?.user;
-  console.log(editUser, "edituser");
 
   const [user, setUser] = useState(editUser || null);
   const [isEdit, setIsEdit] = useState(!!editUser);
@@ -35,7 +34,6 @@ function RegisterPage() {
   });
 
   useEffect(() => {
-    console.log("saji1");
 
     if (!editUser && window.location.pathname.includes("/register")) {
       const fetchUser = async () => {

@@ -68,7 +68,6 @@ function ProfilePage() {
         });
         const data = await res.json();
         if (data.status === "success") setUser(data.data);
-        console.log(user, "user123");
       } catch (err) {
         console.error("Error fetching user profile:", err);
       }

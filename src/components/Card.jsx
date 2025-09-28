@@ -14,11 +14,11 @@ import StarIcon from "@mui/icons-material/Star";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import { useNavigate } from "react-router-dom";
-import catImg from "../assets/cat1.png";
+
 import { useState } from "react";
 import { API_BASE_URL } from "../config";
 
-function PetCard({ pet = defaultPet }) {
+function PetCard({ pet = defaultPet, type = "pet" }) {
   const navigate = useNavigate();
   const [currentIndex, setCurrentIndex] = useState(0);
   const images = pet.photo || []; // array of image filenames
@@ -31,6 +31,17 @@ function PetCard({ pet = defaultPet }) {
 
   const handleNext = () => {
     setCurrentIndex((prev) => (prev === mediaFiles.length - 1 ? 0 : prev + 1));
+  };
+  const handleClick = () => {
+    if (type === "foster") {
+      navigate(`/petdetails/${pet._id}`, {
+        state: { pageType: "fosterDetails" }, // ✅ better to send an object
+      });
+    } else {
+      navigate(`/petdetails/${pet._id}`, {
+        state: { pageType: "petDetails" },
+      });
+    }
   };
 
   return (
@@ -45,7 +56,7 @@ function PetCard({ pet = defaultPet }) {
                 controls
                 className="w-full rounded-lg bg-gray-100 cursor-pointer"
                 style={{ height: 250, objectFit: "cover" }} // fixed height
-                onClick={() => navigate(`/petdetails/${pet._id}`)}
+                onClick={handleClick}
               />
             ) : (
               <CardMedia
@@ -54,7 +65,7 @@ function PetCard({ pet = defaultPet }) {
                 image={`${API_BASE_URL}/uploads/${mediaFiles[currentIndex]}`}
                 className="w-full rounded-lg bg-gray-100 cursor-pointer"
                 style={{ height: 250, objectFit: "cover" }} // fixed height
-                onClick={() => navigate(`/petdetails/${pet._id}`)}
+                onClick={handleClick}
               />
             )}
 
