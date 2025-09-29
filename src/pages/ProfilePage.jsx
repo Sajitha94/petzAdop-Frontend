@@ -31,49 +31,43 @@ function ProfilePage() {
   const decoded = jwtDecode(token);
 
   const userId = decoded.id;
-  // Fetch pets from API
   useEffect(() => {
-    const fetchPets = async () => {
-      try {
-        // 👈 get token
-        if (!token) return;
+    const fetchData = async () => {
+      if (!token) return;
 
-        const res = await fetch(`${API_BASE_URL}/api/postpet`, {
-          method: "GET",
+      try {
+        // Fetch user
+        const userRes = await fetch(
+          `${API_BASE_URL}/api/auth/profile/${userId}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        const userData = await userRes.json();
+        if (userData.status === "success") setUser(userData.data);
+
+        // Fetch pets
+        const petRes = await fetch(`${API_BASE_URL}/api/postpet`, {
           headers: {
-            Authorization: `Bearer ${token}`, // 👈 send token
+            Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
         });
-
-        const data = await res.json();
-        if (data.status === "success") {
-          setPets(data.pets);
+        const petData = await petRes.json();
+        if (petData.status === "success") {
+          // Only pets posted by the current user
+          const userPets = petData.pets.filter(
+            (pet) => pet.post_user._id === userId
+          );
+          setPets(userPets);
         }
       } catch (error) {
-        console.error("Error fetching pets:", error);
+        console.error(error);
       }
     };
 
-    fetchPets();
-  }, []);
-  // Inside your ProfilePage component
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        if (!token) return;
-        const res = await fetch(`${API_BASE_URL}/api/auth/profile/${userId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const data = await res.json();
-        if (data.status === "success") setUser(data.data);
-      } catch (err) {
-        console.error("Error fetching user profile:", err);
-      }
-    };
-    fetchUser();
-  }, []);
+    fetchData();
+  }, [token, userId]);
 
   if (!user) return <p>Loading...</p>; // or a skeleton
 
@@ -172,6 +166,47 @@ function ProfilePage() {
     } catch (err) {
       console.error(err);
       alert("Network error ❌");
+    }
+  };
+
+  const handleRequestStatus = async (petId, requestId, status) => {
+    const token = localStorage.getItem("token");
+
+    try {
+      const res = await fetch(
+        `${API_BASE_URL}/api/postpet/request/${petId}/${requestId}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ status }),
+        }
+      );
+
+      const data = await res.json();
+      if (res.ok) {
+        alert(data.message);
+        // Refresh pets to update the requests' status
+        setPets((prev) =>
+          prev.map((pet) =>
+            pet._id === petId
+              ? {
+                  ...pet,
+                  requests: pet.requests.map((r) =>
+                    r._id === requestId ? { ...r, status } : r
+                  ),
+                }
+              : pet
+          )
+        );
+      } else {
+        alert(data.message || "Failed to update request");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Network error");
     }
   };
 
@@ -483,6 +518,108 @@ function ProfilePage() {
           </Typography>
         )}
       </Stack>
+
+      {/* Adoption Requests - Notification */}
+      <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>
+        Adoption Requests
+      </Typography>
+      <Stack spacing={2} sx={{ mb: 4 }}>
+        {pets.length > 0 ? (
+          pets.map((pet) =>
+            pet.requests.length > 0 ? (
+              pet.requests.map((req) => (
+                <Card
+                  key={req._id}
+                  sx={{ borderRadius: 3, border: "1px solid #ddd" }}
+                >
+                  <CardContent
+                    sx={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      flexWrap: "wrap",
+                      gap: 2,
+                    }}
+                  >
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                      <Box
+                        component="img"
+                        src={
+                          pet.photo[0]
+                            ? `${API_BASE_URL}/uploads/${pet.photo[0]}`
+                            : ""
+                        }
+                        alt={pet.name}
+                        sx={{
+                          width: 80,
+                          height: 80,
+                          objectFit: "cover",
+                          borderRadius: 2,
+                        }}
+                      />
+                      <Box>
+                        <Typography variant="subtitle1" fontWeight="bold">
+                          {pet.name}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                          {req.adopter_email} wants to adopt
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                          Status: {req.status}
+                        </Typography>
+                      </Box>
+                    </Box>
+                    <Stack direction="row" spacing={1}>
+                      {req.status === "pending" ? (
+                        <>
+                          <Button
+                            variant="contained"
+                            color="success"
+                            size="small"
+                            onClick={() =>
+                              handleRequestStatus(pet._id, req._id, "approved")
+                            }
+                          >
+                            Accept
+                          </Button>
+                          <Button
+                            variant="contained"
+                            color="error"
+                            size="small"
+                            onClick={() =>
+                              handleRequestStatus(pet._id, req._id, "rejected")
+                            }
+                          >
+                            Reject
+                          </Button>
+                        </>
+                      ) : (
+                        <Typography
+                          sx={{
+                            color: req.status === "approved" ? "green" : "red",
+                            fontWeight: "bold",
+                          }}
+                        >
+                          {req.status === "approved" ? "Adopted" : "Rejected"}
+                        </Typography>
+                      )}
+                    </Stack>
+                  </CardContent>
+                </Card>
+              ))
+            ) : (
+              <Typography key={pet._id} variant="body2" color="text.secondary">
+                No adoption requests for {pet.name}
+              </Typography>
+            )
+          )
+        ) : (
+          <Typography variant="body2" color="text.secondary">
+            No pets posted yet.
+          </Typography>
+        )}
+      </Stack>
+
       {/* My Reviews */}
       <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>
         My Reviews

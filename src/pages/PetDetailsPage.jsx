@@ -101,6 +101,29 @@ function PetDetailsPage() {
   const handleNext = () =>
     setCurrentIndex((prev) => (prev < mediaFiles.length - 1 ? prev + 1 : prev));
 
+  const handleAdoptionRequest = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${API_BASE_URL}/api/postpet/request`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          petId: pet._id,
+          adopterEmail: "adopter@example.com",
+        }),
+      });
+
+      const data = await res.json();
+      if (res.ok) alert(data.message);
+      else alert(data.message || "Failed to send adoption request");
+    } catch (err) {
+      console.error(err);
+      alert("Server error");
+    }
+  };
   return (
     <Box
       sx={{ p: { xs: 2, sm: 4 }, display: "flex", justifyContent: "center" }}
@@ -280,6 +303,7 @@ function PetDetailsPage() {
                       background: "linear-gradient(to right, #00acc1, #f4511e)",
                     },
                   }}
+                  onClick={() => handleAdoptionRequest(pet._id)}
                 >
                   Apply to Adopt {pet?.name}
                 </Button>
