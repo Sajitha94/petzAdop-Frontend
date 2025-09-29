@@ -3,10 +3,11 @@ import { Avatar, TextField, IconButton, Divider } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
 import { API_BASE_URL } from "../config";
 import { jwtDecode } from "jwt-decode";
-const token = localStorage.getItem("token");
+
+function ChatPage() {
+  const token = localStorage.getItem("token");
 const decoded = jwtDecode(token);
 const userId = decoded.id;
-function ChatPage() {
   const [conversations, setConversations] = useState([]);
   const [selectedChat, setSelectedChat] = useState(null);
   const [messages, setMessages] = useState([]);
