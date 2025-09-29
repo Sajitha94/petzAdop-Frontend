@@ -16,12 +16,12 @@ import EmailIcon from "@mui/icons-material/Email";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import StarIcon from "@mui/icons-material/Star";
 import { useEffect, useState } from "react";
-import { useLocation, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { API_BASE_URL } from "../config";
-
 function PetDetailsPage() {
   const location = useLocation();
   const { id } = useParams();
+  const navigate = useNavigate();
 
   const [pet, setPet] = useState(null);
   const [user, setUser] = useState(null);
@@ -84,7 +84,6 @@ function PetDetailsPage() {
 
             const files = [...(data.data.profilePictures || [])];
             setMediaFiles(files);
-
           } else {
             setUser(data.data); // show owner as "user"
           }
@@ -297,6 +296,7 @@ function PetDetailsPage() {
                       background: "linear-gradient(to right, #00acc1, #f4511e)",
                     },
                   }}
+                  onClick={() => navigate("/chatpage")}
                 >
                   Schedule a Meet & Greet
                 </Button>
