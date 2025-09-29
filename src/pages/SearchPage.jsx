@@ -17,9 +17,6 @@ import SearchIcon from "@mui/icons-material/Search";
 import PetCard from "../components/Card";
 import { API_BASE_URL } from "../config";
 
-const breeds = ["Dog", "Cat", "Rabbit", "Bird"];
-const sizes = ["Small", "Medium", "Large"];
-
 function useQuery() {
   return new URLSearchParams(useLocation().search);
 }
@@ -29,6 +26,8 @@ function SearchPage() {
   const query = useQuery();
   const initialSearch = query.get("search") || "";
   const initialLocation = query.get("location") || "";
+  const [breeds, setBreeds] = useState([]);
+  const [sizes, setSizes] = useState(["small", "medium", "large"]);
 
   // State
   const [searchText, setSearchText] = useState(initialSearch);
@@ -40,17 +39,17 @@ function SearchPage() {
   const [openDrawer, setOpenDrawer] = useState(false);
 
   // Fetch pets from backend
-  const fetchPets = async () => {
+  const fetchPets = async (customFilters = filters) => {
     try {
       const params = {
         search: searchText,
         location: locationText,
         page,
         limit: 6,
-        breed: filters.breed.join(","),
-        size: filters.size.join(","),
-        minAge: filters.age[0],
-        maxAge: filters.age[1],
+        breed: customFilters.breed.join(","),
+        size: customFilters.size.join(","), // remove if not needed
+        minAge: customFilters.age[0],
+        maxAge: customFilters.age[1],
       };
       const { data } = await axios.get(`${API_BASE_URL}/api/postpet/search`, {
         params,
@@ -59,7 +58,7 @@ function SearchPage() {
       setTotalPages(data.totalPages || 1);
     } catch (err) {
       console.error("Fetch pets error:", err);
-      setPets([]); // fallback
+      setPets([]);
     }
   };
 
@@ -67,15 +66,31 @@ function SearchPage() {
     fetchPets();
   }, [page, searchText, locationText, filters]);
 
+  useEffect(() => {
+    const fetchBreeds = async () => {
+      try {
+        const { data } = await axios.get(`${API_BASE_URL}/api/postpet/breeds`);
+        setBreeds(data.breeds);
+      } catch (err) {
+        console.error("Error fetching breeds:", err);
+      }
+    };
+
+    fetchBreeds();
+  }, []);
+
   // Filter toggle
   const toggleFilter = (type, value) => {
     setFilters((prev) => {
       const arr = prev[type];
-      if (arr.includes(value)) {
-        return { ...prev, [type]: arr.filter((v) => v !== value) };
-      } else {
-        return { ...prev, [type]: [...arr, value] };
-      }
+      const updated = arr.includes(value)
+        ? arr.filter((v) => v !== value)
+        : [...arr, value];
+
+      const newFilters = { ...prev, [type]: updated };
+      setPage(1);
+      fetchPets(newFilters); // fetch right after change
+      return newFilters;
     });
   };
 
@@ -106,7 +121,12 @@ function SearchPage() {
         <h3 className="font-semibold mb-2">Age</h3>
         <Slider
           value={filters.age}
-          onChange={(e, newValue) => setFilters({ ...filters, age: newValue })}
+          onChange={(e, newValue) => {
+            const newFilters = { ...filters, age: newValue };
+            setFilters(newFilters);
+            setPage(1);
+            fetchPets(newFilters); // fetch on slider change
+          }}
           valueLabelDisplay="auto"
           min={0}
           max={15}
@@ -141,7 +161,7 @@ function SearchPage() {
         }}
         onClick={() => {
           setPage(1);
-          fetchPets();
+          fetchPets(); // uses current filters
           setOpenDrawer(false);
         }}
       >
