@@ -271,33 +271,39 @@ function ProfilePage() {
         Favorite Pets
       </Typography>
       <Grid container spacing={2} sx={{ mb: 4 }}>
-        {[catImg, dogImg, rabbitImg].map((img, index) => (
-          <Grid item xs={12} sm={4} key={index}>
-            <Card sx={{ borderRadius: 3, border: "1px solid #ddd" }}>
-              <CardContent sx={{ textAlign: "center", p: 1 }}>
-                <Box
-                  component="img"
-                  src={img}
-                  alt="pet"
-                  sx={{
-                    width: "100%",
-                    height: 150,
-                    objectFit: "cover",
-                    borderRadius: 2,
-                    mb: 1,
-                  }}
-                />
-                <Typography variant="subtitle1" fontWeight="bold">
-                  {index === 0 ? "Luna" : index === 1 ? "Buddy" : "Coco"}
-                </Typography>
-                <Chip
-                  label={index === 0 ? "Cats" : index === 1 ? "Dog" : "Rabbit"}
-                  sx={{ mt: 1, backgroundColor: "#00bcd4", color: "white" }}
-                />
-              </CardContent>
-            </Card>
-          </Grid>
-        ))}
+        {user?.favorites?.length > 0 ? (
+          user.favorites.map((favPet) => (
+            <Grid item xs={12} sm={4} key={favPet._id}>
+              <Card sx={{ borderRadius: 3, border: "1px solid #ddd" }}>
+                <CardContent sx={{ textAlign: "center", p: 1 }}>
+                  <Box
+                    component="img"
+                    src={`${API_BASE_URL}/uploads/${favPet.photo[0]}`}
+                    alt={favPet.name}
+                    sx={{
+                      width: 200, // fixed width
+                      height: 200, // fixed height
+                      objectFit: "cover", // crop without distortion
+                      borderRadius: 2,
+                      mb: 1,
+                    }}
+                  />
+                  <Typography variant="subtitle1" fontWeight="bold">
+                    {favPet.name}
+                  </Typography>
+                  <Chip
+                    label={favPet.breed}
+                    sx={{ mt: 1, backgroundColor: "#00bcd4", color: "white" }}
+                  />
+                </CardContent>
+              </Card>
+            </Grid>
+          ))
+        ) : (
+          <Typography variant="body2" color="text.secondary">
+            No favorites yet.
+          </Typography>
+        )}
       </Grid>
 
       {/* Your Pet Poster */}

@@ -4,6 +4,7 @@ import PetCard from "../components/Card";
 import { Box, Button, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { jwtDecode } from "jwt-decode";
 import { API_BASE_URL } from "../config";
 import EmailIcon from "@mui/icons-material/Email";
 import PhoneIcon from "@mui/icons-material/Phone";
@@ -15,6 +16,7 @@ function HomePage() {
   const limit = 10; //
   const [fosterPets, setFosterPets] = useState([]);
   const [fosterVisibleStart, setFosterVisibleStart] = useState(0);
+  const [user, setUser] = useState(null);
   const fosterLimit = 4;
   const fetchPets = async () => {
     try {
@@ -83,8 +85,26 @@ function HomePage() {
       setFosterVisibleStart(fosterVisibleStart - 1);
     }
   };
-
   useEffect(() => {
+    const fetchUser = async () => {
+      const token = localStorage.getItem("token");
+      const decoded = jwtDecode(token);
+      const userId = decoded.id;
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) return;
+
+        const res = await fetch(`${API_BASE_URL}/api/auth/profile/${userId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const data = await res.json();
+        if (res.ok) setUser(data.data);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchUser();
     fetchPets();
     fetchFosterPets();
   }, []);
@@ -181,7 +201,11 @@ function HomePage() {
           >
             {visiblePets.map((pet) => (
               <div key={pet._id} className="flex-shrink-0  sm:w-auto lg:w-auto">
-                <PetCard pet={pet} type="pet" />
+                <PetCard
+                  pet={pet}
+                  type="pet"
+                  userFavorites={user?.favorites || []}
+                />
               </div>
             ))}
           </div>
