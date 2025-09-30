@@ -12,7 +12,12 @@ import { useState } from "react";
 import { useLocation } from "react-router-dom";
 import { useEffect } from "react";
 import { API_BASE_URL } from "../config";
-export default function PostPetForm({ initialData, onClose }) {
+export default function PostPetForm({
+  initialData,
+  onClose,
+  fosterForm = false,
+  fosterOrgId,
+}) {
   const location = useLocation();
   const pet = location.state?.pet || initialData || null;
   const [formData, setFormData] = useState(
@@ -26,7 +31,6 @@ export default function PostPetForm({ initialData, onClose }) {
       location: "",
       medical_history: "",
       description: "",
-      adoption_fee: "",
     }
   );
   const [photoFiles, setPhotoFiles] = useState([]);
@@ -51,7 +55,6 @@ export default function PostPetForm({ initialData, onClose }) {
         location: pet.location || "",
         medical_history: pet.medical_history || "",
         description: pet.description || "",
-        adoption_fee: pet.adoption_fee || "",
       });
     }
   }, [pet]);
@@ -87,36 +90,58 @@ export default function PostPetForm({ initialData, onClose }) {
     if (videoFile) {
       data.append("video", videoFile);
     }
+    if (fosterForm) {
+      // Foster pet submission
+      data.append("fosterOrgId", fosterOrgId);
 
-    try {
-      const url = pet
-        ? `${API_BASE_URL}/api/postpet/${pet._id}`
-        : `${API_BASE_URL}/api/postpet/`;
-
-      const method = pet ? "PUT" : "POST";
-      const response = await fetch(url, {
-        method,
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: data,
-      });
-
-      const result = await response.json();
-
-      if (response.ok) {
-        setMessage(
-          initialData
-            ? "Pet updated successfully ✅"
-            : "Pet posted successfully ✅"
-        );
-        if (onClose) onClose(); // 👈 close dialog after submit
-      } else {
-        setMessage(result.message || "Something went wrong ❌");
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/foster-pet/`, {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}` },
+          body: data,
+        });
+        const result = await response.json();
+        if (response.ok) {
+          setMessage("Foster pet posted successfully ✅");
+          if (onClose) onClose();
+        } else {
+          setMessage(result.message || "Something went wrong ❌");
+        }
+      } catch (err) {
+        console.error(err);
+        setMessage("Network error ❌");
       }
-    } catch (error) {
-      console.error(error);
-      setMessage("Network error ❌");
+    } else {
+      try {
+        const url = pet
+          ? `${API_BASE_URL}/api/postpet/${pet._id}`
+          : `${API_BASE_URL}/api/postpet/`;
+
+        const method = pet ? "PUT" : "POST";
+        const response = await fetch(url, {
+          method,
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: data,
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+          setMessage(
+            initialData
+              ? "Pet updated successfully ✅"
+              : "Pet posted successfully ✅"
+          );
+          if (onClose) onClose(); // 👈 close dialog after submit
+        } else {
+          setMessage(result.message || "Something went wrong ❌");
+        }
+      } catch (error) {
+        console.error(error);
+        setMessage("Network error ❌");
+      }
     }
     setLoading(false);
   };
@@ -258,16 +283,6 @@ export default function PostPetForm({ initialData, onClose }) {
                     value={formData.description}
                     onChange={handleChange}
                     placeholder="Tell adopters about the pet’s personality, behavior, and needs"
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    name="adoption_fee"
-                    label="Adoption Fee"
-                    fullWidth
-                    value={formData.adoption_fee}
-                    onChange={handleChange}
-                    placeholder="$100"
                   />
                 </Grid>
 

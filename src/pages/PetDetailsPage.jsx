@@ -18,17 +18,20 @@ import StarIcon from "@mui/icons-material/Star";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { API_BASE_URL } from "../config";
-function PetDetailsPage() {
+import { Dialog } from "@mui/material";
+import PostPetForm from "./PostPetForm";
+
+function PetDetailsPage({ fosterOrgId }) {
   const location = useLocation();
   const { id } = useParams();
   const navigate = useNavigate();
-
   const [pet, setPet] = useState(null);
   const [user, setUser] = useState(null);
   const [mediaFiles, setMediaFiles] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
-
+  const [openForm, setOpenForm] = useState(false);
   const pageType = location.state?.pageType;
+  const [fosterPets, setFosterPets] = useState([]);
 
   // Fetch pet data if pageType is petDetails
   useEffect(() => {
@@ -77,6 +80,7 @@ function PetDetailsPage() {
           }
         );
         const data = await res.json();
+        console.log(data, "datasaji");
 
         if (data.status === "success") {
           if (pageType === "fosterDetails") {
@@ -95,6 +99,37 @@ function PetDetailsPage() {
 
     fetchProfile();
   }, [id, pageType, pet?.post_user?._id]);
+
+  useEffect(() => {
+    const fetchFosterPets = async () => {
+      if (!pet?.usertype && !user?.usertype) return;
+
+      const orgId =
+        pet?.usertype === "foster organization"
+          ? pet._id
+          : user?.usertype === "foster organization"
+          ? user._id
+          : null;
+
+      if (!orgId) return;
+
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/foster-pet/${orgId}`);
+        const data = await res.json();
+
+        if (data.status === "success") {
+          setFosterPets(data.data);
+        } else {
+          setFosterPets([]);
+        }
+      } catch (err) {
+        console.error("Error fetching foster pets:", err);
+        setFosterPets([]);
+      }
+    };
+
+    fetchFosterPets();
+  }, [pet, user]);
 
   const handlePrev = () =>
     setCurrentIndex((prev) => (prev > 0 ? prev - 1 : prev));
@@ -124,6 +159,10 @@ function PetDetailsPage() {
       alert("Server error");
     }
   };
+
+  const handleOpenForm = () => setOpenForm(true);
+  const handleCloseForm = () => setOpenForm(false);
+
   return (
     <Box
       sx={{ p: { xs: 2, sm: 4 }, display: "flex", justifyContent: "center" }}
@@ -560,6 +599,7 @@ function PetDetailsPage() {
                       background: "linear-gradient(to right, #00acc1, #f4511e)",
                     },
                   }}
+                  onClick={handleOpenForm}
                 >
                   Apply to Fostering pets with {pet?.name}
                 </Button>
@@ -582,8 +622,90 @@ function PetDetailsPage() {
               </Stack>
             </CardContent>
           </Card>
+
+          <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>
+            FosterPets Applications
+          </Typography>
+
+          <Stack spacing={2} sx={{ mb: 4 }}>
+            {fosterPets.length > 0 ? (
+              fosterPets.map((pet) => (
+                <Card
+                  key={pet._id}
+                  sx={{ borderRadius: 3, border: "1px solid #ddd" }}
+                >
+                  <CardContent
+                    sx={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      flexWrap: "wrap",
+                      gap: 2,
+                    }}
+                  >
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                      <Box
+                        component="img"
+                        src={`${API_BASE_URL}/uploads/${pet.photos[0]}`}
+                        alt={pet.name}
+                        sx={{
+                          width: 80,
+                          height: 80,
+                          objectFit: "cover",
+                          borderRadius: 2,
+                        }}
+                      />
+                      <Box>
+                        <Typography variant="subtitle1" fontWeight="bold">
+                          {pet.name}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                          {pet.breed} • {pet.age} • {pet.gender}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                          Location: {pet.location}
+                        </Typography>
+                      </Box>
+                    </Box>
+
+                    <Button
+                      sx={{
+                        background:
+                          "linear-gradient(to right, #00bcd4, #ff7043)",
+                        color: "white",
+                        fontWeight: "bold",
+                        textTransform: "none",
+                        borderRadius: 3,
+                        px: 2,
+                        "&:hover": {
+                          background:
+                            "linear-gradient(to right, #00acc1, #f4511e)",
+                        },
+                      }}
+                      onClick={() => console.log("View details", pet._id)}
+                    >
+                      View Details
+                    </Button>
+                  </CardContent>
+                </Card>
+              ))
+            ) : (
+              <Typography variant="body2" color="text.secondary">
+                No adoption applications found.
+              </Typography>
+            )}
+          </Stack>
         </Box>
       )}
+
+      <Dialog open={openForm} onClose={handleCloseForm} fullWidth maxWidth="md">
+        <PostPetForm
+          initialData={null} // empty for new pet
+          onClose={handleCloseForm} // close modal after submit
+          fosterOrgId={pet?._id} // send org id if needed
+          fosterForm={true}
+        />
+      </Dialog>
     </Box>
   );
 }

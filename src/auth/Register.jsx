@@ -34,6 +34,7 @@ function RegisterPage() {
   });
 
   useEffect(() => {
+    console.log("saji1");
 
     if (!editUser && window.location.pathname.includes("/register")) {
       const fetchUser = async () => {

@@ -14,11 +14,6 @@ import {
 } from "@mui/material";
 import StarIcon from "@mui/icons-material/Star";
 import { useNavigate } from "react-router-dom";
-// Sample images for pets
-import catImg from "../assets/login background.png";
-import dogImg from "../assets/allpet.png";
-import rabbitImg from "../assets/Kitten and Puppy.png";
-import PostPetForm from "./PostPetForm";
 import { API_BASE_URL } from "../config";
 import { jwtDecode } from "jwt-decode"; // ✅ correct for v4
 
@@ -27,6 +22,8 @@ function ProfilePage() {
   const [pets, setPets] = useState([]);
   const [editPet, setEditPet] = useState(null);
   const [user, setUser] = useState(null);
+  const [fosterPets, setFosterPets] = useState([]);
+
   const token = localStorage.getItem("token");
   const decoded = jwtDecode(token);
 
@@ -46,7 +43,7 @@ function ProfilePage() {
         const userData = await userRes.json();
         if (userData.status === "success") setUser(userData.data);
 
-        // Fetch pets
+        // Fetch pets posted by the user
         const petRes = await fetch(`${API_BASE_URL}/api/postpet`, {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -55,11 +52,19 @@ function ProfilePage() {
         });
         const petData = await petRes.json();
         if (petData.status === "success") {
-          // Only pets posted by the current user
           const userPets = petData.pets.filter(
             (pet) => pet.post_user._id === userId
           );
           setPets(userPets);
+        }
+
+        // Fetch foster pets if user is foster organization
+        if (userData.data.usertype === "foster organization") {
+          const fosterRes = await fetch(
+            `${API_BASE_URL}/api/foster-pet/${userId}`
+          );
+          const fosterData = await fosterRes.json();
+          if (fosterData.status === "success") setFosterPets(fosterData.data);
         }
       } catch (error) {
         console.error(error);
@@ -70,6 +75,31 @@ function ProfilePage() {
   }, [token, userId]);
 
   if (!user) return <p>Loading...</p>; // or a skeleton
+
+  // useEffect(() => {
+  //   const fetchFosterPets = async () => {
+  //     if (!user) return;
+
+  //     // Only fetch if user is a foster organization
+  //     if (user.usertype !== "foster organization") return;
+
+  //     try {
+  //       const res = await fetch(`${API_BASE_URL}/api/foster-pet/${user._id}`);
+  //       const data = await res.json();
+
+  //       if (data.status === "success") {
+  //         setFosterPets(data.data);
+  //       } else {
+  //         setFosterPets([]);
+  //       }
+  //     } catch (err) {
+  //       console.error("Error fetching foster pets:", err);
+  //       setFosterPets([]);
+  //     }
+  //   };
+
+  //   fetchFosterPets();
+  // }, [user]);
 
   const handleDeletePet = async (petId) => {
     const confirmDelete = window.confirm(
@@ -458,11 +488,12 @@ function ProfilePage() {
 
       {/* Adoption Applications - Dynamic */}
       <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>
-        Adoption Applications
+        Foster Pets
       </Typography>
+
       <Stack spacing={2} sx={{ mb: 4 }}>
-        {pets.length > 0 ? (
-          pets.map((pet) => (
+        {fosterPets.length > 0 ? (
+          fosterPets.map((pet) => (
             <Card
               key={pet._id}
               sx={{ borderRadius: 3, border: "1px solid #ddd" }}
@@ -479,7 +510,7 @@ function ProfilePage() {
                 <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
                   <Box
                     component="img"
-                    src={pet.photo[0]}
+                    src={`${API_BASE_URL}/uploads/${pet.photos[0]}`}
                     alt={pet.name}
                     sx={{
                       width: 80,
@@ -500,6 +531,7 @@ function ProfilePage() {
                     </Typography>
                   </Box>
                 </Box>
+
                 <Button
                   sx={{
                     background: "linear-gradient(to right, #00bcd4, #ff7043)",
@@ -512,6 +544,7 @@ function ProfilePage() {
                       background: "linear-gradient(to right, #00acc1, #f4511e)",
                     },
                   }}
+                  onClick={() => console.log("View details", pet._id)}
                 >
                   View Details
                 </Button>
@@ -520,7 +553,7 @@ function ProfilePage() {
           ))
         ) : (
           <Typography variant="body2" color="text.secondary">
-            No adoption applications found.
+            No foster pets found.
           </Typography>
         )}
       </Stack>
