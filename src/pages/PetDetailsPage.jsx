@@ -638,66 +638,69 @@ function PetDetailsPage({ fosterOrgId }) {
 
           <Stack spacing={2} sx={{ mb: 4 }}>
             {fosterPets.length > 0 ? (
-              fosterPets.map((pet) => (
-                <Card
-                  key={pet._id}
-                  sx={{ borderRadius: 3, border: "1px solid #ddd" }}
-                >
-                  <CardContent
-                    sx={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      flexWrap: "wrap",
-                      gap: 2,
-                    }}
+              fosterPets
+                .filter((pet) =>
+                  pet.requests?.some((req) => req.status === "accepted")
+                )
+                .map((pet) => (
+                  <Card
+                    key={pet._id}
+                    sx={{ borderRadius: 3, border: "1px solid #ddd" }}
                   >
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                    <CardContent
+                      sx={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        flexWrap: "wrap",
+                        gap: 2,
+                      }}
+                    >
                       <Box
-                        component="img"
-                        src={`${API_BASE_URL}/uploads/${pet.photos[0]}`}
-                        alt={pet.name}
+                        sx={{ display: "flex", alignItems: "center", gap: 2 }}
+                      >
+                        <Box
+                          component="img"
+                          src={`${API_BASE_URL}/uploads/${pet.photos[0]}`}
+                          alt={pet.name}
+                          sx={{
+                            width: 80,
+                            height: 80,
+                            objectFit: "cover",
+                            borderRadius: 2,
+                          }}
+                        />
+                        <Box>
+                          <Typography variant="subtitle1" fontWeight="bold">
+                            {pet.name}
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary">
+                            {pet.breed} • {pet.age} • {pet.gender}
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary">
+                            Location: {pet.location}
+                          </Typography>
+                        </Box>
+                      </Box>
+                      <Box
                         sx={{
-                          width: 80,
-                          height: 80,
-                          objectFit: "cover",
-                          borderRadius: 2,
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: "3px",
                         }}
-                      />
-                      <Box>
-                        <Typography variant="subtitle1" fontWeight="bold">
-                          {pet.name}
+                      >
+                        <Typography variant="body2" color="text.secondary">
+                          Start Date:{" "}
+                          {new Date(pet.start_date).toLocaleDateString()}
                         </Typography>
                         <Typography variant="body2" color="text.secondary">
-                          {pet.breed} • {pet.age} • {pet.gender}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                          Location: {pet.location}
+                          End Date:{" "}
+                          {new Date(pet.end_date).toLocaleDateString()}
                         </Typography>
                       </Box>
-                    </Box>
-
-                    <Button
-                      sx={{
-                        background:
-                          "linear-gradient(to right, #00bcd4, #ff7043)",
-                        color: "white",
-                        fontWeight: "bold",
-                        textTransform: "none",
-                        borderRadius: 3,
-                        px: 2,
-                        "&:hover": {
-                          background:
-                            "linear-gradient(to right, #00acc1, #f4511e)",
-                        },
-                      }}
-                      onClick={() => console.log("View details", pet._id)}
-                    >
-                      View Details
-                    </Button>
-                  </CardContent>
-                </Card>
-              ))
+                    </CardContent>
+                  </Card>
+                ))
             ) : (
               <Typography variant="body2" color="text.secondary">
                 No adoption applications found.
