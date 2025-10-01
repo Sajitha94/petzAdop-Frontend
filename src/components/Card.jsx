@@ -98,18 +98,20 @@ function PetCard({ pet = defaultPet, type = "pet", userFavorites = [] }) {
                   style={{ height: 250, objectFit: "cover" }} // fixed height
                   onClick={handleClick}
                 />
-                <IconButton
-                  sx={{
-                    position: "absolute",
-                    top: 8,
-                    right: 8,
-                    color: isFavorite ? "#ff7043" : "white",
-                    backgroundColor: "rgba(0,0,0,0.4)",
-                  }}
-                  onClick={toggleFavorite}
-                >
-                  {isFavorite ? <FavoriteIcon /> : <FavoriteBorderIcon />}
-                </IconButton>
+                {type === "pet" && (
+                  <IconButton
+                    sx={{
+                      position: "absolute",
+                      top: 8,
+                      right: 8,
+                      color: isFavorite ? "#ff7043" : "white",
+                      backgroundColor: "rgba(0,0,0,0.4)",
+                    }}
+                    onClick={toggleFavorite}
+                  >
+                    {isFavorite ? <FavoriteIcon /> : <FavoriteBorderIcon />}
+                  </IconButton>
+                )}
               </Box>
             )}
 

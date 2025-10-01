@@ -340,6 +340,32 @@ export default function PostPetForm({
                     <Typography mt={1}>{videoFile.name} selected</Typography>
                   )}
                 </Grid>
+                {fosterForm && (
+                  <>
+                    <Grid item xs={12} sm={6}>
+                      <TextField
+                        name="start_date"
+                        label="Start Date"
+                        type="date"
+                        fullWidth
+                        InputLabelProps={{ shrink: true }}
+                        value={formData.start_date || ""}
+                        onChange={handleChange}
+                      />
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                      <TextField
+                        name="end_date"
+                        label="End Date"
+                        type="date"
+                        fullWidth
+                        InputLabelProps={{ shrink: true }}
+                        value={formData.end_date || ""}
+                        onChange={handleChange}
+                      />
+                    </Grid>
+                  </>
+                )}
 
                 {/* Submit */}
                 <Grid item xs={12}>
