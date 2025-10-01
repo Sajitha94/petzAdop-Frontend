@@ -3,30 +3,65 @@ import { Avatar, TextField, IconButton, Divider } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
 import { API_BASE_URL } from "../config";
 import { jwtDecode } from "jwt-decode";
-
+import { useLocation } from "react-router-dom";
 function ChatPage() {
   const token = localStorage.getItem("token");
-const decoded = jwtDecode(token);
-const userId = decoded.id;
+  const decoded = jwtDecode(token);
+  const userId = decoded.id;
   const [conversations, setConversations] = useState([]);
   const [selectedChat, setSelectedChat] = useState(null);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
+  const location = useLocation();
+  const { petId, petName, receiverId, receiverName } = location.state || {};
   useEffect(() => {
     const fetchConversations = async () => {
       try {
         const res = await fetch(`${API_BASE_URL}/api/chat/${userId}`);
         const data = await res.json();
+
         if (data.success) {
-          setConversations(data.messages);
-          if (data.messages.length) setSelectedChat(data.messages[0]);
+          let convos = data.messages;
+
+          // 👉 If coming from PetCard, inject receiver (pet owner) into conversation list
+          if (receiverId) {
+            const exists = convos.find((c) => c.userId === receiverId);
+            if (!exists) {
+              convos = [
+                {
+                  userId: receiverId,
+                  name: receiverName || petName,
+                  lastMessage: "",
+                  avatar: "/shelter1.png",
+                  petId,
+                  petName,
+                },
+                ...convos,
+              ];
+            }
+          }
+
+          setConversations(convos);
+
+          // Auto-select the pet chat if navigated from PetCard
+          if (receiverId) {
+            setSelectedChat({
+              userId: receiverId,
+              name: receiverName || petName,
+              avatar: "/shelter1.png",
+              petId,
+              petName,
+            });
+          } else if (convos.length) {
+            setSelectedChat(convos[0]);
+          }
         }
       } catch (err) {
         console.error(err);
       }
     };
     fetchConversations();
-  }, [userId]);
+  }, [userId, receiverId, receiverName, petId, petName]);
 
   useEffect(() => {
     if (!selectedChat) return;

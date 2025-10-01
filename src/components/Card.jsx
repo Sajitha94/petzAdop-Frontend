@@ -283,12 +283,21 @@ function PetCard({ pet = defaultPet, type = "pet", userFavorites = [] }) {
           <Button
             variant="contained"
             size="small"
+            onClick={() =>
+              navigate("/chatpage", {
+                state: {
+                  petId: pet._id,
+                  petName: pet.name,
+                  receiverId: pet.post_user?._id,
+                  receiverName: pet.post_user?.name,
+                },
+              })
+            }
             sx={{
               background: "linear-gradient(to right, #00bcd4, #ff7043)",
               textTransform: "none",
               fontSize: { xs: "14px", sm: "12px", lg: "14px" },
             }}
-            onClick={() => navigate(`/chatpage`)}
           >
             Meet {pet.name}
           </Button>
