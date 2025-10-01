@@ -239,6 +239,42 @@ function ProfilePage() {
       alert("Network error");
     }
   };
+  const handleUpdateRequestStatus = async (petId, requestId, status) => {
+    try {
+      const res = await fetch(
+        `${API_BASE_URL}/api/foster-pet/request/${petId}/${requestId}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ status }),
+        }
+      );
+
+      const data = await res.json();
+      if (res.ok) {
+        // Update state locally
+        setFosterPets((prev) =>
+          prev.map((pet) =>
+            pet._id === petId
+              ? {
+                  ...pet,
+                  requests: pet.requests.map((r) =>
+                    r._id === requestId ? { ...r, status } : r
+                  ),
+                }
+              : pet
+          )
+        );
+      } else {
+        console.error(data.message);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   return (
     <Box
@@ -501,12 +537,11 @@ function ProfilePage() {
               <CardContent
                 sx={{
                   display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  flexWrap: "wrap",
+                  flexDirection: "column",
                   gap: 2,
                 }}
               >
+                {/* Pet Info */}
                 <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
                   <Box
                     component="img"
@@ -529,25 +564,75 @@ function ProfilePage() {
                     <Typography variant="body2" color="text.secondary">
                       Location: {pet.location}
                     </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      Start:{" "}
+                      {pet.start_date
+                        ? new Date(pet.start_date).toLocaleDateString()
+                        : "N/A"}{" "}
+                      | End:{" "}
+                      {pet.end_date
+                        ? new Date(pet.end_date).toLocaleDateString()
+                        : "N/A"}
+                    </Typography>
                   </Box>
                 </Box>
 
-                <Button
-                  sx={{
-                    background: "linear-gradient(to right, #00bcd4, #ff7043)",
-                    color: "white",
-                    fontWeight: "bold",
-                    textTransform: "none",
-                    borderRadius: 3,
-                    px: 2,
-                    "&:hover": {
-                      background: "linear-gradient(to right, #00acc1, #f4511e)",
-                    },
-                  }}
-                  onClick={() => console.log("View details", pet._id)}
-                >
-                  View Details
-                </Button>
+                {/* Requests */}
+                {pet.requests?.length > 0 && (
+                  <Box
+                    sx={{ display: "flex", flexDirection: "column", gap: 1 }}
+                  >
+                    <Typography variant="subtitle2">
+                      Adoption Requests:
+                    </Typography>
+                    {pet.requests.map((req) => (
+                      <Box
+                        key={req._id}
+                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                      >
+                        <Typography variant="body2">
+                          {req.forster_parent_email}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                          Status: {req.status}
+                        </Typography>
+
+                        {req.status === "pending" && (
+                          <>
+                            <Button
+                              variant="contained"
+                              color="success"
+                              size="small"
+                              onClick={() =>
+                                handleUpdateRequestStatus(
+                                  pet._id,
+                                  req._id,
+                                  "accepted"
+                                )
+                              }
+                            >
+                              Accept
+                            </Button>
+                            <Button
+                              variant="contained"
+                              color="error"
+                              size="small"
+                              onClick={() =>
+                                handleUpdateRequestStatus(
+                                  pet._id,
+                                  req._id,
+                                  "rejected"
+                                )
+                              }
+                            >
+                              Reject
+                            </Button>
+                          </>
+                        )}
+                      </Box>
+                    ))}
+                  </Box>
+                )}
               </CardContent>
             </Card>
           ))
