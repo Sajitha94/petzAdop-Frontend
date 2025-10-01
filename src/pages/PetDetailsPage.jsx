@@ -139,6 +139,7 @@ function PetDetailsPage({ fosterOrgId }) {
   const handleAdoptionRequest = async () => {
     try {
       const token = localStorage.getItem("token");
+      if (!token) return navigate("/login");
       const res = await fetch(`${API_BASE_URL}/api/postpet/request`, {
         method: "POST",
         headers: {
@@ -160,7 +161,15 @@ function PetDetailsPage({ fosterOrgId }) {
     }
   };
 
-  const handleOpenForm = () => setOpenForm(true);
+  const handleOpenForm = () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+    setOpenForm(true);
+  };
+
   const handleCloseForm = () => setOpenForm(false);
 
   return (
@@ -359,16 +368,21 @@ function PetDetailsPage({ fosterOrgId }) {
                       background: "linear-gradient(to right, #00acc1, #f4511e)",
                     },
                   }}
-                  onClick={() =>
-                    navigate("/chat", {
-                      state: {
-                        petId: pet._id,
-                        petName: pet.name,
-                        receiverId: pet.post_user?._id,
-                        receiverName: pet.post_user?.name,
-                      },
-                    })
-                  }
+                  onClick={() => {
+                    const token = localStorage.getItem("token");
+                    if (!token) {
+                      navigate("/login");
+                    } else {
+                      navigate("/chat", {
+                        state: {
+                          petId: pet._id,
+                          petName: pet.name,
+                          receiverId: pet.post_user?._id,
+                          receiverName: pet.post_user?.name,
+                        },
+                      });
+                    }
+                  }}
                 >
                   Schedule a Meet & Greet
                 </Button>
@@ -624,6 +638,21 @@ function PetDetailsPage({ fosterOrgId }) {
                     "&:hover": {
                       background: "linear-gradient(to right, #00acc1, #f4511e)",
                     },
+                  }}
+                  onClick={() => {
+                    const token = localStorage.getItem("token");
+                    if (!token) {
+                      navigate("/login");
+                    } else {
+                      navigate("/chat", {
+                        state: {
+                          petId: pet._id,
+                          petName: pet.name,
+                          receiverId: pet.post_user?._id,
+                          receiverName: pet.post_user?.name,
+                        },
+                      });
+                    }
                   }}
                 >
                   Schedule a Meet & Greet

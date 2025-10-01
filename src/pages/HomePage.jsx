@@ -88,12 +88,10 @@ function HomePage() {
   useEffect(() => {
     const fetchUser = async () => {
       const token = localStorage.getItem("token");
+      if (!token) return;
       const decoded = jwtDecode(token);
       const userId = decoded.id;
       try {
-        const token = localStorage.getItem("token");
-        if (!token) return;
-
         const res = await fetch(`${API_BASE_URL}/api/auth/profile/${userId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -184,7 +182,14 @@ function HomePage() {
                   background: "linear-gradient(to right, #0097a7, #f4511e)",
                 },
               }}
-              onClick={() => navigate("/postpet")}
+              onClick={() => {
+                const token = localStorage.getItem("token");
+                if (!token) {
+                  navigate("/login");
+                } else {
+                  navigate("/postpet");
+                }
+              }}
             >
               + Post Pet
             </Button>

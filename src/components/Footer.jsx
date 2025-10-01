@@ -1,7 +1,9 @@
 import * as React from "react";
 import { Box, Typography, Button, Container } from "@mui/material";
+import { useLocation, useNavigate } from "react-router-dom";
 
 function Footer() {
+  const navigate = useNavigate();
   return (
     <Box
       component="footer"
@@ -138,6 +140,14 @@ function Footer() {
               px: 5,
               py: 1.2,
               borderRadius: 2,
+            }}
+            onClick={() => {
+              const token = localStorage.getItem("token");
+              if (!token) {
+                navigate("/login");
+              } else {
+                navigate("/postpet");
+              }
             }}
           >
             Adopt a Pet Now

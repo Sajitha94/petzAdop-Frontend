@@ -239,7 +239,14 @@ function SearchPage() {
                   background: "linear-gradient(to right, #0097a7, #f4511e)",
                 },
               }}
-              onClick={() => navigate("/postpet")}
+              onClick={() => {
+                const token = localStorage.getItem("token");
+                if (!token) {
+                  navigate("/login");
+                } else {
+                  navigate("/postpet");
+                }
+              }}
             >
               + Post Pet
             </Button>

@@ -285,16 +285,21 @@ function PetCard({ pet = defaultPet, type = "pet", userFavorites = [] }) {
           <Button
             variant="contained"
             size="small"
-            onClick={() =>
-              navigate("/chat", {
-                state: {
-                  petId: pet._id,
-                  petName: pet.name,
-                  receiverId: pet.post_user?._id,
-                  receiverName: pet.post_user?.name,
-                },
-              })
-            }
+            onClick={() => {
+              const token = localStorage.getItem("token");
+              if (!token) {
+                navigate("/login");
+              } else {
+                navigate("/chat", {
+                  state: {
+                    petId: pet._id,
+                    petName: pet.name,
+                    receiverId: pet.post_user?._id,
+                    receiverName: pet.post_user?.name,
+                  },
+                });
+              }
+            }}
             sx={{
               background: "linear-gradient(to right, #00bcd4, #ff7043)",
               textTransform: "none",
