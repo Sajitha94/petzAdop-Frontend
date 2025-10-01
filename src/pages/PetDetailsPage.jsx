@@ -360,16 +360,15 @@ function PetDetailsPage({ fosterOrgId }) {
                     },
                   }}
                   onClick={() =>
-              navigate("/chatpage", {
-                state: {
-                  petId: pet._id,
-                  petName: pet.name,
-                  receiverId: pet.post_user?._id, 
-                  receiverName: pet.post_user?.name,
-                },
-              })
-            }
-                
+                    navigate("/chat", {
+                      state: {
+                        petId: pet._id,
+                        petName: pet.name,
+                        receiverId: pet.post_user?._id,
+                        receiverName: pet.post_user?.name,
+                      },
+                    })
+                  }
                 >
                   Schedule a Meet & Greet
                 </Button>

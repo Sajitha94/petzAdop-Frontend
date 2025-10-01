@@ -69,7 +69,7 @@ function App() {
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/searchpage" element={<SearchPage />} />
-        <Route path="/chatpage" element={<ChatPage />} />
+        <Route path="/chat" element={<ChatPage />} />
       </Routes>
       {!hideHeaderFooter && <Footer />}
     </>

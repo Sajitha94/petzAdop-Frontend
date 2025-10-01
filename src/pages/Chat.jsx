@@ -12,6 +12,7 @@ function ChatPage() {
   const [selectedChat, setSelectedChat] = useState(null);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
+  const [unreadCounts, setUnreadCounts] = useState({});
   const location = useLocation();
   const { petId, petName, receiverId, receiverName } = location.state || {};
   useEffect(() => {
@@ -80,6 +81,27 @@ function ChatPage() {
     };
     fetchMessages();
   }, [selectedChat, userId]);
+
+  useEffect(() => {
+    const fetchUnreadCounts = async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/chat/unread/${userId}`);
+        const data = await res.json();
+        if (data.success) {
+          const unreadMap = {};
+          data.counts.forEach((c) => {
+            unreadMap[c.userId] = c.unreadCount;
+          });
+          setUnreadCounts(unreadMap);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchUnreadCounts();
+  }, [userId]);
+
   const handleSend = async () => {
     if (!newMessage.trim()) return;
     try {
@@ -116,14 +138,35 @@ function ChatPage() {
               className={`flex items-center p-4 cursor-pointer hover:bg-gray-50 ${
                 selectedChat?.userId === c.userId ? "bg-gray-100" : ""
               }`}
-              onClick={() => setSelectedChat(c)}
+              // onClick={() => setSelectedChat(c)}
+              onClick={async () => {
+                setSelectedChat(c);
+                setUnreadCounts((prev) => ({ ...prev, [c.userId]: 0 }));
+                try {
+                  await fetch(
+                    `${API_BASE_URL}/api/chat/read/${c.userId}/${userId}`,
+                    {
+                      method: "GET",
+                    }
+                  );
+                } catch (err) {
+                  console.error("Failed to mark as read:", err);
+                }
+              }}
             >
               <Avatar src={c.avatar || "/shelter1.png"} />
-              <div className="ml-3">
-                <p className="font-medium">{c.name}</p>
-                <p className="text-sm text-gray-500 truncate">
-                  {c.lastMessage}
-                </p>
+              <div className="flex items-center justify-between w-full">
+                <div className="ml-3">
+                  <p className="font-medium">{c.name}</p>
+                  <p className="text-sm text-gray-500 truncate">
+                    {c.lastMessage}
+                  </p>
+                </div>
+                {unreadCounts[c.userId] > 0 && (
+                  <span className="bg-gray-500 text-white text-xs rounded-full px-2 py-0.5">
+                    {unreadCounts[c.userId]}
+                  </span>
+                )}
               </div>
             </div>
           ))}

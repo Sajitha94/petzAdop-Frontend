@@ -284,7 +284,7 @@ function PetCard({ pet = defaultPet, type = "pet", userFavorites = [] }) {
             variant="contained"
             size="small"
             onClick={() =>
-              navigate("/chatpage", {
+              navigate("/chat", {
                 state: {
                   petId: pet._id,
                   petName: pet.name,
