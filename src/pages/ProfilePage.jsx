@@ -30,6 +30,7 @@ function ProfilePage() {
   const [editPet, setEditPet] = useState(null);
   const [user, setUser] = useState(null);
   const [fosterPets, setFosterPets] = useState([]);
+  const [fosterRequestPets, setFosterRequestPets] = useState([]);
 
   const token = localStorage.getItem("token");
   const decoded = jwtDecode(token);
@@ -68,8 +69,6 @@ function ProfilePage() {
           );
           setPets(userPets);
 
-          console.log(petData, "petData");
-
           const filteredRequests = petData.pets.flatMap((pet) =>
             pet.requests
               .filter(
@@ -98,7 +97,6 @@ function ProfilePage() {
           );
 
           setAdopRequestPets(filteredRequests);
-          console.log(filteredRequests, "filteredRequests");
         }
 
         // Fetch foster pets if user is foster organization
@@ -108,6 +106,22 @@ function ProfilePage() {
           );
           const fosterData = await fosterRes.json();
           if (fosterData.status === "success") setFosterPets(fosterData.data);
+
+          const fosterRequestTrack = await fetch(
+            `${API_BASE_URL}/api/foster-pet`
+          );
+          const fosterrequest = await fosterRequestTrack.json();
+          console.log(fosterrequest, "fosterData");
+
+          const myRequests = fosterrequest.data.filter((pet) =>
+            pet.requests.some(
+              (r) =>
+                r.forster_parent_ID?._id === userId ||
+                r.forster_parent_ID === userId
+            )
+          );
+          setFosterRequestPets(myRequests);
+          console.log(myRequests, "myRequests");
         }
       } catch (error) {
         console.error(error);
@@ -321,7 +335,8 @@ function ProfilePage() {
   const CustomStepIcon = (props) => {
     const { active, completed, status } = props;
 
-    if (status === "approved") return <CheckCircleIcon color="success" />;
+    if (status === "approved" || status === "accepted")
+      return <CheckCircleIcon color="success" />;
     if (status === "rejected") return <CancelIcon color="error" />;
     return <RadioButtonUncheckedIcon color={active ? "primary" : "disabled"} />;
   };
@@ -574,7 +589,7 @@ function ProfilePage() {
 
       {/* Adoption Applications - Dynamic */}
       <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>
-        Foster Pets
+        Foster Pets Requests
       </Typography>
 
       <Stack spacing={2} sx={{ mb: 4 }}>
@@ -875,7 +890,101 @@ function ProfilePage() {
           </Typography>
         )}
       </Stack>
+      {/* Foster Tracking Requests - Notification */}
+      <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>
+        Foster Requests Tracking status
+      </Typography>
+      <Stack spacing={2} sx={{ mb: 4 }}>
+        {fosterRequestPets.length > 0 ? (
+          fosterRequestPets.map((item) => {
+            // Find the request for the logged-in user
+            const userRequest = item.requests.find(
+              (r) =>
+                r.forster_parent_ID?._id === userId ||
+                r.forster_parent_ID === userId
+            );
 
+            return (
+              <Card
+                key={item._id}
+                sx={{ borderRadius: 3, border: "1px solid #ddd" }}
+              >
+                <CardContent
+                  sx={{
+                    display: "flex",
+                    flexDirection: "row",
+                    gap: 2,
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                  }}
+                >
+                  <Box>
+                    <Box
+                      component="img"
+                      src={
+                        item.photos[0]
+                          ? `${API_BASE_URL}/uploads/${item.photos[0]}`
+                          : ""
+                      }
+                      alt={item.name}
+                      sx={{
+                        width: 80,
+                        height: 80,
+                        objectFit: "cover",
+                        borderRadius: 2,
+                      }}
+                    />
+                    <Box>
+                      <Typography variant="subtitle1" fontWeight="bold">
+                        {item.name}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        Request sent to {item.fosterOrgId?.email}
+                      </Typography>
+                    </Box>
+                  </Box>
+
+                  {/* Stepper */}
+                  <Box sx={{ width: "50%" }}>
+                    <Stepper
+                      activeStep={userRequest?.status === "pending" ? 0 : 1}
+                      alternativeLabel
+                    >
+                      <Step>
+                        <StepLabel
+                          StepIconComponent={(props) => (
+                            <CustomStepIcon {...props} status="pending" />
+                          )}
+                        >
+                          Pending
+                        </StepLabel>
+                      </Step>
+                      <Step>
+                        <StepLabel
+                          StepIconComponent={(props) => (
+                            <CustomStepIcon
+                              {...props}
+                              status={userRequest?.status}
+                            />
+                          )}
+                        >
+                          {userRequest?.status === "accepted"
+                            ? "Accepted"
+                            : "Rejected"}
+                        </StepLabel>
+                      </Step>
+                    </Stepper>
+                  </Box>
+                </CardContent>
+              </Card>
+            );
+          })
+        ) : (
+          <Typography variant="body2" color="text.secondary">
+            No foster requests for your pets.
+          </Typography>
+        )}
+      </Stack>
       {/* My Reviews */}
       <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>
         My Reviews

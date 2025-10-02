@@ -105,7 +105,6 @@ function ChatPage() {
   const handleSend = async () => {
     if (!newMessage.trim()) return;
     try {
-      console.log(selectedChat, "selectedChat");
 
       const res = await fetch(`${API_BASE_URL}/api/chat`, {
         method: "POST",
