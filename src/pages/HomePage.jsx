@@ -28,8 +28,12 @@ function HomePage() {
       console.log(data, "dat12");
 
       if (res.ok) {
-        setPets(data.pets);
-        setTotal(data.total);
+        // Filter pets with petsStatus === 1
+        const activePets = data.pets.filter((pet) => pet.petsStatus === 1);
+        console.log(activePets, "activePets");
+
+        setPets(activePets);
+        setTotal(activePets.length); // total only active pets
       }
     } catch (err) {
       console.error(err);
