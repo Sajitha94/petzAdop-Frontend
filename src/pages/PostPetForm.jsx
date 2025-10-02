@@ -12,6 +12,8 @@ import { useState } from "react";
 import { useLocation } from "react-router-dom";
 import { useEffect } from "react";
 import { API_BASE_URL } from "../config";
+import { useNavigate } from "react-router-dom";
+
 export default function PostPetForm({
   initialData,
   onClose,
@@ -19,6 +21,7 @@ export default function PostPetForm({
   fosterOrgId,
 }) {
   const location = useLocation();
+  const navigate = useNavigate();
   const pet = location.state?.pet || initialData || null;
   const [formData, setFormData] = useState(
     initialData || {
@@ -103,6 +106,7 @@ export default function PostPetForm({
         const result = await response.json();
         if (response.ok) {
           setMessage("Foster pet posted successfully ✅");
+
           if (onClose) onClose();
         } else {
           setMessage(result.message || "Something went wrong ❌");
@@ -134,6 +138,7 @@ export default function PostPetForm({
               ? "Pet updated successfully ✅"
               : "Pet posted successfully ✅"
           );
+          navigate("/");
           if (onClose) onClose(); // 👈 close dialog after submit
         } else {
           setMessage(result.message || "Something went wrong ❌");

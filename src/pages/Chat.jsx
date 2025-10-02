@@ -4,6 +4,8 @@ import SendIcon from "@mui/icons-material/Send";
 import { API_BASE_URL } from "../config";
 import { jwtDecode } from "jwt-decode";
 import { useLocation } from "react-router-dom";
+import MenuIcon from "@mui/icons-material/Menu";
+
 function ChatPage() {
   const token = localStorage.getItem("token");
   const decoded = jwtDecode(token);
@@ -13,18 +15,17 @@ function ChatPage() {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
   const [unreadCounts, setUnreadCounts] = useState({});
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const location = useLocation();
   const { petId, petName, receiverId, receiverName } = location.state || {};
+
   useEffect(() => {
     const fetchConversations = async () => {
       try {
         const res = await fetch(`${API_BASE_URL}/api/chat/${userId}`);
         const data = await res.json();
-
         if (data.success) {
           let convos = data.messages;
-
-          // 👉 If coming from PetCard, inject receiver (pet owner) into conversation list
           if (receiverId) {
             const exists = convos.find((c) => c.userId === receiverId);
             if (!exists) {
@@ -41,10 +42,7 @@ function ChatPage() {
               ];
             }
           }
-
           setConversations(convos);
-
-          // Auto-select the pet chat if navigated from PetCard
           if (receiverId) {
             setSelectedChat({
               userId: receiverId,
@@ -66,12 +64,11 @@ function ChatPage() {
 
   useEffect(() => {
     if (!selectedChat) return;
-
     const fetchMessages = async () => {
       try {
         const receiverId = selectedChat.userId;
         const res = await fetch(
-          ` ${API_BASE_URL}/api/chat/${userId}/${receiverId}`
+          `${API_BASE_URL}/api/chat/${userId}/${receiverId}`
         );
         const data = await res.json();
         if (data.success) setMessages(data.messages);
@@ -98,14 +95,12 @@ function ChatPage() {
         console.error(err);
       }
     };
-
     fetchUnreadCounts();
   }, [userId]);
 
   const handleSend = async () => {
     if (!newMessage.trim()) return;
     try {
-
       const res = await fetch(`${API_BASE_URL}/api/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -127,45 +122,42 @@ function ChatPage() {
 
   return (
     <div className="flex h-screen bg-gray-100">
-      {/* Left Sidebar */}
-      <div className="w-1/4 bg-white border-r">
-        <h2 className="p-4 font-bold text-lg border-b">Chats</h2>
-        <div>
+      {/* Sidebar (always visible on desktop) */}
+      <div
+        className={`
+    bg-white border-r
+    fixed top-0 left-0 h-full z-20 transform transition-transform duration-300
+    w-64
+    ${mobileSidebarOpen ? "translate-x-0" : "-translate-x-full"} 
+    lg:translate-x-0 lg:relative   /* Always visible on desktop */
+    overflow-y-auto
+  `}
+      >
+        <h2 className="p-4 font-bold text-lg border-b flex justify-between items-center">
+          Chats
+          {/* Close button only on mobile */}
+          <IconButton
+            sx={{ display: { xs: "block", md: "none" } }}
+            onClick={() => setMobileSidebarOpen(false)}
+          >
+            ✖
+          </IconButton>
+        </h2>
+        <div className="flex-1 overflow-y-auto">
           {conversations.map((c) => (
             <div
               key={c.userId}
               className={`flex items-center p-4 cursor-pointer hover:bg-gray-50 ${
                 selectedChat?.userId === c.userId ? "bg-gray-100" : ""
               }`}
-              // onClick={() => setSelectedChat(c)}
-              onClick={async () => {
-                setSelectedChat(c);
-                setUnreadCounts((prev) => ({ ...prev, [c.userId]: 0 }));
-                try {
-                  await fetch(
-                    `${API_BASE_URL}/api/chat/read/${c.userId}/${userId}`,
-                    {
-                      method: "GET",
-                    }
-                  );
-                } catch (err) {
-                  console.error("Failed to mark as read:", err);
-                }
-              }}
+              onClick={() => setSelectedChat(c)}
             >
               <Avatar src={c.avatar || "/shelter1.png"} />
-              <div className="flex items-center justify-between w-full">
-                <div className="ml-3">
-                  <p className="font-medium">{c.name}</p>
-                  <p className="text-sm text-gray-500 truncate">
-                    {c.lastMessage}
-                  </p>
-                </div>
-                {unreadCounts[c.userId] > 0 && (
-                  <span className="bg-gray-500 text-white text-xs rounded-full px-2 py-0.5">
-                    {unreadCounts[c.userId]}
-                  </span>
-                )}
+              <div className="ml-3">
+                <p className="font-medium">{c.name}</p>
+                <p className="text-sm text-gray-500 truncate">
+                  {c.lastMessage}
+                </p>
               </div>
             </div>
           ))}
@@ -174,56 +166,68 @@ function ChatPage() {
 
       {/* Chat Window */}
       <div className="flex-1 flex flex-col">
-        {/* Chat Header */}
-        {selectedChat && (
-          <div className="flex items-center p-4 border-b bg-white">
-            <Avatar src={selectedChat.avatar || "/shelter1.png"} />
-            <h2 className="ml-3 font-semibold">{selectedChat.name}</h2>
-          </div>
-        )}
+        {selectedChat ? (
+          <>
+            {/* Chat Header */}
+            {selectedChat && (
+              <div className="flex items-center p-4 border-b bg-white">
+                {/* Show menu button only on mobile */}
+                <IconButton
+                  className="block lg:hidden"
+                  onClick={() => setMobileSidebarOpen(true)}
+                >
+                  <MenuIcon />
+                </IconButton>
 
-        {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-3">
-          {messages.map((msg) => (
-            <div
-              key={msg._id || msg.id}
-              className={`flex ${
-                msg.sender === userId ? "justify-end" : "justify-start"
-              }`}
-            >
-              <div
-                className={`px-4 py-2 rounded-2xl max-w-xs ${
-                  msg.sender === userId
-                    ? "bg-blue-500 text-white rounded-br-none"
-                    : "bg-gray-200 text-black rounded-bl-none"
-                }`}
-              >
-                <p>{msg.message}</p>
-                <span className="text-xs text-gray-300 block mt-1">
-                  {new Date(msg.timestamp).toLocaleTimeString()}
-                </span>
+                <Avatar src={selectedChat.avatar || "/shelter1.png"} />
+                <h2 className="ml-3 font-semibold">{selectedChat.name}</h2>
               </div>
+            )}
+
+            {/* Messages */}
+            <div className="flex-1 overflow-y-auto p-6 space-y-4">
+              {messages.map((msg) => (
+                <div
+                  key={msg._id || msg.id}
+                  className={`flex ${
+                    msg.sender === userId ? "justify-end" : "justify-start"
+                  }`}
+                >
+                  <div
+                    className={`px-4 py-2 rounded-2xl max-w-lg ${
+                      msg.sender === userId
+                        ? "bg-blue-500 text-white rounded-br-none"
+                        : "bg-gray-200 text-black rounded-bl-none"
+                    }`}
+                  >
+                    <p>{msg.message}</p>
+                    <span className="text-xs text-gray-300 block mt-1">
+                      {new Date(msg.timestamp).toLocaleTimeString()}
+                    </span>
+                  </div>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
 
-        <Divider />
-
-        {/* Input Box */}
-        {selectedChat && (
-          <div className="p-4 flex items-center bg-white">
-            <TextField
-              variant="outlined"
-              size="small"
-              fullWidth
-              placeholder="Type a message..."
-              value={newMessage}
-              onChange={(e) => setNewMessage(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleSend()}
-            />
-            <IconButton color="primary" onClick={handleSend}>
-              <SendIcon />
-            </IconButton>
+            {/* Input */}
+            <div className="p-4 flex items-center bg-white">
+              <TextField
+                variant="outlined"
+                size="small"
+                fullWidth
+                placeholder="Type a message..."
+                value={newMessage}
+                onChange={(e) => setNewMessage(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleSend()}
+              />
+              <IconButton color="primary" onClick={handleSend}>
+                <SendIcon />
+              </IconButton>
+            </div>
+          </>
+        ) : (
+          <div className="flex-1 flex items-center justify-center text-gray-500">
+            Select a chat to start messaging
           </div>
         )}
       </div>
