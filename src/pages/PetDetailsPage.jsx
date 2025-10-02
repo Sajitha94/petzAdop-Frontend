@@ -80,7 +80,6 @@ function PetDetailsPage({ fosterOrgId }) {
           }
         );
         const data = await res.json();
-        console.log(data, "datasaji");
 
         if (data.status === "success") {
           if (pageType === "fosterDetails") {

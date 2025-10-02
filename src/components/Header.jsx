@@ -20,7 +20,7 @@ import { jwtDecode } from "jwt-decode";
 import { useEffect } from "react";
 import { API_BASE_URL } from "../config";
 const pages = ["Find Pets", "Shelters", "Foster", "Adopt", "About"];
-const settings = ["Profile", "Account", "Chat", "Logout"];
+const settings = ["Profile", "Chat", "Logout"];
 
 export default function Header() {
   const { user, setUser } = useAuth(); // ✅ only use context

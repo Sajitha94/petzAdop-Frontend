@@ -10,16 +10,23 @@ import {
   Dialog,
   Stack,
   Divider,
+  Stepper,
+  Step,
+  StepLabel,
   Chip,
 } from "@mui/material";
 import StarIcon from "@mui/icons-material/Star";
 import { useNavigate } from "react-router-dom";
 import { API_BASE_URL } from "../config";
 import { jwtDecode } from "jwt-decode"; // ✅ correct for v4
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import CancelIcon from "@mui/icons-material/Cancel";
+import RadioButtonUncheckedIcon from "@mui/icons-material/RadioButtonUnchecked";
 
 function ProfilePage() {
   const navigate = useNavigate();
   const [pets, setPets] = useState([]);
+  const [adopRequestPets, setAdopRequestPets] = useState([]);
   const [editPet, setEditPet] = useState(null);
   const [user, setUser] = useState(null);
   const [fosterPets, setFosterPets] = useState([]);
@@ -27,7 +34,10 @@ function ProfilePage() {
   const token = localStorage.getItem("token");
   const decoded = jwtDecode(token);
 
+  const adopRequestPetsSteps = ["pending", "final"];
   const userId = decoded.id;
+  const userEmail = decoded.email;
+  const limit = 10;
   useEffect(() => {
     const fetchData = async () => {
       if (!token) return;
@@ -44,18 +54,51 @@ function ProfilePage() {
         if (userData.status === "success") setUser(userData.data);
 
         // Fetch pets posted by the user
-        const petRes = await fetch(`${API_BASE_URL}/api/postpet`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
+        const petRes = await fetch(
+          `${API_BASE_URL}/api/postpet?limit=${limit}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
         const petData = await petRes.json();
+
         if (petData.status === "success") {
           const userPets = petData.pets.filter(
             (pet) => pet.post_user._id === userId
           );
           setPets(userPets);
+
+          console.log(petData, "petData");
+
+          const filteredRequests = petData.pets.flatMap((pet) =>
+            pet.requests
+              .filter(
+                (req) =>
+                  req.adopter_email?.trim().toLowerCase() ===
+                  userEmail?.trim().toLowerCase()
+              )
+              .map((req) => ({
+                ...req,
+                petInfo: {
+                  id: pet._id,
+                  name: pet.name,
+                  age: pet.age,
+                  breed: pet.breed,
+                  size: pet.size,
+                  gender: pet.gender,
+                  color: pet.color,
+                  location: pet.location,
+                  medical_history: pet.medical_history,
+                  description: pet.description,
+                  photo: pet.photo,
+                  video: pet.video,
+                  post_user: pet.post_user,
+                },
+              }))
+          );
+
+          setAdopRequestPets(filteredRequests);
+          console.log(filteredRequests, "filteredRequests");
         }
 
         // Fetch foster pets if user is foster organization
@@ -274,6 +317,13 @@ function ProfilePage() {
     } catch (err) {
       console.error(err);
     }
+  };
+  const CustomStepIcon = (props) => {
+    const { active, completed, status } = props;
+
+    if (status === "approved") return <CheckCircleIcon color="success" />;
+    if (status === "rejected") return <CancelIcon color="error" />;
+    return <RadioButtonUncheckedIcon color={active ? "primary" : "disabled"} />;
   };
 
   return (
@@ -740,6 +790,88 @@ function ProfilePage() {
         ) : (
           <Typography variant="body2" color="text.secondary">
             No pets posted yet.
+          </Typography>
+        )}
+      </Stack>
+
+      {/* Tracking Requests - Notification */}
+      <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>
+        Adoption Requests Tracking status
+      </Typography>
+      <Stack spacing={2} sx={{ mb: 4 }}>
+        {adopRequestPets.length > 0 ? (
+          adopRequestPets.map((item) => (
+            <Card
+              key={item._id}
+              sx={{ borderRadius: 3, border: "1px solid #ddd" }}
+            >
+              <CardContent
+                sx={{
+                  display: "flex",
+                  flexDirection: "row",
+                  gap: 2,
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
+                <Box>
+                  <Box
+                    component="img"
+                    src={
+                      item.petInfo.photo[0]
+                        ? `${API_BASE_URL}/uploads/${item.petInfo.photo[0]}`
+                        : ""
+                    }
+                    alt={item.petInfo.name}
+                    sx={{
+                      width: 80,
+                      height: 80,
+                      objectFit: "cover",
+                      borderRadius: 2,
+                    }}
+                  />
+                  <Box>
+                    <Typography variant="subtitle1" fontWeight="bold">
+                      {item.petInfo.name}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      Request sent to {item.petInfo.post_user.email}
+                    </Typography>
+                  </Box>
+                </Box>
+
+                {/* Stepper */}
+                <Box sx={{ width: "50%" }}>
+                  <Stepper
+                    activeStep={item.status === "pending" ? 0 : 1}
+                    alternativeLabel
+                  >
+                    <Step>
+                      <StepLabel
+                        StepIconComponent={(props) => (
+                          <CustomStepIcon {...props} status="pending" />
+                        )}
+                      >
+                        Pending
+                      </StepLabel>
+                    </Step>
+                    <Step>
+                      <StepLabel
+                        StepIconComponent={(props) => (
+                          <CustomStepIcon {...props} status={item.status} />
+                        )}
+                      >
+                        {item.status === "approved" ? "Accepted" : "Rejected"}
+                      </StepLabel>
+                    </Step>
+                  </Stepper>
+                </Box>
+              </CardContent>
+            </Card>
+          ))
+        ) : (
+          <Typography variant="body2" color="text.secondary">
+            No adoption requests for your pets.
           </Typography>
         )}
       </Stack>

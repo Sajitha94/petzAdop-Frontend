@@ -25,6 +25,8 @@ function HomePage() {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
+      console.log(data, "dat12");
+
       if (res.ok) {
         setPets(data.pets);
         setTotal(data.total);
