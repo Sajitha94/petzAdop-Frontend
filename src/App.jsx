@@ -64,6 +64,7 @@ function App() {
 
         <Route path="/postpet" element={<PostPetForm />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
         <Route path="/forgotpage" element={<ForgotPasswordPage />} />
 
         <Route path="/register" element={<RegisterPage />} />
