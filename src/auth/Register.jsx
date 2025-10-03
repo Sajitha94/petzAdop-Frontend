@@ -28,13 +28,12 @@ function RegisterPage() {
     password: "",
     confirmPassword: "",
     phonenumber: editUser?.phonenumber || "",
-    location: editUser?.location || "", // <-- this will be "" if editUser is undefined
+    location: editUser?.location || "",
     usertype: editUser?.usertype || "adopter",
     profilePictures: [],
   });
 
   useEffect(() => {
-
     if (!editUser && window.location.pathname.includes("/register")) {
       const fetchUser = async () => {
         try {
