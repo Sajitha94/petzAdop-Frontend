@@ -820,7 +820,14 @@ function ProfilePage() {
                   alignItems: "center",
                 }}
               >
-                <Box>
+                <Box
+                  sx={{
+                    display: "flex",
+                    gap: "15px",
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
                   <Box
                     component="img"
                     src={
@@ -836,12 +843,23 @@ function ProfilePage() {
                       borderRadius: 2,
                     }}
                   />
-                  <Box>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                    }}
+                  >
                     <Typography variant="subtitle1" fontWeight="bold">
                       {item.petInfo.name}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
                       Request sent to {item.petInfo.post_user.email}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      Requested At: {new Date(item.createdAt).toLocaleString()}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      Last Updated: {new Date(item.updatedAt).toLocaleString()}
                     </Typography>
                   </Box>
                 </Box>
