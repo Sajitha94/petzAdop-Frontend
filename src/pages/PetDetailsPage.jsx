@@ -661,7 +661,7 @@ function PetDetailsPage({ fosterOrgId }) {
           </Card>
 
           <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>
-            FosterPets Applications
+            FosterPets Lists
           </Typography>
 
           <Stack spacing={2} sx={{ mb: 4 }}>

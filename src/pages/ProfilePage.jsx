@@ -64,36 +64,39 @@ function ProfilePage() {
         const petData = await petRes.json();
 
         if (petData.status === "success") {
+          console.log(petData, "petData");
+
           const userPets = petData.pets.filter(
-            (pet) => pet.post_user._id === userId
+            (pet) => pet.post_user && pet.post_user._id === userId
           );
           setPets(userPets);
 
-          const filteredRequests = petData.pets.flatMap((pet) =>
-            pet.requests
-              .filter(
-                (req) =>
-                  req.adopter_email?.trim().toLowerCase() ===
-                  userEmail?.trim().toLowerCase()
-              )
-              .map((req) => ({
-                ...req,
-                petInfo: {
-                  id: pet._id,
-                  name: pet.name,
-                  age: pet.age,
-                  breed: pet.breed,
-                  size: pet.size,
-                  gender: pet.gender,
-                  color: pet.color,
-                  location: pet.location,
-                  medical_history: pet.medical_history,
-                  description: pet.description,
-                  photo: pet.photo,
-                  video: pet.video,
-                  post_user: pet.post_user,
-                },
-              }))
+          const filteredRequests = petData.pets.flatMap(
+            (pet) =>
+              pet.requests
+                ?.filter(
+                  (req) =>
+                    req.adopter_email?.trim().toLowerCase() ===
+                    userEmail?.trim().toLowerCase()
+                )
+                .map((req) => ({
+                  ...req,
+                  petInfo: {
+                    id: pet._id,
+                    name: pet.name,
+                    age: pet.age,
+                    breed: pet.breed,
+                    size: pet.size,
+                    gender: pet.gender,
+                    color: pet.color,
+                    location: pet.location,
+                    medical_history: pet.medical_history,
+                    description: pet.description,
+                    photo: pet.photo,
+                    video: pet.video,
+                    post_user: pet.post_user || null, // ✅ avoid crash
+                  },
+                })) || []
           );
 
           setAdopRequestPets(filteredRequests);
