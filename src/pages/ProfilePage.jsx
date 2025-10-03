@@ -887,9 +887,11 @@ function ProfilePage() {
                     <Typography variant="body2" color="text.secondary">
                       Requested At: {new Date(item.createdAt).toLocaleString()}
                     </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      Accepted At: {new Date(item.updatedAt).toLocaleString()}
-                    </Typography>
+                    {item.status === "approved" && (
+                      <Typography variant="body2" color="text.secondary">
+                        Accepted At: {new Date(item.updatedAt).toLocaleString()}
+                      </Typography>
+                    )}
                   </Box>
                 </Box>
 
@@ -987,12 +989,14 @@ function ProfilePage() {
                           ? new Date(userRequest.createdAt).toLocaleString()
                           : "N/A"}
                       </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        Last Updated:{" "}
-                        {userRequest?.updatedAt
-                          ? new Date(userRequest.updatedAt).toLocaleString()
-                          : "N/A"}
-                      </Typography>
+                      {userRequest?.status === "accepted" && (
+                        <Typography variant="body2" color="text.secondary">
+                          Accepted At:{" "}
+                          {userRequest?.updatedAt
+                            ? new Date(userRequest.updatedAt).toLocaleString()
+                            : "N/A"}
+                        </Typography>
+                      )}
                     </Box>
                   </Box>
 
