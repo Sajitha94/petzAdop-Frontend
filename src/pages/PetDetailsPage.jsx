@@ -20,6 +20,7 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { API_BASE_URL } from "../config";
 import { Dialog } from "@mui/material";
 import PostPetForm from "./PostPetForm";
+import { jwtDecode } from "jwt-decode";
 
 function PetDetailsPage({ fosterOrgId }) {
   const location = useLocation();
@@ -139,6 +140,9 @@ function PetDetailsPage({ fosterOrgId }) {
     try {
       const token = localStorage.getItem("token");
       if (!token) return navigate("/login");
+      const decoded = jwtDecode(token);
+      const adopterEmail = decoded.email;
+
       const res = await fetch(`${API_BASE_URL}/api/postpet/request`, {
         method: "POST",
         headers: {
@@ -147,7 +151,7 @@ function PetDetailsPage({ fosterOrgId }) {
         },
         body: JSON.stringify({
           petId: pet._id,
-          adopterEmail: "adopter@example.com",
+          adopterEmail: adopterEmail,
         }),
       });
 
