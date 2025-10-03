@@ -136,31 +136,6 @@ function ProfilePage() {
 
   if (!user) return <p>Loading...</p>; // or a skeleton
 
-  // useEffect(() => {
-  //   const fetchFosterPets = async () => {
-  //     if (!user) return;
-
-  //     // Only fetch if user is a foster organization
-  //     if (user.usertype !== "foster organization") return;
-
-  //     try {
-  //       const res = await fetch(`${API_BASE_URL}/api/foster-pet/${user._id}`);
-  //       const data = await res.json();
-
-  //       if (data.status === "success") {
-  //         setFosterPets(data.data);
-  //       } else {
-  //         setFosterPets([]);
-  //       }
-  //     } catch (err) {
-  //       console.error("Error fetching foster pets:", err);
-  //       setFosterPets([]);
-  //     }
-  //   };
-
-  //   fetchFosterPets();
-  // }, [user]);
-
   const handleDeletePet = async (petId) => {
     const confirmDelete = window.confirm(
       "Are you sure you want to delete this pet?"
@@ -314,6 +289,7 @@ function ProfilePage() {
       );
 
       const data = await res.json();
+
       if (res.ok) {
         // Update state locally
         setFosterPets((prev) =>
@@ -664,6 +640,12 @@ function ProfilePage() {
                         <Typography variant="body2" color="text.secondary">
                           Status: {req.status}
                         </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                          Requested At:{" "}
+                          {req.requestedAt
+                            ? new Date(req.requestedAt).toLocaleString()
+                            : "N/A"}
+                        </Typography>
 
                         {req.status === "pending" && (
                           <>
@@ -758,6 +740,12 @@ function ProfilePage() {
                         </Typography>
                         <Typography variant="body2" color="text.secondary">
                           Status: {req.status}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                          Requested At:{" "}
+                          {req.createdAt
+                            ? new Date(req.createdAt).toLocaleString() // full date + time
+                            : "N/A"}
                         </Typography>
                       </Box>
                     </Box>
