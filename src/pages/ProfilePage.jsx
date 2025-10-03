@@ -632,23 +632,41 @@ function ProfilePage() {
                     {pet.requests.map((req) => (
                       <Box
                         key={req._id}
-                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                          gap: 1,
+                        }}
                       >
-                        <Typography variant="body2">
-                          {req.forster_parent_email}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                          Status: {req.status}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                          Requested At:{" "}
-                          {req.requestedAt
-                            ? new Date(req.requestedAt).toLocaleString()
-                            : "N/A"}
-                        </Typography>
+                        <Box sx={{ display: "flex", gap: "5px" }}>
+                          <Typography variant="body2">
+                            {req.forster_parent_email} ||
+                          </Typography>
 
+                          <Typography variant="body2" color="text.secondary">
+                            Status: {req.status} ||
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary">
+                            {req.status === "accepted" ? (
+                              <>
+                                Accepted At:{" "}
+                                {req.updatedAt
+                                  ? new Date(req.updatedAt).toLocaleString()
+                                  : "N/A"}
+                              </>
+                            ) : (
+                              <>
+                                Requested At:{" "}
+                                {req.createdAt
+                                  ? new Date(req.createdAt).toLocaleString()
+                                  : "N/A"}
+                              </>
+                            )}
+                          </Typography>
+                        </Box>
                         {req.status === "pending" && (
-                          <>
+                          <Box sx={{ display: "flex", gap: "5px" }}>
                             <Button
                               variant="contained"
                               color="success"
@@ -677,7 +695,7 @@ function ProfilePage() {
                             >
                               Reject
                             </Button>
-                          </>
+                          </Box>
                         )}
                       </Box>
                     ))}
@@ -742,10 +760,21 @@ function ProfilePage() {
                           Status: {req.status}
                         </Typography>
                         <Typography variant="body2" color="text.secondary">
-                          Requested At:{" "}
-                          {req.createdAt
-                            ? new Date(req.createdAt).toLocaleString() // full date + time
-                            : "N/A"}
+                          {req.status === "approved" ? (
+                            <>
+                              Accepted At:{" "}
+                              {req.updatedAt
+                                ? new Date(req.updatedAt).toLocaleString()
+                                : "N/A"}
+                            </>
+                          ) : (
+                            <>
+                              Requested At:{" "}
+                              {req.createdAt
+                                ? new Date(req.createdAt).toLocaleString()
+                                : "N/A"}
+                            </>
+                          )}
                         </Typography>
                       </Box>
                     </Box>
@@ -859,7 +888,7 @@ function ProfilePage() {
                       Requested At: {new Date(item.createdAt).toLocaleString()}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                      Last Updated: {new Date(item.updatedAt).toLocaleString()}
+                      Accepted At: {new Date(item.updatedAt).toLocaleString()}
                     </Typography>
                   </Box>
                 </Box>
@@ -949,6 +978,20 @@ function ProfilePage() {
                       </Typography>
                       <Typography variant="body2" color="text.secondary">
                         Request sent to {item.fosterOrgId?.email}
+                      </Typography>
+
+                      {/* Show requestedAt and updatedAt */}
+                      <Typography variant="body2" color="text.secondary">
+                        Requested At:{" "}
+                        {userRequest?.createdAt
+                          ? new Date(userRequest.createdAt).toLocaleString()
+                          : "N/A"}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        Last Updated:{" "}
+                        {userRequest?.updatedAt
+                          ? new Date(userRequest.updatedAt).toLocaleString()
+                          : "N/A"}
                       </Typography>
                     </Box>
                   </Box>
