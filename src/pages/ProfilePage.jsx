@@ -779,7 +779,8 @@ function ProfilePage() {
                       </Box>
                     </Box>
                     <Stack direction="row" spacing={1}>
-                      {req.status === "pending" ? (
+                      {req.status === "pending" &&
+                      !pet.requests.some((r) => r.status !== "pending") ? (
                         <>
                           <Button
                             variant="contained"
@@ -887,11 +888,17 @@ function ProfilePage() {
                     <Typography variant="body2" color="text.secondary">
                       Requested At: {new Date(item.createdAt).toLocaleString()}
                     </Typography>
-                    {item.status === "approved" && (
-                      <Typography variant="body2" color="text.secondary">
-                        Accepted At: {new Date(item.updatedAt).toLocaleString()}
-                      </Typography>
-                    )}
+                    <Typography variant="body2" color="text.secondary">
+                      {item.status === "approved"
+                        ? `Accepted At: ${new Date(
+                            item.updatedAt
+                          ).toLocaleString()}`
+                        : item.status === "rejected"
+                        ? `Rejected At: ${new Date(
+                            item.updatedAt
+                          ).toLocaleString()}`
+                        : null}
+                    </Typography>
                   </Box>
                 </Box>
 
@@ -989,14 +996,17 @@ function ProfilePage() {
                           ? new Date(userRequest.createdAt).toLocaleString()
                           : "N/A"}
                       </Typography>
-                      {userRequest?.status === "accepted" && (
+                      {userRequest?.status === "accepted" ||
+                      userRequest?.status === "rejected" ? (
                         <Typography variant="body2" color="text.secondary">
-                          Accepted At:{" "}
+                          {userRequest.status === "accepted"
+                            ? "Accepted At: "
+                            : "Rejected At: "}
                           {userRequest?.updatedAt
                             ? new Date(userRequest.updatedAt).toLocaleString()
                             : "N/A"}
                         </Typography>
-                      )}
+                      ) : null}
                     </Box>
                   </Box>
 
