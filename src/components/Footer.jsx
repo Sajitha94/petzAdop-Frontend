@@ -75,32 +75,16 @@ function Footer() {
               Applications & Fostering
             </Typography>
             <Box sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}>
-              <Typography
-                variant="body2"
-                color="text.secondary"
-                sx={{ cursor: "pointer" }}
-              >
+              <Typography variant="body2" color="text.secondary">
                 Submit Application
               </Typography>
-              <Typography
-                variant="body2"
-                color="text.secondary"
-                sx={{ cursor: "pointer" }}
-              >
+              <Typography variant="body2" color="text.secondary">
                 Track Applications
               </Typography>
-              <Typography
-                variant="body2"
-                color="text.secondary"
-                sx={{ cursor: "pointer" }}
-              >
+              <Typography variant="body2" color="text.secondary">
                 Become a Foster
               </Typography>
-              <Typography
-                variant="body2"
-                color="text.secondary"
-                sx={{ cursor: "pointer" }}
-              >
+              <Typography variant="body2" color="text.secondary">
                 Foster Management
               </Typography>
             </Box>

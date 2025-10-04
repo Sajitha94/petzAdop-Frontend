@@ -202,15 +202,32 @@ function ForgotPasswordPage() {
             )}
 
             {step === 2 && (
-              <TextField
-                label="Verification Code"
-                name="token"
-                fullWidth
-                variant="outlined"
-                sx={{ mb: 2 }}
-                value={formData.token}
-                onChange={handleChange}
-              />
+              <>
+                <TextField
+                  label="Verification Code"
+                  name="token"
+                  fullWidth
+                  variant="outlined"
+                  sx={{ mb: 2 }}
+                  value={formData.token}
+                  onChange={handleChange}
+                />
+                <Button
+                  fullWidth
+                  type="button"
+                  variant="outlined"
+                  sx={{
+                    mb: 2,
+                    color: "#ff7043",
+                    borderColor: "#ff7043",
+                    textTransform: "none",
+                    fontWeight: "bold",
+                  }}
+                  onClick={sendResetCode}
+                >
+                  Resend OTP
+                </Button>
+              </>
             )}
 
             {step === 3 && (

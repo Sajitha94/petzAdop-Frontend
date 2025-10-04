@@ -40,7 +40,7 @@ export default function PostPetForm({
   const [videoFile, setVideoFile] = useState(null);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
-
+  const [submitted, setSubmitted] = useState(false);
   useEffect(() => {
     if (pet) {
       setFormData({
@@ -77,8 +77,19 @@ export default function PostPetForm({
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setSubmitted(true);
     setLoading(true);
     setMessage("");
+    if (!pet && photoFiles.length === 0) {
+      setMessage("At least one photo is required ❌");
+      setLoading(false);
+      return;
+    }
+    if (fosterForm && (!formData.start_date || !formData.end_date)) {
+      setMessage("Start Date and End Date are required ❌");
+      setLoading(false);
+      return;
+    }
 
     // Use FormData for file upload
     const data = new FormData();
@@ -172,6 +183,22 @@ export default function PostPetForm({
           }}
         >
           <CardContent sx={{ px: { xs: 2, sm: 4 }, py: { xs: 3, sm: 4 } }}>
+            {onClose && (
+              <Button
+                onClick={onClose}
+                sx={{
+                  position: "absolute",
+                  top: 16,
+                  right: 16,
+                  minWidth: 0,
+                  padding: "6px",
+                  borderRadius: "50%",
+                  color: "black",
+                }}
+              >
+                ✕
+              </Button>
+            )}
             <Typography
               variant="h5"
               fontWeight="bold"
@@ -304,7 +331,7 @@ export default function PostPetForm({
                       py: 2,
                     }}
                   >
-                    Upload Photos
+                    Upload Photos *
                     <input
                       type="file"
                       hidden

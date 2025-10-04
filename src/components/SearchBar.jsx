@@ -44,7 +44,7 @@ function SearchBar() {
     <div
       className="relative h-[70vh] flex flex-col justify-center items-center text-center px-5"
       style={{
-          backgroundImage: `url(${allpetImg})`,
+        backgroundImage: `url(${allpetImg})`,
         backgroundSize: "cover",
         backgroundPosition: "center",
       }}
@@ -119,10 +119,10 @@ function SearchBar() {
             </h4>
             <p className="text-gray-700 text-sm sm:text-lg">Available Now</p>
           </div>
-          <div>
+          {/* <div>
             <h4 className="sm:text-2xl text-lg font-bold text-sky-600">98%</h4>
             <p className="text-gray-700 text-sm sm:text-lg">Success Rate</p>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>
