@@ -55,6 +55,8 @@ function PetCard({ pet = defaultPet, type = "pet", userFavorites = [] }) {
   const toggleFavorite = async () => {
     try {
       const token = localStorage.getItem("token");
+
+      if (!token) return navigate("/login");
       const res = await fetch(`${API_BASE_URL}/api/auth/toggle`, {
         method: "POST",
         headers: {

@@ -71,12 +71,26 @@ function ChatPage() {
           `${API_BASE_URL}/api/chat/${userId}/${receiverId}`
         );
         const data = await res.json();
-        if (data.success) setMessages(data.messages);
+        if (data.success) {
+          setMessages(data.messages);
+          if (data.messages.length > 0) {
+            const lastMsg = data.messages[data.messages.length - 1];
+            setConversations((prev) =>
+              prev.map((c) =>
+                c.userId === receiverId
+                  ? { ...c, lastMessage: lastMsg.message }
+                  : c
+              )
+            );
+          }
+        }
       } catch (err) {
         console.error(err);
       }
     };
     fetchMessages();
+    const interval = setInterval(fetchMessages, 3000);
+    return () => clearInterval(interval);
   }, [selectedChat, userId]);
 
   useEffect(() => {
@@ -96,6 +110,8 @@ function ChatPage() {
       }
     };
     fetchUnreadCounts();
+    const interval = setInterval(fetchUnreadCounts, 3000);
+    return () => clearInterval(interval);
   }, [userId]);
 
   const handleSend = async () => {
@@ -114,6 +130,13 @@ function ChatPage() {
       if (data.success) {
         setMessages([...messages, data.chat]);
         setNewMessage("");
+        setConversations((prev) =>
+          prev.map((c) =>
+            c.userId === selectedChat.userId
+              ? { ...c, lastMessage: data.chat.message }
+              : c
+          )
+        );
       }
     } catch (err) {
       console.error(err);
@@ -121,7 +144,7 @@ function ChatPage() {
   };
 
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className="flex h-130 bg-gray-100">
       {/* Sidebar (always visible on desktop) */}
       <div
         className={`
@@ -150,14 +173,36 @@ function ChatPage() {
               className={`flex items-center p-4 cursor-pointer hover:bg-gray-50 ${
                 selectedChat?.userId === c.userId ? "bg-gray-100" : ""
               }`}
-              onClick={() => setSelectedChat(c)}
+              // onClick={() => setSelectedChat(c)}
+              onClick={async () => {
+                setSelectedChat(c);
+                setUnreadCounts((prev) => ({ ...prev, [c.userId]: 0 }));
+
+                try {
+                  await fetch(
+                    `${API_BASE_URL}/api/chat/read/${c.userId}/${userId}`,
+                    {
+                      method: "GET",
+                    }
+                  );
+                } catch (err) {
+                  console.error("Failed to mark as read:", err);
+                }
+              }}
             >
               <Avatar src={c.avatar || "/shelter1.png"} />
-              <div className="ml-3">
-                <p className="font-medium">{c.name}</p>
-                <p className="text-sm text-gray-500 truncate">
-                  {c.lastMessage}
-                </p>
+              <div className="flex items-center justify-between w-full">
+                <div className="ml-3">
+                  <p className="font-medium">{c.name}</p>
+                  <p className="text-sm text-gray-500 truncate">
+                    {c.lastMessage}
+                  </p>
+                </div>
+                {unreadCounts[c.userId] > 0 && (
+                  <span className="bg-gray-500 text-white text-xs rounded-full px-2 py-0.5">
+                    {unreadCounts[c.userId]}
+                  </span>
+                )}
               </div>
             </div>
           ))}
@@ -165,7 +210,7 @@ function ChatPage() {
       </div>
 
       {/* Chat Window */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col max-h-full">
         {selectedChat ? (
           <>
             {/* Chat Header */}
@@ -185,7 +230,7 @@ function ChatPage() {
             )}
 
             {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-6 space-y-4">
+            <div className="flex-1 overflow-y-auto p-6 space-y-4 max-h-95">
               {messages.map((msg) => (
                 <div
                   key={msg._id || msg.id}
