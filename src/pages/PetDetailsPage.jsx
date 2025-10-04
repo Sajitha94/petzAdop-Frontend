@@ -9,6 +9,7 @@ import {
   Stack,
   Button,
   Divider,
+  Rating,
 } from "@mui/material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import PhoneIcon from "@mui/icons-material/Phone";
@@ -33,6 +34,7 @@ function PetDetailsPage({ fosterOrgId }) {
   const [openForm, setOpenForm] = useState(false);
   const pageType = location.state?.pageType;
   const [fosterPets, setFosterPets] = useState([]);
+  const [orgReviews, setOrgReviews] = useState([]);
 
   // Fetch pet data if pageType is petDetails
   useEffect(() => {
@@ -130,6 +132,37 @@ function PetDetailsPage({ fosterOrgId }) {
 
     fetchFosterPets();
   }, [pet, user]);
+
+  useEffect(() => {
+    const fetchOrgReviews = async () => {
+      // When pageType is fosterDetails, the pet object *is* the org
+      const orgId = pageType === "fosterDetails" ? pet?._id : pet?.fosterOrgId;
+
+      if (!orgId) return;
+
+      try {
+        const res = await fetch(
+          `${API_BASE_URL}/api/foster-reviews/org/${orgId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        );
+
+        const data = await res.json();
+        if (data.status === "success") {
+          setOrgReviews(data.reviews);
+        } else {
+          setOrgReviews([]);
+        }
+      } catch (err) {
+        console.error("Error fetching foster org reviews:", err);
+      }
+    };
+
+    fetchOrgReviews();
+  }, [pet, pageType]);
 
   const handlePrev = () =>
     setCurrentIndex((prev) => (prev > 0 ? prev - 1 : prev));
@@ -736,6 +769,38 @@ function PetDetailsPage({ fosterOrgId }) {
             ) : (
               <Typography variant="body2" color="text.secondary">
                 No adoption applications found.
+              </Typography>
+            )}
+          </Stack>
+          <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>
+            Reviews for {pet?.name}
+          </Typography>
+
+          <Stack spacing={2} sx={{ display: "flex" }}>
+            {orgReviews.length > 0 ? (
+              orgReviews.map((review) => (
+                <Card
+                  key={review._id}
+                  sx={{ borderRadius: 3, border: "1px solid #ddd" }}
+                >
+                  <CardContent>
+                    <Typography variant="subtitle1" fontWeight="bold">
+                      {review.fosterParentId?.name || "Anonymous"}
+                    </Typography>
+                    <Rating value={review.rating} readOnly />
+                    <Typography variant="body2" sx={{ mt: 1 }}>
+                      {review.comment}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      Pet: {review.petId?.name} •{" "}
+                      {new Date(review.createdAt).toLocaleDateString()}
+                    </Typography>
+                  </CardContent>
+                </Card>
+              ))
+            ) : (
+              <Typography variant="body2" color="text.secondary">
+                No reviews yet.
               </Typography>
             )}
           </Stack>
