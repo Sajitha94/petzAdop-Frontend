@@ -4,6 +4,14 @@ import { useLocation, useNavigate } from "react-router-dom";
 
 function Footer() {
   const navigate = useNavigate();
+
+  const pages = [
+    { name: "Home", path: "/" },
+    { name: "Search pets", path: "/searchpage" },
+    { name: "Chat", path: "/chat" },
+    { name: "Account", path: "/profile" },
+  ];
+
   return (
     <Box
       component="footer"
@@ -44,34 +52,20 @@ function Footer() {
               Pet Listings
             </Typography>
             <Box sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}>
-              <Typography
-                variant="body2"
-                color="text.secondary"
-                sx={{ cursor: "pointer" }}
-              >
-                All Pets
-              </Typography>
-              <Typography
-                variant="body2"
-                color="text.secondary"
-                sx={{ cursor: "pointer" }}
-              >
-                Search by Breed
-              </Typography>
-              <Typography
-                variant="body2"
-                color="text.secondary"
-                sx={{ cursor: "pointer" }}
-              >
-                Age & Size
-              </Typography>
-              <Typography
-                variant="body2"
-                color="text.secondary"
-                sx={{ cursor: "pointer" }}
-              >
-                Locations
-              </Typography>
+              {pages.map((page) => (
+                <Typography
+                  key={page.name}
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{
+                    cursor: "pointer",
+                    "&:hover": { color: "#00bcd4" }, // optional hover effect
+                  }}
+                  onClick={() => navigate(page.path)}
+                >
+                  {page.name}
+                </Typography>
+              ))}
             </Box>
           </Box>
 
@@ -129,7 +123,6 @@ function Footer() {
           </Box>
         </Box>
 
-        {/* Call-to-Action */}
         <Box sx={{ mt: 6, textAlign: "center" }}>
           <Button
             sx={{
@@ -140,14 +133,10 @@ function Footer() {
               px: 5,
               py: 1.2,
               borderRadius: 2,
-            }}
-            onClick={() => {
-              const token = localStorage.getItem("token");
-              if (!token) {
-                navigate("/login");
-              } else {
-                navigate("/postpet");
-              }
+              cursor: "text",
+              "&:hover": {
+                background: "linear-gradient(to right, #00bcd4, #ff7043)",
+              },
             }}
           >
             Adopt a Pet Now

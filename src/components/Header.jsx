@@ -19,7 +19,6 @@ import { useAuth } from "../context/useContext";
 import { jwtDecode } from "jwt-decode";
 import { useEffect } from "react";
 import { API_BASE_URL } from "../config";
-const pages = ["Find Pets", "Shelters", "Foster", "Adopt", "About"];
 const settings = ["Profile", "Chat", "Logout"];
 
 export default function Header() {
@@ -33,6 +32,12 @@ export default function Header() {
   const handleOpenUserMenu = (event) => setAnchorElUser(event.currentTarget);
   const handleCloseUserMenu = () => setAnchorElUser(null);
 
+  const pages = [
+    { name: "Home", path: "/" },
+    { name: "Find Pets", path: "/searchpage" },
+    { name: "Chat", path: "/chat" },
+    { name: "Account", path: "/profile" },
+  ];
   const handleLogout = () => {
     localStorage.removeItem("token");
     setUser(null); // clears from context
@@ -105,15 +110,16 @@ export default function Header() {
           >
             {pages.map((page) => (
               <Button
-                key={page}
+                key={page.name} // ✅ use a unique string
                 sx={{
                   textTransform: "none",
                   fontSize: "16px",
                   color: "black",
                   "&:hover": { color: "#00bcd4" },
                 }}
+                onClick={() => navigate(page.path)}
               >
-                {page}
+                {page.name}
               </Button>
             ))}
           </Box>
