@@ -15,12 +15,15 @@ import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { API_BASE_URL } from "../config";
 import { jwtDecode } from "jwt-decode";
+import { useAuth } from "../context/useContext";
+
 function RegisterPage() {
   const navigate = useNavigate();
   const editUser = location.state?.user;
 
-  const [user, setUser] = useState(editUser || null);
+  const [user, setUserRegister] = useState(editUser || null);
   const [isEdit, setIsEdit] = useState(!!editUser);
+  const { setUser } = useAuth();
 
   const [formData, setFormData] = useState({
     name: editUser?.name || "",
@@ -59,7 +62,7 @@ function RegisterPage() {
               usertype: data.data.usertype || "adopter",
               profilePictures: data.data.profilePictures || [],
             });
-            setUser(data.data); // <-- store the fetched user
+            setUserRegister(data.data); // <-- store the fetched user
             setIsEdit(true);
           }
         } catch (err) {
@@ -101,6 +104,7 @@ function RegisterPage() {
       profilePictures,
     } = formData;
 
+    // ✅ Validation
     if (
       !name ||
       !email ||
@@ -114,28 +118,30 @@ function RegisterPage() {
       return;
     }
 
-    if (formData.password !== formData.confirmPassword) {
-      setMessage("Passwords do not match");
+    if (password !== confirmPassword) {
+      setMessage("❌ Passwords do not match");
       return;
     }
-    if (password.length < 6 || password.length > 8) {
-      setMessage("❌ Password must be between 6 and 8 characters");
+
+    if (password.length < 6 || password.length > 16) {
+      setMessage("❌ Password must be between 6 and 16 characters");
       return;
     }
+
     if (!validateEmail(email)) {
       setMessage("❌ Please enter a valid email address");
       return;
     }
 
-    // 4. Phone number format
     if (!validatePhone(phonenumber)) {
-      setMessage("❌ Please enter a valid phone number (10-15 digits)");
+      setMessage("❌ Please enter a valid phone number (10–15 digits)");
       return;
     }
 
     setLoading(true);
     setMessage("");
 
+    // ✅ Prepare FormData for backend
     const formDataToSend = new FormData();
     formDataToSend.append("name", name);
     formDataToSend.append("email", email);
@@ -144,34 +150,51 @@ function RegisterPage() {
     formDataToSend.append("location", location);
     formDataToSend.append("usertype", usertype);
 
-    // Append each selected file
     profilePictures.forEach((file) => {
       formDataToSend.append("profilePictures", file);
     });
 
     const token = localStorage.getItem("token");
     const url = isEdit
-      ? `${API_BASE_URL}/api/auth/update/${user._id}`
+      ? `${API_BASE_URL}/api/auth/update/${user?._id}`
       : `${API_BASE_URL}/api/auth/register`;
 
-    const res = await fetch(url, {
-      method: isEdit ? "PUT" : "POST",
-      body: formDataToSend,
-      headers: {
-        ...(isEdit && token ? { Authorization: `Bearer ${token}` } : {}),
-        // ❌ DO NOT set "Content-Type" here
-      },
-    });
+    try {
+      const res = await fetch(url, {
+        method: isEdit ? "PUT" : "POST",
+        body: formDataToSend,
+        headers: {
+          ...(isEdit && token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+      });
 
-    const data = await res.json();
-    if (res.ok) {
-      // Redirect to homepage
-      navigate("/"); // <-- go to homepage
-    } else {
-      setMessage(`❌ ${data.message || "Something went wrong"}`);
+      const data = await res.json();
+
+      if (res.ok) {
+        // ✅ If backend returns a new token (for registration or update)
+        if (data.token) {
+          localStorage.setItem("token", data.token);
+          const decoded = jwtDecode(data.token);
+          setUser(decoded);
+        }
+
+        setMessage(
+          isEdit
+            ? "✅ Profile updated successfully!"
+            : "✅ Registration successful!"
+        );
+
+        // Redirect after short delay
+        setTimeout(() => navigate("/"), 1000);
+      } else {
+        setMessage(`❌ ${data.message || "Something went wrong"}`);
+      }
+    } catch (error) {
+      console.error(error);
+      setMessage("❌ Server error. Please try again later.");
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   return (
