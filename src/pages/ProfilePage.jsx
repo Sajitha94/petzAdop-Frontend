@@ -14,6 +14,8 @@ import {
   Step,
   StepLabel,
   Chip,
+  TextField,
+  Rating,
 } from "@mui/material";
 import StarIcon from "@mui/icons-material/Star";
 import { useNavigate } from "react-router-dom";
@@ -31,14 +33,36 @@ function ProfilePage() {
   const [user, setUser] = useState(null);
   const [fosterPets, setFosterPets] = useState([]);
   const [fosterRequestPets, setFosterRequestPets] = useState([]);
+  const [comment, setComment] = useState("");
+  const [rating, setRating] = useState(0);
+  const [reviews, setReviews] = useState([]);
+  const [reviewsInput, setReviewsInput] = useState({});
 
   const token = localStorage.getItem("token");
   const decoded = jwtDecode(token);
 
-  const adopRequestPetsSteps = ["pending", "final"];
   const userId = decoded.id;
   const userEmail = decoded.email;
   const limit = 10;
+
+  const fetchReviews = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/reviews`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      console.log("data", data);
+
+      // backend might return { status: 'success', data: [...] } or raw array
+      setReviews(data.data ?? data);
+    } catch (err) {
+      console.error("fetchReviews error:", err);
+    }
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       if (!token) return;
@@ -64,8 +88,6 @@ function ProfilePage() {
         const petData = await petRes.json();
 
         if (petData.status === "success") {
-          console.log(petData, "petData");
-
           const userPets = petData.pets.filter(
             (pet) => pet.post_user && pet.post_user._id === userId
           );
@@ -100,6 +122,7 @@ function ProfilePage() {
           );
 
           setAdopRequestPets(filteredRequests);
+          console.log(adopRequestPets, "adopRequestPets");
         }
 
         // Fetch foster pets if user is foster organization
@@ -114,7 +137,6 @@ function ProfilePage() {
           `${API_BASE_URL}/api/foster-pet`
         );
         const fosterrequest = await fosterRequestTrack.json();
-        console.log(fosterrequest, "fosterData");
 
         const myRequests = fosterrequest.data.filter((pet) =>
           pet.requests.some(
@@ -124,14 +146,13 @@ function ProfilePage() {
           )
         );
         setFosterRequestPets(myRequests);
-
-        console.log(myRequests, "myRequests");
       } catch (error) {
         console.error(error);
       }
     };
 
     fetchData();
+    fetchReviews();
   }, [token, userId]);
 
   if (!user) return <p>Loading...</p>; // or a skeleton
@@ -311,6 +332,52 @@ function ProfilePage() {
       console.error(err);
     }
   };
+
+  const handleSubmitReview = async (item) => {
+    const data = reviewsInput[item._id];
+    if (!data?.comment || !data?.rating) return;
+
+    try {
+      // Call backend API
+      await fetch(`${API_BASE_URL}/api/reviews`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`, // if needed
+        },
+        body: JSON.stringify({
+          adopter: item.petInfo.id,
+          requestType: "adoption",
+          comment: data.comment,
+          rating: data.rating,
+        }),
+      });
+      // Update local state: add review to this item
+      setAdopRequestPets((prev) =>
+        prev.map((req) =>
+          req._id === item._id
+            ? {
+                ...req,
+                review: {
+                  comment: data.comment,
+                  rating: data.rating,
+                  createdAt: new Date(),
+                },
+              }
+            : req
+        )
+      );
+
+      // Clear input for this card
+      setReviewsInput((prev) => ({
+        ...prev,
+        [item._id]: { comment: "", rating: 0 },
+      }));
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   const CustomStepIcon = (props) => {
     const { active, completed, status } = props;
 
@@ -815,6 +882,37 @@ function ProfilePage() {
                       )}
                     </Stack>
                   </CardContent>
+                  {/* Show review only if it exists and status is approved */}
+                  {req.status === "approved" && req.review && (
+                    <Box
+                      sx={{ mt: 2, bgcolor: "#f9f9f9", p: 2, borderRadius: 1 }}
+                    >
+                      <Box
+                        sx={{
+                          display: "flex",
+                          gap: 1,
+                          alignItems: "center",
+                          mt: 1,
+                        }}
+                      >
+                        <Typography variant="body2" sx={{ fontWeight: "bold" }}>
+                          Review:
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                          {req.adopter_email}
+                        </Typography>
+                      </Box>
+
+                      <Typography variant="body2">
+                        {req.review.comment}
+                      </Typography>
+                      <Rating
+                        value={req.review.rating}
+                        readOnly
+                        sx={{ mt: 1 }}
+                      />
+                    </Box>
+                  )}
                 </Card>
               ))
             ) : (
@@ -839,12 +937,16 @@ function ProfilePage() {
           adopRequestPets.map((item) => (
             <Card
               key={item._id}
-              sx={{ borderRadius: 3, border: "1px solid #ddd" }}
+              sx={{
+                borderRadius: 3,
+                border: "1px solid #ddd",
+                paddingBottom: "10px",
+              }}
             >
               <CardContent
                 sx={{
                   display: "flex",
-                  flexDirection: "row",
+                  flexDirection: { xs: "column", sm: "row" },
                   gap: 2,
                   justifyContent: "space-between",
                   alignItems: "center",
@@ -903,7 +1005,12 @@ function ProfilePage() {
                 </Box>
 
                 {/* Stepper */}
-                <Box sx={{ width: "50%" }}>
+                <Box
+                  sx={{
+                    width: { xs: "100%", sm: "50%" },
+                    mt: { xs: 2, sm: 0 },
+                  }}
+                >
                   <Stepper
                     activeStep={item.status === "pending" ? 0 : 1}
                     alternativeLabel
@@ -929,6 +1036,70 @@ function ProfilePage() {
                   </Stepper>
                 </Box>
               </CardContent>
+              {item.review ? (
+                <Box sx={{ mt: 2, bgcolor: "#f9f9f9", p: 2, borderRadius: 1 }}>
+                  <Typography variant="body2" sx={{ fontWeight: "bold" }}>
+                    Your Review:
+                  </Typography>
+                  <Typography variant="body2">{item.review.comment}</Typography>
+                  <Rating value={item.review.rating} readOnly sx={{ mt: 1 }} />
+                </Box>
+              ) : (
+                item.status === "approved" && (
+                  <Box
+                    sx={{
+                      mt: 2,
+                      display: "flex",
+                      flexDirection: { xs: "column", sm: "row" },
+                      gap: 2,
+                      alignItems: "center",
+                    }}
+                  >
+                    <TextField
+                      label="Write a review"
+                      fullWidth
+                      multiline
+                      rows={1}
+                      value={reviewsInput[item._id]?.comment || ""}
+                      onChange={(e) =>
+                        setReviewsInput((prev) => ({
+                          ...prev,
+                          [item._id]: {
+                            ...prev[item._id],
+                            comment: e.target.value,
+                          },
+                        }))
+                      }
+                    />
+                    <Rating
+                      name={`rating-${item._id}`}
+                      value={reviewsInput[item._id]?.rating || 0}
+                      onChange={(e, newValue) =>
+                        setReviewsInput((prev) => ({
+                          ...prev,
+                          [item._id]: {
+                            ...prev[item._id],
+                            rating: newValue,
+                          },
+                        }))
+                      }
+                    />
+                    <Button
+                      variant="contained"
+                      onClick={() => handleSubmitReview(item)}
+                      sx={{
+                        background:
+                          "linear-gradient(to right, #00bcd4, #ff7043)",
+                        px: 3,
+                        py: 1,
+                        textTransform: "none",
+                      }}
+                    >
+                      Submit Review
+                    </Button>
+                  </Box>
+                )
+              )}
             </Card>
           ))
         ) : (
@@ -959,7 +1130,7 @@ function ProfilePage() {
                 <CardContent
                   sx={{
                     display: "flex",
-                    flexDirection: "row",
+                    flexDirection: { xs: "column", sm: "row" },
                     gap: 2,
                     justifyContent: "space-between",
                     alignItems: "center",
