@@ -3,12 +3,33 @@ import { Button } from "@mui/material";
 import PlaceIcon from "@mui/icons-material/Place";
 import allpetImg from "../assets/allpet.png";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { API_BASE_URL } from "../config";
 
 function SearchBar() {
   const navigate = useNavigate();
   const [searchText, setSearchText] = useState("");
   const [location, setLocation] = useState("");
+  const [userCount, setUserCount] = useState(0);
+  const [availablePetCount, setAvailablePetCount] = useState(0);
+  const [adoptedPetCount, setAdoptedPetCount] = useState(0);
+
+  useEffect(() => {
+    const fetchCounts = async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/user-count/count`);
+        const data = await res.json();
+        if (data.success) {
+          setUserCount(data.users || 0);
+          setAvailablePetCount(data.pets.available || 0);
+          setAdoptedPetCount(data.pets.adopted || 0);
+        }
+      } catch (err) {
+        console.error("Error fetching user counts:", err);
+      }
+    };
+    fetchCounts();
+  }, []);
 
   const handleSearch = () => {
     // Navigate to /searchpage with query params
@@ -23,7 +44,7 @@ function SearchBar() {
     <div
       className="relative h-[70vh] flex flex-col justify-center items-center text-center px-5"
       style={{
-        backgroundImage: `url(${allpetImg})`,
+          backgroundImage: `url(${allpetImg})`,
         backgroundSize: "cover",
         backgroundPosition: "center",
       }}
@@ -82,19 +103,19 @@ function SearchBar() {
         <div className="flex justify-around items-center gap-3 w-full mt-6 text-center">
           <div>
             <h4 className="sm:text-2xl text-lg font-bold text-sky-600">
-              12,000+
+              {adoptedPetCount}
             </h4>
             <p className="text-gray-700 text-sm sm:text-lg">Pets Adopted</p>
           </div>
           <div>
             <h4 className="sm:text-2xl text-lg font-bold text-orange-500">
-              500+
+              {userCount}
             </h4>
             <p className="text-gray-700 text-sm sm:text-lg">Partner Shelters</p>
           </div>
           <div>
             <h4 className="sm:text-2xl text-lg font-bold text-green-500">
-              1,200
+              {availablePetCount}
             </h4>
             <p className="text-gray-700 text-sm sm:text-lg">Available Now</p>
           </div>
