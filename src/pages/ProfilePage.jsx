@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import axios from "axios";
 import {
   Box,
   Card,
@@ -37,6 +38,8 @@ function ProfilePage() {
   const [rating, setRating] = useState(0);
   const [reviews, setReviews] = useState([]);
   const [reviewsInput, setReviewsInput] = useState({});
+  const [fosterReviews, setFosterReviews] = useState({});
+  const [submittedReviews, setSubmittedReviews] = useState({});
 
   const token = localStorage.getItem("token");
   const decoded = jwtDecode(token);
@@ -60,6 +63,28 @@ function ProfilePage() {
       setReviews(data.data ?? data);
     } catch (err) {
       console.error("fetchReviews error:", err);
+    }
+  };
+
+  const fetchFosterPetsReviews = async () => {
+    if (!token) return;
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/foster-reviews`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (data.status === "success") {
+        // Convert array of reviews into object keyed by petId
+        const reviewsMap = {};
+        data.reviews.forEach((rev) => {
+          if (rev.fosterParentId === userId) {
+            reviewsMap[rev.petId] = rev;
+          }
+        });
+        setSubmittedReviews(reviewsMap);
+      }
+    } catch (err) {
+      console.error(err);
     }
   };
 
@@ -153,6 +178,7 @@ function ProfilePage() {
 
     fetchData();
     fetchReviews();
+    fetchFosterPetsReviews();
   }, [token, userId]);
 
   if (!user) return <p>Loading...</p>; // or a skeleton
@@ -375,6 +401,41 @@ function ProfilePage() {
       }));
     } catch (err) {
       console.error(err);
+    }
+  };
+  const handleFosterReviewSubmit = async (petId) => {
+    const { rating, comment } = fosterReviews[petId] || {};
+    if (!rating || !comment) {
+      alert("Please provide both rating and comment");
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem("token");
+      const res = await axios.post(
+        `${API_BASE_URL}/api/foster-reviews`,
+        { petId, rating, comment },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      if (res.status === 201) {
+        // Store submitted review
+        setSubmittedReviews((prev) => ({
+          ...prev,
+          [petId]: res.data.newReview,
+        }));
+
+        // Reset input
+        setFosterReviews((prev) => ({
+          ...prev,
+          [petId]: { rating: 0, comment: "" },
+        }));
+      }
+    } catch (error) {
+      console.error(error);
+      alert(
+        error.response?.data?.message || "❌ Failed to submit foster review"
+      );
     }
   };
 
@@ -1213,6 +1274,80 @@ function ProfilePage() {
                     </Stepper>
                   </Box>
                 </CardContent>
+                {userRequest?.status === "accepted" && (
+                  <Box sx={{ mt: 2 }}>
+                    {!submittedReviews[item._id] ? (
+                      <>
+                        <Typography variant="subtitle1" fontWeight="bold">
+                          Leave a Review
+                        </Typography>
+
+                        <Rating
+                          name={`foster-rating-${item._id}`}
+                          value={fosterReviews[item._id]?.rating || 0}
+                          onChange={(e, newValue) =>
+                            setFosterReviews((prev) => ({
+                              ...prev,
+                              [item._id]: {
+                                ...prev[item._id],
+                                rating: newValue,
+                              },
+                            }))
+                          }
+                        />
+
+                        <TextField
+                          fullWidth
+                          multiline
+                          minRows={2}
+                          placeholder="Write your comment..."
+                          value={fosterReviews[item._id]?.comment || ""}
+                          onChange={(e) =>
+                            setFosterReviews((prev) => ({
+                              ...prev,
+                              [item._id]: {
+                                ...prev[item._id],
+                                comment: e.target.value,
+                              },
+                            }))
+                          }
+                          sx={{ mt: 1 }}
+                        />
+
+                        <Button
+                          variant="contained"
+                          color="primary"
+                          sx={{ mt: 1 }}
+                          onClick={() => handleFosterReviewSubmit(item._id)}
+                        >
+                          Submit Review
+                        </Button>
+                      </>
+                    ) : (
+                      // Show submitted review
+                      <Box
+                        sx={{
+                          mt: 1,
+                          p: 1,
+                          border: "1px solid #ccc",
+                          borderRadius: 2,
+                        }}
+                      >
+                        <Typography variant="subtitle2" fontWeight="bold">
+                          Your Review
+                        </Typography>
+                        <Rating
+                          name={`submitted-rating-${item._id}`}
+                          value={submittedReviews[item._id].rating}
+                          readOnly
+                        />
+                        <Typography variant="body2" sx={{ mt: 1 }}>
+                          {submittedReviews[item._id].comment}
+                        </Typography>
+                      </Box>
+                    )}
+                  </Box>
+                )}
               </Card>
             );
           })
