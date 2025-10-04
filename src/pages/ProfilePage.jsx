@@ -103,29 +103,29 @@ function ProfilePage() {
         }
 
         // Fetch foster pets if user is foster organization
-        if (userData.data.usertype === "foster organization") {
-          const fosterRes = await fetch(
-            `${API_BASE_URL}/api/foster-pet/${userId}`
-          );
-          const fosterData = await fosterRes.json();
-          if (fosterData.status === "success") setFosterPets(fosterData.data);
 
-          const fosterRequestTrack = await fetch(
-            `${API_BASE_URL}/api/foster-pet`
-          );
-          const fosterrequest = await fosterRequestTrack.json();
-          console.log(fosterrequest, "fosterData");
+        const fosterRes = await fetch(
+          `${API_BASE_URL}/api/foster-pet/${userId}`
+        );
+        const fosterData = await fosterRes.json();
+        if (fosterData.status === "success") setFosterPets(fosterData.data);
 
-          const myRequests = fosterrequest.data.filter((pet) =>
-            pet.requests.some(
-              (r) =>
-                r.forster_parent_ID?._id === userId ||
-                r.forster_parent_ID === userId
-            )
-          );
-          setFosterRequestPets(myRequests);
-          console.log(myRequests, "myRequests");
-        }
+        const fosterRequestTrack = await fetch(
+          `${API_BASE_URL}/api/foster-pet`
+        );
+        const fosterrequest = await fosterRequestTrack.json();
+        console.log(fosterrequest, "fosterData");
+
+        const myRequests = fosterrequest.data.filter((pet) =>
+          pet.requests.some(
+            (r) =>
+              r.forster_parent_ID?._id === userId ||
+              r.forster_parent_ID === userId
+          )
+        );
+        setFosterRequestPets(myRequests);
+
+        console.log(myRequests, "myRequests");
       } catch (error) {
         console.error(error);
       }
