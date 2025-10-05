@@ -38,6 +38,7 @@ function PetDetailsPage({ fosterOrgId }) {
   const [userRating, setUserRating] = useState({
     averageRating: 0,
     totalReviews: 0,
+    petReviews: [],
   });
 
   // Fetch pet data if pageType is petDetails
@@ -171,12 +172,10 @@ function PetDetailsPage({ fosterOrgId }) {
   useEffect(() => {
     const fetchUserRating = async () => {
       let userId = null;
-
-      // Decide which ID to fetch rating for
       if (pageType === "fosterDetails") {
-        userId = pet?._id; // org
+        userId = pet?._id;
       } else if (pet?.post_user?._id) {
-        userId = pet.post_user._id; // owner
+        userId = pet.post_user._id;
       } else if (user?._id) {
         userId = user._id;
       }
@@ -194,11 +193,13 @@ function PetDetailsPage({ fosterOrgId }) {
         );
 
         const data = await res.json();
+        console.log(data);
 
         if (res.ok) {
           setUserRating({
             averageRating: data.averageRating,
             totalReviews: data.totalReviews,
+            petReviews: data.petReviews, // array grouped by pet
           });
         }
       } catch (err) {
@@ -255,7 +256,13 @@ function PetDetailsPage({ fosterOrgId }) {
 
   return (
     <Box
-      sx={{ p: { xs: 2, sm: 4 }, display: "flex", justifyContent: "center" }}
+      sx={{
+        p: { xs: 2, sm: 4 },
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        flexDirection: "column",
+      }}
     >
       {/* /* Pet */}
       {pageType === "petDetails" && mediaFiles.length > 0 && (
@@ -532,15 +539,24 @@ function PetDetailsPage({ fosterOrgId }) {
       {/* / Foster Info */}
 
       {pageType === "fosterDetails" && mediaFiles.length > 0 && (
-        <Box sx={{ display: "flex", flexDirection: "column", gap: "5px" }}>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            gap: "5px",
+            width: "100%",
+            maxWidth: 900,
+          }}
+        >
           <Card
             sx={{
               borderRadius: 3,
               mb: 3,
               border: "1px solid #ddd",
               position: "relative",
-              maxWidth: 600,
               mx: "auto",
+              width: "100%",
+              maxWidth: 900,
             }}
           >
             {/* Carousel Section */}
@@ -830,44 +846,68 @@ function PetDetailsPage({ fosterOrgId }) {
               </Typography>
             )}
           </Stack>
-          {orgReviews.length > 0 && (
-            <>
-              <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>
-                Reviews for {pet?.name}
-              </Typography>
-
-              <Stack spacing={2} sx={{ display: "flex" }}>
-                {orgReviews.length > 0 ? (
-                  orgReviews.map((review) => (
-                    <Card
-                      key={review._id}
-                      sx={{ borderRadius: 3, border: "1px solid #ddd" }}
-                    >
-                      <CardContent>
-                        <Typography variant="subtitle1" fontWeight="bold">
-                          {review.fosterParentId?.name || "Anonymous"}
-                        </Typography>
-                        <Rating value={review.rating} readOnly />
-                        <Typography variant="body2" sx={{ mt: 1 }}>
-                          {review.comment}
-                        </Typography>
-                        <Typography variant="caption" color="text.secondary">
-                          Pet: {review.petId?.name} •{" "}
-                          {new Date(review.createdAt).toLocaleDateString()}
-                        </Typography>
-                      </CardContent>
-                    </Card>
-                  ))
-                ) : (
-                  <Typography variant="body2" color="text.secondary">
-                    No reviews yet.
-                  </Typography>
-                )}
-              </Stack>
-            </>
-          )}
         </Box>
       )}
+      {/* userRating */}
+      {userRating.petReviews.length > 0 &&
+        userRating.petReviews.map((petData) => (
+          <Box
+            key={petData.petName}
+            sx={{ mb: 4, width: "100%", maxWidth: 900 }}
+          >
+            <Box
+              sx={{
+                display: "flex",
+                flexWrap: "wrap", // allow wrapping to next line
+                gap: 2, // space between cards
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              {petData.reviews.length > 0 ? (
+                petData.reviews.map((review, index) => (
+                  <Card
+                    key={index}
+                    sx={{
+                      borderRadius: 3,
+                      border: "1px solid #ddd",
+                      flex: "1 1 calc(33% - 16px)", // 3 cards per row with gap
+                    }}
+                  >
+                    <CardContent>
+                      <Typography variant="subtitle1" fontWeight="bold">
+                        {review.source === "FosterReview"
+                          ? review.organization || "Anonymous"
+                          : "Adopter"}
+                      </Typography>
+                      <Rating
+                        value={review.rating || 0}
+                        readOnly
+                        precision={0.5}
+                      />
+                      <Typography variant="body2" sx={{ mt: 1 }}>
+                        {review.comment}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        {review.source === "FosterReview"
+                          ? `Pet: ${review.pet} • ${new Date(
+                              review.createdAt
+                            ).toLocaleDateString()}`
+                          : `${new Date(
+                              review.createdAt
+                            ).toLocaleDateString()}`}
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                ))
+              ) : (
+                <Typography variant="body2" color="text.secondary">
+                  No reviews yet.
+                </Typography>
+              )}
+            </Box>
+          </Box>
+        ))}
 
       <Dialog open={openForm} onClose={handleCloseForm} fullWidth maxWidth="md">
         <PostPetForm
