@@ -1110,54 +1110,96 @@ function ProfilePage() {
                   <Box
                     sx={{
                       mt: 2,
-                      display: "flex",
-                      flexDirection: { xs: "column", sm: "row" },
-                      gap: 2,
-                      alignItems: "center",
+                      bgcolor: "#fafafa",
+                      p: 2,
+                      borderRadius: 2,
+                      boxShadow: "0 2px 6px rgba(0,0,0,0.05)",
                     }}
                   >
-                    <TextField
-                      label="Write a review"
-                      fullWidth
-                      multiline
-                      rows={1}
-                      value={reviewsInput[item._id]?.comment || ""}
-                      onChange={(e) =>
-                        setReviewsInput((prev) => ({
-                          ...prev,
-                          [item._id]: {
-                            ...prev[item._id],
-                            comment: e.target.value,
-                          },
-                        }))
-                      }
-                    />
-                    <Rating
-                      name={`rating-${item._id}`}
-                      value={reviewsInput[item._id]?.rating || 0}
-                      onChange={(e, newValue) =>
-                        setReviewsInput((prev) => ({
-                          ...prev,
-                          [item._id]: {
-                            ...prev[item._id],
-                            rating: newValue,
-                          },
-                        }))
-                      }
-                    />
-                    <Button
-                      variant="contained"
-                      onClick={() => handleSubmitReview(item)}
-                      sx={{
-                        background:
-                          "linear-gradient(to right, #00bcd4, #ff7043)",
-                        px: 3,
-                        py: 1,
-                        textTransform: "none",
-                      }}
+                    <Typography
+                      variant="subtitle1"
+                      fontWeight="bold"
+                      sx={{ mb: 1, color: "#333" }}
                     >
-                      Submit Review
-                    </Button>
+                      Write a Review
+                    </Typography>
+
+                    <Stack
+                      direction={{ xs: "column", sm: "row" }}
+                      spacing={2}
+                      alignItems={{ xs: "stretch", sm: "center" }}
+                    >
+                      <TextField
+                        label="Write a review"
+                        fullWidth
+                        multiline
+                        minRows={2}
+                        value={reviewsInput[item._id]?.comment || ""}
+                        onChange={(e) =>
+                          setReviewsInput((prev) => ({
+                            ...prev,
+                            [item._id]: {
+                              ...prev[item._id],
+                              comment: e.target.value,
+                            },
+                          }))
+                        }
+                        sx={{
+                          flexGrow: 1,
+                          "& .MuiOutlinedInput-root": {
+                            borderRadius: 2,
+                          },
+                        }}
+                      />
+
+                      <Box
+                        sx={{
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "center",
+                          gap: 1,
+                          minWidth: { xs: "100%", sm: 150 },
+                        }}
+                      >
+                        <Rating
+                          name={`rating-${item._id}`}
+                          value={reviewsInput[item._id]?.rating || 0}
+                          onChange={(e, newValue) =>
+                            setReviewsInput((prev) => ({
+                              ...prev,
+                              [item._id]: {
+                                ...prev[item._id],
+                                rating: newValue,
+                              },
+                            }))
+                          }
+                          sx={{
+                            "& .MuiRating-iconFilled": { color: "#ff7043" },
+                          }}
+                        />
+                        <Button
+                          variant="contained"
+                          onClick={() => handleSubmitReview(item)}
+                          sx={{
+                            background:
+                              "linear-gradient(to right, #00bcd4, #ff7043)",
+                            textTransform: "none",
+                            borderRadius: 2,
+                            fontWeight: "bold",
+                            px: 3,
+                            py: 1,
+                            fontSize: "0.9rem",
+                            width: { xs: "100%", sm: "auto" },
+                            "&:hover": {
+                              background:
+                                "linear-gradient(to right, #0097a7, #f4511e)",
+                            },
+                          }}
+                        >
+                          Submit Review
+                        </Button>
+                      </Box>
+                    </Stack>
                   </Box>
                 )
               )}
@@ -1171,8 +1213,9 @@ function ProfilePage() {
       </Stack>
       {/* Foster Tracking Requests - Notification */}
       <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>
-        Foster Requests Tracking status
+        Foster Requests Tracking Status
       </Typography>
+
       <Stack spacing={2} sx={{ mb: 4 }}>
         {fosterRequestPets.length > 0 ? (
           fosterRequestPets.map((item) => {
@@ -1197,7 +1240,7 @@ function ProfilePage() {
                     alignItems: "center",
                   }}
                 >
-                  <Box>
+                  <Box sx={{ display: "flex", gap: 2 }}>
                     <Box
                       component="img"
                       src={
@@ -1243,7 +1286,12 @@ function ProfilePage() {
                   </Box>
 
                   {/* Stepper */}
-                  <Box sx={{ width: "50%" }}>
+                  <Box
+                    sx={{
+                      width: { xs: "100%", sm: "50%" },
+                      mt: { xs: 2, sm: 0 },
+                    }}
+                  >
                     <Stepper
                       activeStep={userRequest?.status === "pending" ? 0 : 1}
                       alternativeLabel
@@ -1275,62 +1323,112 @@ function ProfilePage() {
                   </Box>
                 </CardContent>
                 {userRequest?.status === "accepted" && (
-                  <Box sx={{ mt: 2 }}>
+                  <Box
+                    sx={{
+                      mt: 1,
+                      bgcolor: "#fafafa",
+                      p: 2,
+                      borderRadius: 2,
+                      boxShadow: "0 2px 6px rgba(0,0,0,0.05)",
+                    }}
+                  >
                     {!submittedReviews[item._id] ? (
                       <>
-                        <Typography variant="subtitle1" fontWeight="bold">
+                        <Typography
+                          variant="subtitle1"
+                          fontWeight="bold"
+                          sx={{ mb: 1, color: "#333" }}
+                        >
                           Leave a Review
                         </Typography>
 
-                        <Rating
-                          name={`foster-rating-${item._id}`}
-                          value={fosterReviews[item._id]?.rating || 0}
-                          onChange={(e, newValue) =>
-                            setFosterReviews((prev) => ({
-                              ...prev,
-                              [item._id]: {
-                                ...prev[item._id],
-                                rating: newValue,
-                              },
-                            }))
-                          }
-                        />
-
-                        <TextField
-                          fullWidth
-                          multiline
-                          minRows={2}
-                          placeholder="Write your comment..."
-                          value={fosterReviews[item._id]?.comment || ""}
-                          onChange={(e) =>
-                            setFosterReviews((prev) => ({
-                              ...prev,
-                              [item._id]: {
-                                ...prev[item._id],
-                                comment: e.target.value,
-                              },
-                            }))
-                          }
-                          sx={{ mt: 1 }}
-                        />
-
-                        <Button
-                          variant="contained"
-                          color="primary"
-                          sx={{ mt: 1 }}
-                          onClick={() => handleFosterReviewSubmit(item._id)}
+                        <Stack
+                          direction={{ xs: "column", sm: "row" }}
+                          spacing={2}
+                          alignItems={{ xs: "stretch", sm: "center" }}
                         >
-                          Submit Review
-                        </Button>
+                          {/* Comment Box */}
+                          <TextField
+                            label="Write your comment..."
+                            fullWidth
+                            multiline
+                            minRows={2}
+                            value={fosterReviews[item._id]?.comment || ""}
+                            onChange={(e) =>
+                              setFosterReviews((prev) => ({
+                                ...prev,
+                                [item._id]: {
+                                  ...prev[item._id],
+                                  comment: e.target.value,
+                                },
+                              }))
+                            }
+                            sx={{
+                              flexGrow: 1,
+                              "& .MuiOutlinedInput-root": {
+                                borderRadius: 2,
+                              },
+                            }}
+                          />
+
+                          {/* Rating + Submit */}
+                          <Box
+                            sx={{
+                              display: "flex",
+                              flexDirection: "column",
+                              alignItems: "center",
+                              gap: 1,
+                              minWidth: { xs: "100%", sm: 150 },
+                            }}
+                          >
+                            <Rating
+                              name={`foster-rating-${item._id}`}
+                              value={fosterReviews[item._id]?.rating || 0}
+                              onChange={(e, newValue) =>
+                                setFosterReviews((prev) => ({
+                                  ...prev,
+                                  [item._id]: {
+                                    ...prev[item._id],
+                                    rating: newValue,
+                                  },
+                                }))
+                              }
+                              sx={{
+                                "& .MuiRating-iconFilled": { color: "#ff7043" },
+                              }}
+                            />
+
+                            <Button
+                              variant="contained"
+                              onClick={() => handleFosterReviewSubmit(item._id)}
+                              sx={{
+                                background:
+                                  "linear-gradient(to right, #00bcd4, #ff7043)",
+                                textTransform: "none",
+                                borderRadius: 2,
+                                fontWeight: "bold",
+                                px: 3,
+                                py: 1,
+                                fontSize: "0.9rem",
+                                width: { xs: "100%", sm: "auto" },
+                                "&:hover": {
+                                  background:
+                                    "linear-gradient(to right, #0097a7, #f4511e)",
+                                },
+                              }}
+                            >
+                              Submit Review
+                            </Button>
+                          </Box>
+                        </Stack>
                       </>
                     ) : (
-                      // Show submitted review
                       <Box
                         sx={{
                           mt: 1,
-                          p: 1,
-                          border: "1px solid #ccc",
-                          borderRadius: 2,
+                          p: 1.5,
+                          // border: "1px solid #ccc",
+                          // borderRadius: 2,
                         }}
                       >
                         <Typography variant="subtitle2" fontWeight="bold">
