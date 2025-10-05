@@ -11,6 +11,7 @@ function ChatPage() {
   const decoded = jwtDecode(token);
   const userId = decoded.id;
   const [conversations, setConversations] = useState([]);
+  const [userProfiles, setUserProfiles] = useState({});
   const [selectedChat, setSelectedChat] = useState(null);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
@@ -43,16 +44,38 @@ function ChatPage() {
             }
           }
           setConversations(convos);
+          const profileMap = {};
+          await Promise.all(
+            convos.map(async (c) => {
+              try {
+                const profileRes = await fetch(
+                  `${API_BASE_URL}/api/auth/profile/${c.userId}`
+                );
+                const profileData = await profileRes.json();
+                if (profileData.status === "success") {
+                  profileMap[c.userId] = profileData.data.profilePictures?.[0]
+                    ? `${API_BASE_URL}/uploads/${profileData.data.profilePictures[0]}`
+                    : "/shelter1.png";
+                } else {
+                  profileMap[c.userId] = "/shelter1.png";
+                }
+              } catch (err) {
+                profileMap[c.userId] = "/shelter1.png";
+              }
+            })
+          );
+          setUserProfiles(profileMap);
+
           if (receiverId) {
             setSelectedChat({
-              userId: receiverId,
-              name: receiverName || petName,
-              avatar: "/shelter1.png",
-              petId,
-              petName,
+              ...convos.find((c) => c.userId === receiverId),
+              avatar: profileMap[receiverId] || "/shelter1.png",
             });
           } else if (convos.length) {
-            setSelectedChat(convos[0]);
+            setSelectedChat({
+              ...convos[0],
+              avatar: profileMap[convos[0].userId],
+            });
           }
         }
       } catch (err) {
@@ -151,7 +174,7 @@ function ChatPage() {
     bg-white border-r
     fixed top-0 left-0 h-full z-20 transform transition-transform duration-300
     w-64
-    ${mobileSidebarOpen ? "translate-x-0" : "-translate-x-full"} 
+    ${mobileSidebarOpen ? "translate-x-0" : "-translate-x-full"}
     lg:translate-x-0 lg:relative   /* Always visible on desktop */
     overflow-y-auto
   `}
@@ -190,7 +213,7 @@ function ChatPage() {
                 }
               }}
             >
-              <Avatar src={c.avatar || "/shelter1.png"} />
+              <Avatar src={userProfiles[c.userId] || "/shelter1.png"} />
               <div className="flex items-center justify-between w-full">
                 <div className="ml-3">
                   <p className="font-medium">{c.name}</p>
@@ -224,7 +247,9 @@ function ChatPage() {
                   <MenuIcon />
                 </IconButton>
 
-                <Avatar src={selectedChat.avatar || "/shelter1.png"} />
+                <Avatar
+                  src={userProfiles[selectedChat.userId] || "/shelter1.png"}
+                />
                 <h2 className="ml-3 font-semibold">{selectedChat.name}</h2>
               </div>
             )}

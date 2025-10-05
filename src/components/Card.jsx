@@ -132,7 +132,7 @@ function PetCard({ pet = defaultPet, type = "pet", userFavorites = [] }) {
                       top: 8,
                       right: 8,
                       color: isFavorite ? "#ff7043" : "white",
-                      backgroundColor: "rgba(0,0,0,0.4)",
+                      backgroundColor: "white",
                     }}
                     onClick={toggleFavorite}
                   >
@@ -152,7 +152,7 @@ function PetCard({ pet = defaultPet, type = "pet", userFavorites = [] }) {
                   transform: "translateY(-50%)",
                   cursor: "pointer",
                   px: 1,
-                  backgroundColor: "rgba(0,0,0,0.3)",
+                  backgroundColor: "white",
                   borderRadius: "50%",
                 }}
                 onClick={handlePrev}
@@ -275,8 +275,22 @@ function PetCard({ pet = defaultPet, type = "pet", userFavorites = [] }) {
 
         {/* Description */}
         {pet.description && (
-          <Typography variant="body2" color="text.secondary" component="div">
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            component="div"
+            sx={{
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              display: "-webkit-box",
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: "vertical",
+              whiteSpace: "normal",
+              minHeight: "3em",
+            }}
+          >
             {pet.description}
+               
           </Typography>
         )}
       </CardContent>
