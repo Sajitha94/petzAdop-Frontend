@@ -791,7 +791,7 @@ function ProfilePage() {
                             )}
                           </Typography>
                         </Box>
-                        {req.status === "pending" && (
+                        {req.status === "pending" ? (
                           <Box sx={{ display: "flex", gap: "5px" }}>
                             <Button
                               variant="contained"
@@ -822,6 +822,18 @@ function ProfilePage() {
                               Reject
                             </Button>
                           </Box>
+                        ) : (
+                          <Typography
+                            sx={{
+                              color:
+                                req.status === "accepted" ? "green" : "red",
+                              fontWeight: "bold",
+                            }}
+                          >
+                            {req.status === "accepted"
+                              ? "Approved"
+                              : "Rejected"}
+                          </Typography>
                         )}
                       </Box>
                     ))}
@@ -1131,7 +1143,7 @@ function ProfilePage() {
                         label="Write a review"
                         fullWidth
                         multiline
-                        minRows={2}
+                        minRows={1}
                         value={reviewsInput[item._id]?.comment || ""}
                         onChange={(e) =>
                           setReviewsInput((prev) => ({
@@ -1150,6 +1162,22 @@ function ProfilePage() {
                         }}
                       />
 
+                      <Rating
+                        name={`rating-${item._id}`}
+                        value={reviewsInput[item._id]?.rating || 0}
+                        onChange={(e, newValue) =>
+                          setReviewsInput((prev) => ({
+                            ...prev,
+                            [item._id]: {
+                              ...prev[item._id],
+                              rating: newValue,
+                            },
+                          }))
+                        }
+                        sx={{
+                          "& .MuiRating-iconFilled": { color: "#ff7043" },
+                        }}
+                      />
                       <Box
                         sx={{
                           display: "flex",
@@ -1159,22 +1187,6 @@ function ProfilePage() {
                           minWidth: { xs: "100%", sm: 150 },
                         }}
                       >
-                        <Rating
-                          name={`rating-${item._id}`}
-                          value={reviewsInput[item._id]?.rating || 0}
-                          onChange={(e, newValue) =>
-                            setReviewsInput((prev) => ({
-                              ...prev,
-                              [item._id]: {
-                                ...prev[item._id],
-                                rating: newValue,
-                              },
-                            }))
-                          }
-                          sx={{
-                            "& .MuiRating-iconFilled": { color: "#ff7043" },
-                          }}
-                        />
                         <Button
                           variant="contained"
                           onClick={() => handleSubmitReview(item)}
@@ -1343,14 +1355,13 @@ function ProfilePage() {
                         <Stack
                           direction={{ xs: "column", sm: "row" }}
                           spacing={2}
-                          alignItems={{ xs: "stretch", sm: "center" }}
+                          alignItems="center"
                         >
                           {/* Comment Box */}
                           <TextField
                             label="Write your comment..."
-                            fullWidth
                             multiline
-                            minRows={2}
+                            minRows={1}
                             value={fosterReviews[item._id]?.comment || ""}
                             onChange={(e) =>
                               setFosterReviews((prev) => ({
@@ -1362,21 +1373,19 @@ function ProfilePage() {
                               }))
                             }
                             sx={{
-                              flexGrow: 1,
-                              "& .MuiOutlinedInput-root": {
-                                borderRadius: 2,
-                              },
+                              flexGrow: { xs: 1, sm: 2 },
+                              "& .MuiOutlinedInput-root": { borderRadius: 2 },
                             }}
                           />
 
-                          {/* Rating + Submit */}
+                          {/* Rating */}
                           <Box
                             sx={{
                               display: "flex",
                               flexDirection: "column",
                               alignItems: "center",
                               gap: 1,
-                              minWidth: { xs: "100%", sm: 150 },
+                              width: { xs: "100%", sm: "auto" },
                             }}
                           >
                             <Rating
@@ -1395,7 +1404,19 @@ function ProfilePage() {
                                 "& .MuiRating-iconFilled": { color: "#ff7043" },
                               }}
                             />
+                          </Box>
 
+                          {/* Submit Button */}
+                          <Box
+                            sx={{
+                              width: { xs: "100%", sm: "auto" },
+                              display: "flex",
+                              justifyContent: {
+                                xs: "center",
+                                sm: "flex-start",
+                              },
+                            }}
+                          >
                             <Button
                               variant="contained"
                               onClick={() => handleFosterReviewSubmit(item._id)}
