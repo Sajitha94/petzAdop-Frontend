@@ -35,6 +35,10 @@ function PetDetailsPage({ fosterOrgId }) {
   const pageType = location.state?.pageType;
   const [fosterPets, setFosterPets] = useState([]);
   const [orgReviews, setOrgReviews] = useState([]);
+  const [userRating, setUserRating] = useState({
+    averageRating: 0,
+    totalReviews: 0,
+  });
 
   // Fetch pet data if pageType is petDetails
   useEffect(() => {
@@ -163,6 +167,48 @@ function PetDetailsPage({ fosterOrgId }) {
 
     fetchOrgReviews();
   }, [pet, pageType]);
+
+  useEffect(() => {
+    const fetchUserRating = async () => {
+      let userId = null;
+
+      // Decide which ID to fetch rating for
+      if (pageType === "fosterDetails") {
+        userId = pet?._id; // org
+      } else if (pet?.post_user?._id) {
+        userId = pet.post_user._id; // owner
+      } else if (user?._id) {
+        userId = user._id;
+      }
+
+      if (!userId) return;
+
+      try {
+        const res = await fetch(
+          `${API_BASE_URL}/api/user-count/${userId}/rating`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        );
+
+        const data = await res.json();
+        console.log(data, "userRating.totalReviews");
+
+        if (res.ok) {
+          setUserRating({
+            averageRating: data.averageRating,
+            totalReviews: data.totalReviews,
+          });
+        }
+      } catch (err) {
+        console.error("Error fetching user rating:", err);
+      }
+    };
+
+    fetchUserRating();
+  }, [pet, user, pageType]);
 
   const handlePrev = () =>
     setCurrentIndex((prev) => (prev > 0 ? prev - 1 : prev));
@@ -466,10 +512,14 @@ function PetDetailsPage({ fosterOrgId }) {
                   <EmailIcon sx={{ mr: 1, color: "text.secondary" }} />
                   <Typography variant="body2">{user?.email}</Typography>
                 </Box>
-                <Box sx={{ display: "flex", alignItems: "center" }}>
-                  <StarIcon color="warning" sx={{ mr: 0.5 }} />
-                  <Typography variant="body2">4.9 Shelter Rating</Typography>
-                </Box>
+                {userRating.totalReviews > 0 && (
+                  <Box sx={{ display: "flex", alignItems: "center" }}>
+                    <StarIcon color="warning" sx={{ mr: 0.5 }} />
+                    <Typography variant="body2">
+                      {userRating.totalReviews} Shelter Rating
+                    </Typography>
+                  </Box>
+                )}
               </Stack>
             </CardContent>
           </Card>
@@ -629,6 +679,11 @@ function PetDetailsPage({ fosterOrgId }) {
                 />
                 {pet?.location}
               </Typography>
+              {userRating.totalReviews > 0 && (
+                <div className="flex justify-end">
+                  <p>⭐{userRating.totalReviews} </p>
+                </div>
+              )}
             </CardContent>
           </Card>
 
