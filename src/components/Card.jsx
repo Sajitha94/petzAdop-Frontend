@@ -132,7 +132,7 @@ function PetCard({ pet = defaultPet, type = "pet", userFavorites = [] }) {
                       top: 8,
                       right: 8,
                       color: isFavorite ? "#ff7043" : "white",
-                      backgroundColor: "white",
+                      backgroundColor: "rgba(0,0,0,0.4)",
                     }}
                     onClick={toggleFavorite}
                   >
@@ -151,7 +151,7 @@ function PetCard({ pet = defaultPet, type = "pet", userFavorites = [] }) {
                   left: 0,
                   transform: "translateY(-50%)",
                   cursor: "pointer",
-                  px: 1,
+                  p: 1.5,
                   backgroundColor: "white",
                   borderRadius: "50%",
                 }}
@@ -170,8 +170,8 @@ function PetCard({ pet = defaultPet, type = "pet", userFavorites = [] }) {
                   right: 0,
                   transform: "translateY(-50%)",
                   cursor: "pointer",
-                  px: 1,
-                  backgroundColor: "rgba(0,0,0,0.3)",
+                  p: 1.5,
+                  backgroundColor: "white",
                   borderRadius: "50%",
                 }}
                 onClick={handleNext}
@@ -215,7 +215,16 @@ function PetCard({ pet = defaultPet, type = "pet", userFavorites = [] }) {
       <CardContent style={{ padding: 0 }}>
         {/* Name + Rating */}
         <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-          <Typography gutterBottom variant="h6">
+          <Typography
+            gutterBottom
+            variant="h6"
+            sx={{
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+              maxWidth: 200, // adjust the width as needed
+            }}
+          >
             {pet.name}
           </Typography>
 
@@ -308,25 +317,10 @@ function PetCard({ pet = defaultPet, type = "pet", userFavorites = [] }) {
         <Box
           sx={{
             display: "flex",
-            justifyContent: "space-between",
+            justifyContent: "end",
             width: "100%",
           }}
         >
-          <Button
-            variant="outlined"
-            size="small"
-            sx={{
-              fontSize: { xs: "14px", sm: "12px", lg: "14px" },
-              border: "2px solid transparent",
-              background: "linear-gradient(to right, #00bcd4, #ff7043)",
-              textTransform: "none",
-              color: "transparent",
-              WebkitBackgroundClip: "text",
-            }}
-          >
-            Learn More
-          </Button>
-
           <Button
             variant="contained"
             size="small"
@@ -351,7 +345,7 @@ function PetCard({ pet = defaultPet, type = "pet", userFavorites = [] }) {
               fontSize: { xs: "14px", sm: "12px", lg: "14px" },
             }}
           >
-            Meet {pet.name}
+            Meet {pet.name?.split(" ")[0]} {/* Takes only the first word */}
           </Button>
         </Box>
 
