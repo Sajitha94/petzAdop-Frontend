@@ -42,26 +42,32 @@ function SearchBar() {
 
   return (
     <div
-      className="relative h-[70vh] flex flex-col justify-center items-center text-center px-5"
+      className="relative flex flex-col justify-center items-center text-center px-5 py-16 sm:py-24"
       style={{
         backgroundImage: `url(${allpetImg})`,
         backgroundSize: "cover",
         backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+        minHeight: "70vh", // ✅ better than h-[70vh] for Firefox consistency
       }}
     >
+      {/* Overlay */}
       <div className="absolute inset-0 bg-white/70 z-0"></div>
 
-      <div className="relative z-10 max-w-4xl mx-auto flex flex-col gap-6">
-        <h1 className="sm:text-5xl text-xl font-extrabold text-gray-900">
+      {/* Main Content */}
+      <div className="relative z-10 max-w-5xl w-full flex flex-col gap-6">
+        <h1 className="text-2xl sm:text-4xl md:text-5xl font-extrabold text-gray-900">
           Perfect Companion
         </h1>
-        <p className="text-lg text-gray-700 ">
+
+        <p className="text-base sm:text-lg text-gray-700">
           Connect with loving pets from trusted shelters and find your new best
           friend today.
         </p>
 
-        {/* Search Inputs */}
-        <div className="bg-white rounded-2xl shadow-md p-4 flex flex-col sm:flex-row gap-3 items-center">
+        {/* Search Box */}
+        <div className="bg-white rounded-2xl shadow-md p-4 flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
+          {/* Pet Search */}
           <div className="flex items-center gap-2 border border-gray-300 rounded-lg px-3 py-2 flex-1">
             <SearchIcon className="text-gray-400" />
             <input
@@ -69,10 +75,11 @@ function SearchBar() {
               placeholder="Search pets"
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
-              className="outline-none w-full"
+              className="outline-none w-full text-sm sm:text-base"
             />
           </div>
 
+          {/* Location */}
           <div className="flex items-center gap-2 border border-gray-300 rounded-lg px-3 py-2 flex-1">
             <PlaceIcon className="text-gray-400" />
             <input
@@ -80,7 +87,7 @@ function SearchBar() {
               placeholder="Location"
               value={location}
               onChange={(e) => setLocation(e.target.value)}
-              className="outline-none w-full"
+              className="outline-none w-full text-sm sm:text-base"
             />
           </div>
 
@@ -88,10 +95,12 @@ function SearchBar() {
             variant="contained"
             sx={{
               borderRadius: "12px",
-              paddingX: "24px",
+              px: "24px",
+              py: "10px",
               background: "linear-gradient(to right, #00bcd4, #ff7043)",
               textTransform: "none",
               fontWeight: "bold",
+              whiteSpace: "nowrap", // ✅ prevents button text wrapping
             }}
             onClick={handleSearch}
           >
@@ -99,30 +108,26 @@ function SearchBar() {
           </Button>
         </div>
 
-        {/* Stats */}
-        <div className="flex justify-around items-center gap-3 w-full mt-6 text-center">
+        {/* Stats Section */}
+        <div className="grid grid-cols-3 sm:flex sm:justify-around items-center gap-4 sm:mt-6 text-center">
           <div>
-            <h4 className="sm:text-2xl text-lg font-bold text-sky-600">
+            <h4 className="text-lg sm:text-2xl font-bold text-sky-600">
               {adoptedPetCount}
             </h4>
-            <p className="text-gray-700 text-sm sm:text-lg">Pets Adopted</p>
+            <p className="text-gray-700 text-xs sm:text-lg">Pets Adopted</p>
           </div>
           <div>
-            <h4 className="sm:text-2xl text-lg font-bold text-orange-500">
+            <h4 className="text-lg sm:text-2xl font-bold text-orange-500">
               {userCount}
             </h4>
-            <p className="text-gray-700 text-sm sm:text-lg">Partner Shelters</p>
+            <p className="text-gray-700 text-xs sm:text-lg">Partner Shelters</p>
           </div>
           <div>
-            <h4 className="sm:text-2xl text-lg font-bold text-green-500">
+            <h4 className="text-lg sm:text-2xl font-bold text-green-500">
               {availablePetCount}
             </h4>
-            <p className="text-gray-700 text-sm sm:text-lg">Available Now</p>
+            <p className="text-gray-700 text-xs sm:text-lg">Available Now</p>
           </div>
-          {/* <div>
-            <h4 className="sm:text-2xl text-lg font-bold text-sky-600">98%</h4>
-            <p className="text-gray-700 text-sm sm:text-lg">Success Rate</p>
-          </div> */}
         </div>
       </div>
     </div>

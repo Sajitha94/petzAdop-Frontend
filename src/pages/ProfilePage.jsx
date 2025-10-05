@@ -551,89 +551,106 @@ function ProfilePage() {
           pets.map((pet) => (
             <Card
               key={pet._id}
-              sx={{ borderRadius: 3, border: "1px solid #ddd" }}
+              sx={{
+                borderRadius: 3,
+                border: "1px solid #ddd",
+                overflow: "hidden",
+              }}
             >
               <CardContent
                 sx={{
                   display: "flex",
+                  flexDirection: { xs: "column", sm: "row" }, // ✅ stack on mobile
                   justifyContent: "space-between",
-                  alignItems: "center",
-                  flexWrap: "wrap",
+                  alignItems: { xs: "flex-start", sm: "center" },
                   gap: 2,
                 }}
               >
-                <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                  {[
-                    ...(pet.photo || []),
-                    ...(pet.video ? [pet.video] : []),
-                  ].map((file, index) => {
-                    const isVideo =
-                      file.endsWith(".mp4") ||
-                      file.endsWith(".webm") ||
-                      file.endsWith(".ogg");
+                {/* Left Section — Images + Info */}
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: { xs: "column", sm: "row" }, // ✅ stack images + text on mobile
+                    alignItems: { xs: "flex-start", sm: "center" },
+                    gap: 2,
+                    width: "100%",
+                  }}
+                >
+                  {/* Images */}
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flexWrap: "wrap",
+                      gap: 1,
+                    }}
+                  >
+                    {[
+                      ...(pet.photo || []),
+                      ...(pet.video ? [pet.video] : []),
+                    ].map((file, index) => {
+                      const isVideo =
+                        file.endsWith(".mp4") ||
+                        file.endsWith(".webm") ||
+                        file.endsWith(".ogg");
 
-                    return (
-                      <Box
-                        key={index}
-                        sx={{
-                          position: "relative",
-                          display: "inline-block",
-                          mr: 1,
-                        }}
-                      >
-                        {isVideo ? (
-                          <Box
-                            component="video"
-                            src={`${API_BASE_URL}/uploads/${file}`}
-                            controls
+                      return (
+                        <Box key={index} sx={{ position: "relative" }}>
+                          {isVideo ? (
+                            <Box
+                              component="video"
+                              src={`${API_BASE_URL}/uploads/${file}`}
+                              controls
+                              sx={{
+                                width: { xs: 100, sm: 80 },
+                                height: { xs: 100, sm: 80 },
+                                borderRadius: 2,
+                                objectFit: "cover",
+                                backgroundColor: "#000",
+                              }}
+                            />
+                          ) : (
+                            <Box
+                              component="img"
+                              src={`${API_BASE_URL}/uploads/${file}`}
+                              alt={`${pet.name}-${index}`}
+                              sx={{
+                                width: { xs: 100, sm: 80 },
+                                height: { xs: 100, sm: 80 },
+                                objectFit: "cover",
+                                borderRadius: 2,
+                              }}
+                            />
+                          )}
+
+                          <Button
+                            size="small"
+                            onClick={() =>
+                              isVideo
+                                ? handleDeleteVideo(pet._id, file)
+                                : handleDeletePhoto(pet._id, file)
+                            }
                             sx={{
-                              width: 80,
-                              height: 80,
-                              borderRadius: 2,
-                              objectFit: "cover",
-                              backgroundColor: "#000",
+                              position: "absolute",
+                              top: -8,
+                              right: -8,
+                              minWidth: 0,
+                              padding: "2px 6px",
+                              borderRadius: "50%",
+                              backgroundColor: "gray",
+                              color: "white",
+                              fontWeight: "bold",
+                              lineHeight: 1,
                             }}
-                          />
-                        ) : (
-                          <Box
-                            component="img"
-                            src={`${API_BASE_URL}/uploads/${file}`}
-                            alt={`${pet.name}-${index}`}
-                            sx={{
-                              width: 80,
-                              height: 80,
-                              objectFit: "cover",
-                              borderRadius: 2,
-                            }}
-                          />
-                        )}
+                          >
+                            ×
+                          </Button>
+                        </Box>
+                      );
+                    })}
+                  </Box>
 
-                        <Button
-                          size="small"
-                          onClick={() =>
-                            isVideo
-                              ? handleDeleteVideo(pet._id, file) // 👈 you need a delete handler for videos too
-                              : handleDeletePhoto(pet._id, file)
-                          }
-                          sx={{
-                            position: "absolute",
-                            top: -8,
-                            right: -8,
-                            minWidth: 0,
-                            padding: "2px 6px",
-                            borderRadius: "50%",
-                            backgroundColor: "gray",
-                            color: "white",
-                            fontWeight: "bold",
-                          }}
-                        >
-                          X
-                        </Button>
-                      </Box>
-                    );
-                  })}
-
-                  <Box>
+                  {/* Pet Info */}
+                  <Box sx={{ mt: { xs: 1, sm: 0 } }}>
                     <Typography variant="subtitle1" fontWeight="bold">
                       {pet.name}
                     </Typography>
@@ -646,8 +663,18 @@ function ProfilePage() {
                   </Box>
                 </Box>
 
-                <Box sx={{ display: "flex", gap: "5px" }}>
+                {/* Right Section — Buttons */}
+                <Box
+                  sx={{
+                    display: "flex",
+                    gap: 1,
+                    width: { xs: "100%", sm: "auto" }, // ✅ buttons full-width on mobile
+                    justifyContent: { xs: "flex-end", sm: "flex-start" },
+                    flexWrap: "wrap",
+                  }}
+                >
                   <Button
+                    fullWidth={!!window.innerWidth < 600} // optional, dynamic full-width
                     sx={{
                       background: "linear-gradient(to right, #00bcd4, #ff7043)",
                       color: "white",
@@ -660,11 +687,12 @@ function ProfilePage() {
                           "linear-gradient(to right, #00acc1, #f4511e)",
                       },
                     }}
-                    onClick={() => navigate("/postpet", { state: { pet } })} // 👈 open dialog with pet data
+                    onClick={() => navigate("/postpet", { state: { pet } })}
                   >
                     Edit
                   </Button>
                   <Button
+                    fullWidth={!!window.innerWidth < 600}
                     sx={{
                       background: "linear-gradient(to right, #00bcd4, #ff7043)",
                       color: "white",
@@ -702,7 +730,11 @@ function ProfilePage() {
           fosterPets.map((pet) => (
             <Card
               key={pet._id}
-              sx={{ borderRadius: 3, border: "1px solid #ddd" }}
+              sx={{
+                borderRadius: 3,
+                border: "1px solid #ddd",
+                p: { xs: 1.5, sm: 2 },
+              }}
             >
               <CardContent
                 sx={{
@@ -711,29 +743,52 @@ function ProfilePage() {
                   gap: 2,
                 }}
               >
-                {/* Pet Info */}
-                <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                {/* 🐾 Pet Info */}
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: { xs: "column", sm: "row" },
+                    alignItems: { xs: "flex-start", sm: "center" },
+                    gap: 2,
+                  }}
+                >
                   <Box
                     component="img"
                     src={`${API_BASE_URL}/uploads/${pet.photos[0]}`}
                     alt={pet.name}
                     sx={{
-                      width: 80,
-                      height: 80,
+                      width: { xs: "100%", sm: 80 },
+                      height: { xs: 180, sm: 80 },
                       objectFit: "cover",
                       borderRadius: 2,
                     }}
                   />
-                  <Box>
-                    <Typography variant="subtitle1" fontWeight="bold">
+
+                  <Box sx={{ width: "100%" }}>
+                    <Typography
+                      variant="subtitle1"
+                      fontWeight="bold"
+                      sx={{ fontSize: { xs: "1rem", sm: "1.1rem" } }}
+                    >
                       {pet.name}
                     </Typography>
-                    <Typography variant="body2" color="text.secondary">
+
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      sx={{ fontSize: { xs: "0.9rem", sm: "1rem" } }}
+                    >
                       {pet.breed} • {pet.age} • {pet.gender}
                     </Typography>
-                    <Typography variant="body2" color="text.secondary">
+
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      sx={{ fontSize: { xs: "0.9rem", sm: "1rem" } }}
+                    >
                       Location: {pet.location}
                     </Typography>
+
                     <Typography variant="body2" color="text.secondary">
                       Start:{" "}
                       {pet.start_date
@@ -747,33 +802,80 @@ function ProfilePage() {
                   </Box>
                 </Box>
 
-                {/* Requests */}
+                {/* 📬 Requests */}
                 {pet.requests?.length > 0 && (
                   <Box
                     sx={{ display: "flex", flexDirection: "column", gap: 1 }}
                   >
-                    <Typography variant="subtitle2">
-                      Adoption Requests:
+                    <Typography
+                      variant="subtitle2"
+                      sx={{
+                        fontWeight: "bold",
+                        fontSize: { xs: "0.95rem", sm: "1rem" },
+                      }}
+                    >
+                      Foster Requests:
                     </Typography>
+
                     {pet.requests.map((req) => (
                       <Box
                         key={req._id}
                         sx={{
                           display: "flex",
-                          alignItems: "center",
+                          flexDirection: { xs: "column", sm: "row" },
+                          alignItems: { xs: "flex-start", sm: "center" },
                           justifyContent: "space-between",
-                          gap: 1,
+                          gap: { xs: 1.5, sm: 1 },
+                          p: { xs: 1.5, sm: 1 },
+                          borderRadius: 2,
+                          backgroundColor: { xs: "#f9f9f9", sm: "transparent" },
                         }}
                       >
-                        <Box sx={{ display: "flex", gap: "5px" }}>
-                          <Typography variant="body2">
-                            {req.forster_parent_email} ||
+                        {/* Left Section - Request Info */}
+                        <Box
+                          sx={{
+                            display: "flex",
+                            flexDirection: { xs: "column", sm: "row" },
+                            gap: { xs: 0.5, sm: 1 },
+                            width: "100%",
+                          }}
+                        >
+                          <Typography
+                            variant="body2"
+                            sx={{
+                              fontSize: { xs: "0.9rem", sm: "1rem" },
+                              fontWeight: "bold",
+                            }}
+                          >
+                            {req.forster_parent_email}
                           </Typography>
 
-                          <Typography variant="body2" color="text.secondary">
-                            Status: {req.status} ||
+                          <Typography
+                            variant="body2"
+                            color="text.secondary"
+                            sx={{ fontSize: { xs: "0.9rem", sm: "1rem" } }}
+                          >
+                            Status:{" "}
+                            <span
+                              style={{
+                                color:
+                                  req.status === "accepted"
+                                    ? "green"
+                                    : req.status === "rejected"
+                                    ? "red"
+                                    : "orange",
+                                fontWeight: "bold",
+                              }}
+                            >
+                              {req.status}
+                            </span>
                           </Typography>
-                          <Typography variant="body2" color="text.secondary">
+
+                          <Typography
+                            variant="body2"
+                            color="text.secondary"
+                            sx={{ fontSize: { xs: "0.9rem", sm: "1rem" } }}
+                          >
                             {req.status === "accepted" ? (
                               <>
                                 Accepted At:{" "}
@@ -791,12 +893,22 @@ function ProfilePage() {
                             )}
                           </Typography>
                         </Box>
+
+                        {/* Right Section - Actions or Status */}
                         {req.status === "pending" ? (
-                          <Box sx={{ display: "flex", gap: "5px" }}>
+                          <Stack
+                            direction={{ xs: "column", sm: "row" }}
+                            spacing={1}
+                            sx={{
+                              width: { xs: "100%", sm: "auto" },
+                              mt: { xs: 1, sm: 0 },
+                            }}
+                          >
                             <Button
                               variant="contained"
                               color="success"
                               size="small"
+                              fullWidth={true}
                               onClick={() =>
                                 handleUpdateRequestStatus(
                                   pet._id,
@@ -811,6 +923,7 @@ function ProfilePage() {
                               variant="contained"
                               color="error"
                               size="small"
+                              fullWidth={true}
                               onClick={() =>
                                 handleUpdateRequestStatus(
                                   pet._id,
@@ -821,13 +934,15 @@ function ProfilePage() {
                             >
                               Reject
                             </Button>
-                          </Box>
+                          </Stack>
                         ) : (
                           <Typography
                             sx={{
                               color:
                                 req.status === "accepted" ? "green" : "red",
                               fontWeight: "bold",
+                              textAlign: { xs: "center", sm: "left" },
+                              width: "100%",
                             }}
                           >
                             {req.status === "accepted"
@@ -860,18 +975,32 @@ function ProfilePage() {
               pet.requests.map((req) => (
                 <Card
                   key={req._id}
-                  sx={{ borderRadius: 3, border: "1px solid #ddd" }}
+                  sx={{
+                    borderRadius: 3,
+                    border: "1px solid #ddd",
+                    p: { xs: 1.5, sm: 2 },
+                  }}
                 >
                   <CardContent
                     sx={{
                       display: "flex",
+                      flexDirection: { xs: "column", sm: "row" },
                       justifyContent: "space-between",
-                      alignItems: "center",
+                      alignItems: { xs: "flex-start", sm: "center" },
                       flexWrap: "wrap",
                       gap: 2,
                     }}
                   >
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                    {/* Pet Info Section */}
+                    <Box
+                      sx={{
+                        display: "flex",
+                        flexDirection: { xs: "column", sm: "row" },
+                        alignItems: { xs: "flex-start", sm: "center" },
+                        gap: 2,
+                        width: { xs: "100%", sm: "auto" },
+                      }}
+                    >
                       <Box
                         component="img"
                         src={
@@ -881,22 +1010,51 @@ function ProfilePage() {
                         }
                         alt={pet.name}
                         sx={{
-                          width: 80,
-                          height: 80,
+                          width: { xs: "100%", sm: 80 },
+                          height: { xs: 180, sm: 80 },
                           objectFit: "cover",
                           borderRadius: 2,
                         }}
                       />
+
                       <Box>
-                        <Typography variant="subtitle1" fontWeight="bold">
+                        <Typography
+                          variant="subtitle1"
+                          fontWeight="bold"
+                          sx={{ fontSize: { xs: "1rem", sm: "1.1rem" } }}
+                        >
                           {pet.name}
                         </Typography>
-                        <Typography variant="body2" color="text.secondary">
+
+                        <Typography
+                          variant="body2"
+                          color="text.secondary"
+                          sx={{ fontSize: { xs: "0.9rem", sm: "1rem" } }}
+                        >
                           {req.adopter_email} wants to adopt
                         </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                          Status: {req.status}
+
+                        <Typography
+                          variant="body2"
+                          color="text.secondary"
+                          sx={{ fontSize: { xs: "0.9rem", sm: "1rem" } }}
+                        >
+                          Status:{" "}
+                          <span
+                            style={{
+                              color:
+                                req.status === "approved"
+                                  ? "green"
+                                  : req.status === "rejected"
+                                  ? "red"
+                                  : "orange",
+                              fontWeight: "bold",
+                            }}
+                          >
+                            {req.status}
+                          </span>
                         </Typography>
+
                         <Typography variant="body2" color="text.secondary">
                           {req.status === "approved" ? (
                             <>
@@ -916,7 +1074,13 @@ function ProfilePage() {
                         </Typography>
                       </Box>
                     </Box>
-                    <Stack direction="row" spacing={1}>
+
+                    {/* Action Buttons / Status */}
+                    <Stack
+                      direction={{ xs: "column", sm: "row" }}
+                      spacing={1}
+                      sx={{ width: { xs: "100%", sm: "auto" } }}
+                    >
                       {req.status === "pending" &&
                       !pet.requests.some((r) => r.status !== "pending") ? (
                         <>
@@ -924,6 +1088,7 @@ function ProfilePage() {
                             variant="contained"
                             color="success"
                             size="small"
+                            fullWidth={true}
                             onClick={() =>
                               handleRequestStatus(pet._id, req._id, "approved")
                             }
@@ -934,6 +1099,7 @@ function ProfilePage() {
                             variant="contained"
                             color="error"
                             size="small"
+                            fullWidth={true}
                             onClick={() =>
                               handleRequestStatus(pet._id, req._id, "rejected")
                             }
@@ -946,6 +1112,8 @@ function ProfilePage() {
                           sx={{
                             color: req.status === "approved" ? "green" : "red",
                             fontWeight: "bold",
+                            textAlign: { xs: "center", sm: "left" },
+                            width: "100%",
                           }}
                         >
                           {req.status === "approved" ? "Adopted" : "Rejected"}
@@ -953,33 +1121,55 @@ function ProfilePage() {
                       )}
                     </Stack>
                   </CardContent>
-                  {/* Show review only if it exists and status is approved */}
+
+                  {/* Review Section */}
                   {req.status === "approved" && req.review && (
                     <Box
-                      sx={{ mt: 2, bgcolor: "#f9f9f9", p: 2, borderRadius: 1 }}
+                      sx={{
+                        mt: 2,
+                        bgcolor: "#f9f9f9",
+                        p: { xs: 1.5, sm: 2 },
+                        borderRadius: 1,
+                      }}
                     >
                       <Box
                         sx={{
                           display: "flex",
+                          flexDirection: { xs: "column", sm: "row" },
                           gap: 1,
-                          alignItems: "center",
+                          alignItems: { xs: "flex-start", sm: "center" },
                           mt: 1,
                         }}
                       >
-                        <Typography variant="body2" sx={{ fontWeight: "bold" }}>
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            fontWeight: "bold",
+                            fontSize: { xs: "0.9rem" },
+                          }}
+                        >
                           Review:
                         </Typography>
-                        <Typography variant="body2" color="text.secondary">
+                        <Typography
+                          variant="body2"
+                          color="text.secondary"
+                          sx={{ fontSize: { xs: "0.9rem" } }}
+                        >
                           {req.adopter_email}
                         </Typography>
                       </Box>
 
-                      <Typography variant="body2">
+                      <Typography
+                        variant="body2"
+                        sx={{ fontSize: { xs: "0.9rem" }, mt: 1 }}
+                      >
                         {req.review.comment}
                       </Typography>
+
                       <Rating
                         value={req.review.rating}
                         readOnly
+                        size="small"
                         sx={{ mt: 1 }}
                       />
                     </Box>
@@ -1011,24 +1201,27 @@ function ProfilePage() {
               sx={{
                 borderRadius: 3,
                 border: "1px solid #ddd",
-                paddingBottom: "10px",
+                p: { xs: 2, sm: 2.5 },
+                boxShadow: "0 3px 8px rgba(0,0,0,0.05)",
               }}
             >
               <CardContent
                 sx={{
                   display: "flex",
                   flexDirection: { xs: "column", sm: "row" },
-                  gap: 2,
+                  gap: { xs: 2, sm: 3 },
                   justifyContent: "space-between",
-                  alignItems: "center",
+                  alignItems: { xs: "flex-start", sm: "center" },
                 }}
               >
+                {/* Pet Info */}
                 <Box
                   sx={{
                     display: "flex",
-                    gap: "15px",
-                    justifyContent: "center",
-                    alignItems: "center",
+                    flexDirection: { xs: "column", sm: "row" },
+                    gap: { xs: 1.5, sm: 2 },
+                    alignItems: { xs: "flex-start", sm: "center" },
+                    width: "100%",
                   }}
                 >
                   <Box
@@ -1040,51 +1233,66 @@ function ProfilePage() {
                     }
                     alt={item.petInfo.name}
                     sx={{
-                      width: 80,
-                      height: 80,
+                      width: { xs: "100%", sm: 80 },
+                      height: { xs: 180, sm: 80 },
                       objectFit: "cover",
                       borderRadius: 2,
                     }}
                   />
-                  <Box
-                    sx={{
-                      display: "flex",
-                      flexDirection: "column",
-                    }}
-                  >
-                    <Typography variant="subtitle1" fontWeight="bold">
+
+                  <Box sx={{ flex: 1 }}>
+                    <Typography
+                      variant="subtitle1"
+                      fontWeight="bold"
+                      sx={{ fontSize: { xs: "1rem", sm: "1.1rem" } }}
+                    >
                       {item.petInfo.name}
                     </Typography>
-                    <Typography variant="body2" color="text.secondary">
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      sx={{ fontSize: { xs: "0.85rem", sm: "0.95rem" } }}
+                    >
                       Request sent to {item.petInfo.post_user.email}
                     </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      Requested At: {new Date(item.createdAt).toLocaleString()}
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      sx={{ fontSize: { xs: "0.85rem", sm: "0.95rem" } }}
+                    >
+                      Requested: {new Date(item.createdAt).toLocaleString()}
                     </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      {item.status === "approved"
-                        ? `Accepted At: ${new Date(
-                            item.updatedAt
-                          ).toLocaleString()}`
-                        : item.status === "rejected"
-                        ? `Rejected At: ${new Date(
-                            item.updatedAt
-                          ).toLocaleString()}`
-                        : null}
-                    </Typography>
+                    {item.status !== "pending" && (
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{ fontSize: { xs: "0.85rem", sm: "0.95rem" } }}
+                      >
+                        {item.status === "approved"
+                          ? `Accepted: ${new Date(
+                              item.updatedAt
+                            ).toLocaleString()}`
+                          : `Rejected: ${new Date(
+                              item.updatedAt
+                            ).toLocaleString()}`}
+                      </Typography>
+                    )}
                   </Box>
                 </Box>
 
-                {/* Stepper */}
+                {/* Stepper (sm & above only) */}
                 <Box
                   sx={{
                     width: { xs: "100%", sm: "50%" },
-                    mt: { xs: 2, sm: 0 },
+                    mt: { xs: 1.5, sm: 0 },
                   }}
                 >
                   <Stepper
                     activeStep={item.status === "pending" ? 0 : 1}
                     alternativeLabel
+                    sx={{
+                      display: { xs: "none", sm: "flex" },
+                    }}
                   >
                     <Step>
                       <StepLabel
@@ -1105,11 +1313,37 @@ function ProfilePage() {
                       </StepLabel>
                     </Step>
                   </Stepper>
+
+                  {/* Mobile Status Tag */}
+                  <Box
+                    sx={{
+                      display: { xs: "flex", sm: "none" },
+                      justifyContent: "center",
+                      mt: 1,
+                    }}
+                  >
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        fontWeight: "bold",
+                        color:
+                          item.status === "approved"
+                            ? "green"
+                            : item.status === "rejected"
+                            ? "red"
+                            : "gray",
+                      }}
+                    >
+                      Status: {item.status.toUpperCase()}
+                    </Typography>
+                  </Box>
                 </Box>
               </CardContent>
+
+              {/* Review Section */}
               {item.review ? (
-                <Box sx={{ mt: 2, bgcolor: "#f9f9f9", p: 2, borderRadius: 1 }}>
-                  <Typography variant="body2" sx={{ fontWeight: "bold" }}>
+                <Box sx={{ mt: 2, bgcolor: "#f9f9f9", p: 2, borderRadius: 2 }}>
+                  <Typography variant="body2" fontWeight="bold">
                     Your Review:
                   </Typography>
                   <Typography variant="body2">{item.review.comment}</Typography>
@@ -1155,7 +1389,6 @@ function ProfilePage() {
                           }))
                         }
                         sx={{
-                          flexGrow: 1,
                           "& .MuiOutlinedInput-root": {
                             borderRadius: 2,
                           },
@@ -1176,39 +1409,31 @@ function ProfilePage() {
                         }
                         sx={{
                           "& .MuiRating-iconFilled": { color: "#ff7043" },
+                          alignSelf: { xs: "flex-start", sm: "center" },
                         }}
                       />
-                      <Box
+
+                      <Button
+                        variant="contained"
+                        onClick={() => handleSubmitReview(item)}
                         sx={{
-                          display: "flex",
-                          flexDirection: "column",
-                          alignItems: "center",
-                          gap: 1,
-                          minWidth: { xs: "100%", sm: 150 },
+                          background:
+                            "linear-gradient(to right, #00bcd4, #ff7043)",
+                          textTransform: "none",
+                          borderRadius: 2,
+                          fontWeight: "bold",
+                          px: 3,
+                          py: 1,
+                          fontSize: "0.9rem",
+                          width: { xs: "100%", sm: "auto" },
+                          "&:hover": {
+                            background:
+                              "linear-gradient(to right, #0097a7, #f4511e)",
+                          },
                         }}
                       >
-                        <Button
-                          variant="contained"
-                          onClick={() => handleSubmitReview(item)}
-                          sx={{
-                            background:
-                              "linear-gradient(to right, #00bcd4, #ff7043)",
-                            textTransform: "none",
-                            borderRadius: 2,
-                            fontWeight: "bold",
-                            px: 3,
-                            py: 1,
-                            fontSize: "0.9rem",
-                            width: { xs: "100%", sm: "auto" },
-                            "&:hover": {
-                              background:
-                                "linear-gradient(to right, #0097a7, #f4511e)",
-                            },
-                          }}
-                        >
-                          Submit Review
-                        </Button>
-                      </Box>
+                        Submit
+                      </Button>
                     </Stack>
                   </Box>
                 )
@@ -1216,11 +1441,12 @@ function ProfilePage() {
             </Card>
           ))
         ) : (
-          <Typography variant="body2" color="text.secondary">
-            No adoption requests for your pets.
+          <Typography variant="body2" color="text.secondary" textAlign="center">
+            No adoption requests yet.
           </Typography>
         )}
       </Stack>
+
       {/* Foster Tracking Requests - Notification */}
       <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>
         Foster Requests Tracking Status
@@ -1229,7 +1455,6 @@ function ProfilePage() {
       <Stack spacing={2} sx={{ mb: 4 }}>
         {fosterRequestPets.length > 0 ? (
           fosterRequestPets.map((item) => {
-            // Find the request for the logged-in user
             const userRequest = item.requests.find(
               (r) =>
                 r.forster_parent_ID?._id === userId ||
@@ -1239,18 +1464,31 @@ function ProfilePage() {
             return (
               <Card
                 key={item._id}
-                sx={{ borderRadius: 3, border: "1px solid #ddd" }}
+                sx={{
+                  borderRadius: 3,
+                  border: "1px solid #ddd",
+                  p: { xs: 2, sm: 2.5 },
+                }}
               >
                 <CardContent
                   sx={{
                     display: "flex",
                     flexDirection: { xs: "column", sm: "row" },
-                    gap: 2,
+                    gap: { xs: 2, sm: 3 },
                     justifyContent: "space-between",
-                    alignItems: "center",
+                    alignItems: { xs: "flex-start", sm: "center" },
                   }}
                 >
-                  <Box sx={{ display: "flex", gap: 2 }}>
+                  {/* Pet Info */}
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flexDirection: { xs: "column", sm: "row" },
+                      gap: { xs: 1.5, sm: 2 },
+                      alignItems: { xs: "flex-start", sm: "center" },
+                      width: "100%",
+                    }}
+                  >
                     <Box
                       component="img"
                       src={
@@ -1260,30 +1498,45 @@ function ProfilePage() {
                       }
                       alt={item.name}
                       sx={{
-                        width: 80,
-                        height: 80,
+                        width: { xs: "100%", sm: 80 },
+                        height: { xs: 180, sm: 80 },
                         objectFit: "cover",
                         borderRadius: 2,
                       }}
                     />
-                    <Box>
-                      <Typography variant="subtitle1" fontWeight="bold">
+
+                    <Box sx={{ flex: 1 }}>
+                      <Typography
+                        variant="subtitle1"
+                        fontWeight="bold"
+                        sx={{ fontSize: { xs: "1rem", sm: "1.1rem" } }}
+                      >
                         {item.name}
                       </Typography>
-                      <Typography variant="body2" color="text.secondary">
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{ fontSize: { xs: "0.85rem", sm: "0.95rem" } }}
+                      >
                         Request sent to {item.fosterOrgId?.email}
                       </Typography>
-
-                      {/* Show requestedAt and updatedAt */}
-                      <Typography variant="body2" color="text.secondary">
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{ fontSize: { xs: "0.85rem", sm: "0.95rem" } }}
+                      >
                         Requested At:{" "}
                         {userRequest?.createdAt
                           ? new Date(userRequest.createdAt).toLocaleString()
                           : "N/A"}
                       </Typography>
-                      {userRequest?.status === "accepted" ||
-                      userRequest?.status === "rejected" ? (
-                        <Typography variant="body2" color="text.secondary">
+                      {(userRequest?.status === "accepted" ||
+                        userRequest?.status === "rejected") && (
+                        <Typography
+                          variant="body2"
+                          color="text.secondary"
+                          sx={{ fontSize: { xs: "0.85rem", sm: "0.95rem" } }}
+                        >
                           {userRequest.status === "accepted"
                             ? "Accepted At: "
                             : "Rejected At: "}
@@ -1291,20 +1544,21 @@ function ProfilePage() {
                             ? new Date(userRequest.updatedAt).toLocaleString()
                             : "N/A"}
                         </Typography>
-                      ) : null}
+                      )}
                     </Box>
                   </Box>
 
-                  {/* Stepper */}
+                  {/* Stepper for desktop/tablet */}
                   <Box
                     sx={{
-                      width: { xs: "100%", sm: "50%" },
-                      mt: { xs: 2, sm: 0 },
+                      width: { xs: "100%", sm: "40%" },
+                      mt: { xs: 1.5, sm: 0 },
                     }}
                   >
                     <Stepper
                       activeStep={userRequest?.status === "pending" ? 0 : 1}
                       alternativeLabel
+                      sx={{ display: { xs: "none", sm: "flex" } }}
                     >
                       <Step>
                         <StepLabel
@@ -1330,8 +1584,35 @@ function ProfilePage() {
                         </StepLabel>
                       </Step>
                     </Stepper>
+
+                    {/* Mobile Status Text */}
+                    <Box
+                      sx={{
+                        display: { xs: "flex", sm: "none" },
+                        justifyContent: "center",
+                        mt: 1,
+                      }}
+                    >
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          fontWeight: "bold",
+                          color:
+                            userRequest?.status === "accepted"
+                              ? "green"
+                              : userRequest?.status === "rejected"
+                              ? "red"
+                              : "gray",
+                        }}
+                      >
+                        Status:{" "}
+                        {userRequest?.status?.toUpperCase() || "PENDING"}
+                      </Typography>
+                    </Box>
                   </Box>
                 </CardContent>
+
+                {/* Review Section */}
                 {userRequest?.status === "accepted" && (
                   <Box
                     sx={{
@@ -1355,9 +1636,8 @@ function ProfilePage() {
                         <Stack
                           direction={{ xs: "column", sm: "row" }}
                           spacing={2}
-                          alignItems="center"
+                          alignItems={{ xs: "stretch", sm: "center" }}
                         >
-                          {/* Comment Box */}
                           <TextField
                             label="Write your comment..."
                             multiline
@@ -1378,78 +1658,47 @@ function ProfilePage() {
                             }}
                           />
 
-                          {/* Rating */}
-                          <Box
+                          <Rating
+                            name={`foster-rating-${item._id}`}
+                            value={fosterReviews[item._id]?.rating || 0}
+                            onChange={(e, newValue) =>
+                              setFosterReviews((prev) => ({
+                                ...prev,
+                                [item._id]: {
+                                  ...prev[item._id],
+                                  rating: newValue,
+                                },
+                              }))
+                            }
                             sx={{
-                              display: "flex",
-                              flexDirection: "column",
-                              alignItems: "center",
-                              gap: 1,
-                              width: { xs: "100%", sm: "auto" },
+                              "& .MuiRating-iconFilled": { color: "#ff7043" },
                             }}
-                          >
-                            <Rating
-                              name={`foster-rating-${item._id}`}
-                              value={fosterReviews[item._id]?.rating || 0}
-                              onChange={(e, newValue) =>
-                                setFosterReviews((prev) => ({
-                                  ...prev,
-                                  [item._id]: {
-                                    ...prev[item._id],
-                                    rating: newValue,
-                                  },
-                                }))
-                              }
-                              sx={{
-                                "& .MuiRating-iconFilled": { color: "#ff7043" },
-                              }}
-                            />
-                          </Box>
+                          />
 
-                          {/* Submit Button */}
-                          <Box
+                          <Button
+                            variant="contained"
+                            onClick={() => handleFosterReviewSubmit(item._id)}
                             sx={{
+                              background:
+                                "linear-gradient(to right, #00bcd4, #ff7043)",
+                              textTransform: "none",
+                              borderRadius: 2,
+                              fontWeight: "bold",
+                              px: 3,
+                              py: 1,
                               width: { xs: "100%", sm: "auto" },
-                              display: "flex",
-                              justifyContent: {
-                                xs: "center",
-                                sm: "flex-start",
+                              "&:hover": {
+                                background:
+                                  "linear-gradient(to right, #0097a7, #f4511e)",
                               },
                             }}
                           >
-                            <Button
-                              variant="contained"
-                              onClick={() => handleFosterReviewSubmit(item._id)}
-                              sx={{
-                                background:
-                                  "linear-gradient(to right, #00bcd4, #ff7043)",
-                                textTransform: "none",
-                                borderRadius: 2,
-                                fontWeight: "bold",
-                                px: 3,
-                                py: 1,
-                                fontSize: "0.9rem",
-                                width: { xs: "100%", sm: "auto" },
-                                "&:hover": {
-                                  background:
-                                    "linear-gradient(to right, #0097a7, #f4511e)",
-                                },
-                              }}
-                            >
-                              Submit Review
-                            </Button>
-                          </Box>
+                            Submit Review
+                          </Button>
                         </Stack>
                       </>
                     ) : (
-                      <Box
-                        sx={{
-                          mt: 1,
-                          p: 1.5,
-                          // border: "1px solid #ccc",
-                          // borderRadius: 2,
-                        }}
-                      >
+                      <Box sx={{ mt: 1 }}>
                         <Typography variant="subtitle2" fontWeight="bold">
                           Your Review
                         </Typography>
@@ -1469,7 +1718,7 @@ function ProfilePage() {
             );
           })
         ) : (
-          <Typography variant="body2" color="text.secondary">
+          <Typography variant="body2" color="text.secondary" textAlign="center">
             No foster requests for your pets.
           </Typography>
         )}

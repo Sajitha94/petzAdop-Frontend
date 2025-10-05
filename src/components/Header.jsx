@@ -68,7 +68,14 @@ export default function Header() {
   }, []);
 
   return (
-    <AppBar position="static" sx={{ backgroundColor: "white", boxShadow: 1 }}>
+    <AppBar
+      position="fixed"
+      sx={{
+        backgroundColor: "white",
+        boxShadow: 1,
+        zIndex: (theme) => theme.zIndex.drawer + 1, // ✅ ensures it stays above everything
+      }}
+    >
       <Container maxWidth="xl">
         <Toolbar
           disableGutters
@@ -84,33 +91,20 @@ export default function Header() {
             sx={{ display: "flex", alignItems: "center", cursor: "pointer" }}
             onClick={() => navigate("/")}
           >
-            <Typography
-              variant="h6"
-              component="a"
-              sx={{
-                mr: 2,
-                fontFamily: "monospace",
-                fontWeight: 700,
-                letterSpacing: ".3rem",
-                color: "inherit",
-                textDecoration: "none",
-              }}
-            >
-              <img src={PetzAdop} alt="logo" className="w-32 h-12" />
-            </Typography>
+            <img src={PetzAdop} alt="logo" className="w-32 h-12" />
           </Box>
 
           {/* Navigation Links */}
           <Box
             sx={{
-              display: { xs: "none", md: "flex" },
+              display: { xs: "none", sm: "flex" },
               justifyContent: "center",
               gap: 2,
             }}
           >
             {pages.map((page) => (
               <Button
-                key={page.name} // ✅ use a unique string
+                key={page.name}
                 sx={{
                   textTransform: "none",
                   fontSize: "16px",
@@ -125,7 +119,7 @@ export default function Header() {
           </Box>
 
           {/* Mobile Menu */}
-          <Box sx={{ display: { xs: "flex", md: "none" } }}>
+          <Box sx={{ display: { xs: "flex", sm: "none" } }}>
             <IconButton
               size="large"
               color="inherit"
@@ -139,10 +133,17 @@ export default function Header() {
               onClose={handleCloseNavMenu}
               anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
               transformOrigin={{ vertical: "top", horizontal: "left" }}
+              keepMounted
             >
               {pages.map((page) => (
-                <MenuItem key={page} onClick={handleCloseNavMenu}>
-                  <Typography textAlign="center">{page}</Typography>
+                <MenuItem
+                  key={page.name}
+                  onClick={() => {
+                    handleCloseNavMenu();
+                    navigate(page.path);
+                  }}
+                >
+                  <Typography textAlign="center">{page.name}</Typography>
                 </MenuItem>
               ))}
             </Menu>
@@ -157,20 +158,31 @@ export default function Header() {
                     <Avatar
                       alt={user.name}
                       src={
-                        user?.profilePictures && user.profilePictures.length > 0
+                        user?.profilePictures?.length > 0
                           ? `${API_BASE_URL}/uploads/${user.profilePictures[0]}`
                           : "/static/images/avatar/1.jpg"
                       }
                     />
                   </IconButton>
                 </Tooltip>
+
+                {/* ✅ FIXED MENU POSITION */}
                 <Menu
-                  sx={{ mt: "45px" }}
+                  sx={{
+                    mt: 1.5, // ✅ better vertical spacing
+                  }}
                   anchorEl={anchorElUser}
                   open={Boolean(anchorElUser)}
                   onClose={handleCloseUserMenu}
-                  anchorOrigin={{ vertical: "top", horizontal: "right" }}
-                  transformOrigin={{ vertical: "top", horizontal: "right" }}
+                  anchorOrigin={{
+                    vertical: "bottom",
+                    horizontal: "right", // ✅ align to right of Avatar
+                  }}
+                  transformOrigin={{
+                    vertical: "top",
+                    horizontal: "right", // ✅ ensures correct alignment
+                  }}
+                  keepMounted
                 >
                   {settings.map((setting) =>
                     setting === "Logout" ? (
