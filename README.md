@@ -75,6 +75,7 @@ The platform also supports **reviews**, **ratings**, and **search filters** for 
 > ⚠️ **Note:** Email verification is currently functional **only on localhost**.  
 > After deploying the backend (e.g., on Render), email sending **does not work** due to SMTP/environment restrictions.  
 > This feature is intended for testing purposes in the local development environment only.
+> The issue has been reported on the GUVI platform, but the query is still pending resolution.
 
 ---
 
