@@ -27,6 +27,9 @@ function PetCard({ pet = defaultPet, type = "pet", userFavorites = [] }) {
   const images = pet.photo || []; // array of image filenames
   const videos = pet.video ? [pet.video] : []; // array with one video if exists
   const mediaFiles = [...images, ...videos]; // combined
+
+  const [rating, setRating] = useState(0);
+  const [reviewsCount, setReviewsCount] = useState(0);
   const [isFavorite, setIsFavorite] = useState(false);
   const handlePrev = () => {
     setCurrentIndex((prev) => (prev === 0 ? mediaFiles.length - 1 : prev - 1));
@@ -48,10 +51,31 @@ function PetCard({ pet = defaultPet, type = "pet", userFavorites = [] }) {
   };
 
   useEffect(() => {
-    if (userFavorites.some((fav) => fav._id === pet._id)) {
-      setIsFavorite(true);
-    }
-  }, [userFavorites, pet._id]);
+    const fetchRating = async () => {
+      if (!pet.post_user?._id) return; // safety check
+
+      try {
+        const token = localStorage.getItem("token"); // if your endpoint needs auth
+        const res = await fetch(
+          `${API_BASE_URL}/api/user-count/${pet.post_user._id}/rating`,
+          {
+            headers: token ? { Authorization: `Bearer ${token}` } : {},
+          }
+        );
+        const data = await res.json();
+
+        if (res.ok) {
+          setRating(data.averageRating || 0);
+          setReviewsCount(data.totalReviews || 0);
+        }
+      } catch (err) {
+        console.error("Error fetching rating:", err);
+      }
+    };
+
+    fetchRating();
+  }, [pet.post_user?._id]);
+
   const toggleFavorite = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -76,6 +100,7 @@ function PetCard({ pet = defaultPet, type = "pet", userFavorites = [] }) {
       console.error("Favorite error:", err);
     }
   };
+
   return (
     <Card className="flex flex-col justify-between p-2 gap-3">
       {/* Media Carousel */}
@@ -208,7 +233,11 @@ function PetCard({ pet = defaultPet, type = "pet", userFavorites = [] }) {
               fontSize: 14,
             }}
           >
-            <StarIcon fontSize="small" sx={{ color: "orange" }} /> {pet.rating}
+            {reviewsCount > 0 && (
+              <div>
+                <p>⭐ {reviewsCount} </p>
+              </div>
+            )}
           </Box>
         </Box>
 

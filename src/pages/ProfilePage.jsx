@@ -57,7 +57,6 @@ function ProfilePage() {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
-      console.log("data", data);
 
       // backend might return { status: 'success', data: [...] } or raw array
       setReviews(data.data ?? data);
@@ -147,7 +146,6 @@ function ProfilePage() {
           );
 
           setAdopRequestPets(filteredRequests);
-          console.log(adopRequestPets, "adopRequestPets");
         }
 
         // Fetch foster pets if user is foster organization
@@ -1454,45 +1452,6 @@ function ProfilePage() {
             No foster requests for your pets.
           </Typography>
         )}
-      </Stack>
-      {/* My Reviews */}
-      <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>
-        My Reviews
-      </Typography>
-      <Stack spacing={2} sx={{ mb: 4 }}>
-        {[
-          {
-            shelter: "Berkeley Cat Sanctuary",
-            rating: 5,
-            comment: "Amazing experience!",
-          },
-          {
-            shelter: "Happy Dog Shelter",
-            rating: 4,
-            comment: "Friendly staff and well-cared pets.",
-          },
-        ].map((review, index) => (
-          <Card key={index} sx={{ borderRadius: 3, border: "1px solid #ddd" }}>
-            <CardContent>
-              <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-                <Typography
-                  variant="subtitle1"
-                  fontWeight="bold"
-                  sx={{ flex: 1 }}
-                >
-                  {review.shelter}
-                </Typography>
-                <Stack direction="row" spacing={0.5}>
-                  {Array.from({ length: review.rating }).map((_, i) => (
-                    <StarIcon key={i} color="warning" fontSize="small" />
-                  ))}
-                </Stack>
-              </Box>
-              <Divider sx={{ mb: 1 }} />
-              <Typography variant="body2">{review.comment}</Typography>
-            </CardContent>
-          </Card>
-        ))}
       </Stack>
     </Box>
   );
