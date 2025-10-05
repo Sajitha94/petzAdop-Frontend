@@ -283,7 +283,13 @@ function PetDetailsPage({ fosterOrgId }) {
                     src={`${API_BASE_URL}/uploads/${mediaFiles[currentIndex]}`}
                     controls
                     className="w-full rounded-lg bg-gray-100"
-                    style={{ height: 400, objectFit: "cover" }}
+                    style={{
+                      maxHeight: 400,
+                      width: "100%",
+                      objectFit: "contain", // 👈 ensures full video visible
+                      backgroundColor: "#f5f5f5",
+                      borderRadius: "12px",
+                    }}
                   />
                 ) : (
                   <CardMedia
@@ -291,9 +297,11 @@ function PetDetailsPage({ fosterOrgId }) {
                     image={`${API_BASE_URL}/uploads/${mediaFiles[currentIndex]}`}
                     alt={pet.name}
                     sx={{
-                      height: 400,
-                      objectFit: "cover",
-                      borderRadius: "12px 12px 0 0",
+                      maxHeight: 400,
+                      width: "100%",
+                      objectFit: "contain", // 👈 keeps full image visible
+                      borderRadius: "12px",
+                      backgroundColor: "#f5f5f5",
                     }}
                   />
                 )}

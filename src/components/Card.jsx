@@ -106,7 +106,7 @@ function PetCard({ pet = defaultPet, type = "pet", userFavorites = [] }) {
       {/* Media Carousel */}
       <Box sx={{ position: "relative" }}>
         {mediaFiles.length > 0 && (
-          <>
+          <Box onClick={handleClick}>
             {mediaFiles[currentIndex].endsWith(".mp4") ? (
               <video
                 src={`${API_BASE_URL}/uploads/${mediaFiles[currentIndex]}`}
@@ -207,7 +207,7 @@ function PetCard({ pet = defaultPet, type = "pet", userFavorites = [] }) {
                 )}
               </Box>
             )}
-          </>
+          </Box>
         )}
       </Box>
 
