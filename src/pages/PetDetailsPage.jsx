@@ -194,7 +194,6 @@ function PetDetailsPage({ fosterOrgId }) {
         );
 
         const data = await res.json();
-        console.log(data, "userRating.totalReviews");
 
         if (res.ok) {
           setUserRating({
@@ -516,7 +515,11 @@ function PetDetailsPage({ fosterOrgId }) {
                   <Box sx={{ display: "flex", alignItems: "center" }}>
                     <StarIcon color="warning" sx={{ mr: 0.5 }} />
                     <Typography variant="body2">
-                      {userRating.totalReviews} Shelter Rating
+                      {userRating.totalReviews}{" "}
+                      <small className="text-sm text-gray-500">
+                        {" "}
+                        Shelter Rating
+                      </small>
                     </Typography>
                   </Box>
                 )}
