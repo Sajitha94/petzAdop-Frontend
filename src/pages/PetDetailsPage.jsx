@@ -575,10 +575,11 @@ function PetDetailsPage({ fosterOrgId }) {
                     src={`${API_BASE_URL}/uploads/${mediaFiles[currentIndex]}`}
                     controls
                     style={{
+                      maxHeight: 400,
                       width: "100%",
-                      height: "300px",
-                      objectFit: "cover",
-                      borderRadius: "12px 12px 0 0",
+                      objectFit: "contain", // 👈 ensures full video visible
+                      backgroundColor: "#f5f5f5",
+                      borderRadius: "12px",
                     }}
                     sx={{
                       height: { xs: 300, sm: 350, md: 450, lg: 500 },
@@ -589,12 +590,12 @@ function PetDetailsPage({ fosterOrgId }) {
                     component="img"
                     image={`${API_BASE_URL}/uploads/${mediaFiles[currentIndex]}`}
                     alt={pet.name}
-                    sx={{
-                      width: 600, // fixed width
-                      height: 400, // fixed height
-                      objectFit: "cover", // ensure image fills the area without stretching
-                      borderRadius: "12px 12px 0 0",
-                      mx: "auto", // center horizontally
+                    style={{
+                      maxHeight: 400,
+                      width: "100%",
+                      objectFit: "contain", // 👈 ensures full video visible
+                      backgroundColor: "#f5f5f5",
+                      borderRadius: "12px",
                     }}
                   />
                 )}
