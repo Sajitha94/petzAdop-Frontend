@@ -779,10 +779,11 @@ function PetDetailsPage({ fosterOrgId }) {
               </Stack>
             </CardContent>
           </Card>
-
-          <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>
-            FosterPets Lists
-          </Typography>
+          {fosterPets.length > 0 && (
+            <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>
+              FosterPets Lists
+            </Typography>
+          )}
 
           <Stack spacing={2} sx={{ mb: 4 }}>
             {fosterPets.length > 0 ? (
@@ -864,6 +865,9 @@ function PetDetailsPage({ fosterOrgId }) {
             key={petData.petName}
             sx={{ mb: 4, width: "100%", maxWidth: 900 }}
           >
+            <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>
+              User Reviews
+            </Typography>
             <Box
               sx={{
                 display: "flex",
