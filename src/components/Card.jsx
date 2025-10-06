@@ -102,27 +102,37 @@ function PetCard({ pet = defaultPet, type = "pet", userFavorites = [] }) {
   };
 
   return (
-    <Card className="flex flex-col justify-between p-2 gap-3">
+    <Card
+      className="flex flex-col justify-between p-2 gap-3"
+      sx={{
+        width: 300, // fixed width
+        height: 500, // fixed height
+        maxWidth: 300,
+        maxHeight: 500,
+        minWidth: 300,
+        minHeight: 500,
+        mx: "auto",
+      }}
+    >
       {/* Media Carousel */}
-      <Box sx={{ position: "relative" }}>
+      <Box sx={{ position: "relative", width: "100%", height: "50%" }}>
         {mediaFiles.length > 0 && (
-          <Box>
+          <>
             {mediaFiles[currentIndex].endsWith(".mp4") ? (
               <video
                 src={`${API_BASE_URL}/uploads/${mediaFiles[currentIndex]}`}
                 controls
-                className="w-full rounded-lg bg-gray-100 cursor-pointer"
-                style={{ height: 250, objectFit: "cover" }} // fixed height
+                className="rounded-lg bg-gray-100 cursor-pointer"
+                style={{ width: "100%", height: "100%", objectFit: "cover" }}
                 onClick={handleClick}
               />
             ) : (
-              <Box sx={{ position: "relative" }}>
+              <Box sx={{ position: "relative", width: "100%", height: "100%" }}>
                 <CardMedia
                   component="img"
                   alt={pet.name}
                   image={`${API_BASE_URL}/uploads/${mediaFiles[currentIndex]}`}
-                  className="w-full rounded-lg bg-gray-100 cursor-pointer"
-                  style={{ height: 250, objectFit: "cover" }} // fixed height
+                  sx={{ width: "100%", height: "100%", objectFit: "cover" }}
                   onClick={handleClick}
                 />
                 {type === "pet" && (
@@ -133,6 +143,7 @@ function PetCard({ pet = defaultPet, type = "pet", userFavorites = [] }) {
                       right: 8,
                       color: isFavorite ? "#ff7043" : "white",
                       backgroundColor: "rgba(0,0,0,0.4)",
+                      p: 1,
                     }}
                     onClick={toggleFavorite}
                   >
@@ -148,12 +159,13 @@ function PetCard({ pet = defaultPet, type = "pet", userFavorites = [] }) {
                 sx={{
                   position: "absolute",
                   top: "50%",
-                  left: 0,
+                  left: 8,
                   transform: "translateY(-50%)",
                   cursor: "pointer",
-                  p: 1.5,
-                  backgroundColor: "white",
+                  p: 1,
+                  backgroundColor: "rgba(255,255,255,0.9)",
                   borderRadius: "50%",
+                  fontSize: 24,
                 }}
                 onClick={handlePrev}
               >
@@ -167,12 +179,13 @@ function PetCard({ pet = defaultPet, type = "pet", userFavorites = [] }) {
                 sx={{
                   position: "absolute",
                   top: "50%",
-                  right: 0,
+                  right: 8,
                   transform: "translateY(-50%)",
                   cursor: "pointer",
-                  p: 1.5,
-                  backgroundColor: "white",
+                  p: 1,
+                  backgroundColor: "rgba(255,255,255,0.9)",
                   borderRadius: "50%",
+                  fontSize: 24,
                 }}
                 onClick={handleNext}
               >
@@ -207,14 +220,20 @@ function PetCard({ pet = defaultPet, type = "pet", userFavorites = [] }) {
                 )}
               </Box>
             )}
-          </Box>
+          </>
         )}
       </Box>
 
       {/* Content */}
-      <CardContent style={{ padding: 0 }}>
+      <CardContent sx={{ padding: 1, height: "35%", overflow: "hidden" }}>
         {/* Name + Rating */}
-        <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
           <Typography
             gutterBottom
             variant="h6"
@@ -222,7 +241,7 @@ function PetCard({ pet = defaultPet, type = "pet", userFavorites = [] }) {
               overflow: "hidden",
               textOverflow: "ellipsis",
               whiteSpace: "nowrap",
-              maxWidth: 200, // adjust the width as needed
+              maxWidth: 200,
             }}
           >
             {pet.name}
@@ -242,17 +261,16 @@ function PetCard({ pet = defaultPet, type = "pet", userFavorites = [] }) {
               fontSize: 14,
             }}
           >
-            {reviewsCount > 0 && (
-              <div>
-                <p>⭐ {reviewsCount} </p>
-              </div>
-            )}
+            {reviewsCount > 0 && <p>⭐ {reviewsCount}</p>}
           </Box>
         </Box>
 
         {/* Breed */}
         {pet.breed && (
-          <Typography variant="subtitle2" sx={{ color: "text.secondary" }}>
+          <Typography
+            variant="subtitle2"
+            sx={{ color: "text.secondary", fontSize: 12 }}
+          >
             {pet.breed}
           </Typography>
         )}
@@ -263,10 +281,10 @@ function PetCard({ pet = defaultPet, type = "pet", userFavorites = [] }) {
             sx={{
               display: "flex",
               alignItems: "center",
-              gap: 2,
-              my: 1,
+              gap: 1,
+              mt: 0.5,
               color: "text.secondary",
-              fontSize: 14,
+              fontSize: 12,
             }}
           >
             {pet.age && (
@@ -287,19 +305,18 @@ function PetCard({ pet = defaultPet, type = "pet", userFavorites = [] }) {
           <Typography
             variant="body2"
             color="text.secondary"
-            component="div"
             sx={{
               overflow: "hidden",
               textOverflow: "ellipsis",
               display: "-webkit-box",
-              WebkitLineClamp: 2,
+              WebkitLineClamp: 3,
               WebkitBoxOrient: "vertical",
               whiteSpace: "normal",
-              minHeight: "3em",
+              fontSize: 12,
+              mt: 0.5,
             }}
           >
             {pet.description}
-               
           </Typography>
         )}
       </CardContent>
@@ -310,61 +327,49 @@ function PetCard({ pet = defaultPet, type = "pet", userFavorites = [] }) {
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-between",
-          WebkitAlignItems: "inherit",
+          height: "15%",
         }}
       >
-        {/* Buttons Row */}
-        <Box
+        {/* Meet Button */}
+        <Button
+          variant="contained"
+          size="small"
+          onClick={() => {
+            const token = localStorage.getItem("token");
+            if (!token) navigate("/login");
+            else
+              navigate("/chat", {
+                state: {
+                  petId: pet._id,
+                  petName: pet.name,
+                  receiverId: pet.post_user?._id,
+                  receiverName: pet.post_user?.name,
+                },
+              });
+          }}
           sx={{
-            display: "flex",
-            justifyContent: "end",
+            background: "linear-gradient(to right, #00bcd4, #ff7043)",
+            textTransform: "none",
+            fontSize: 12,
             width: "100%",
           }}
         >
-          <Button
-            variant="contained"
-            size="small"
-            onClick={() => {
-              const token = localStorage.getItem("token");
-              if (!token) {
-                navigate("/login");
-              } else {
-                navigate("/chat", {
-                  state: {
-                    petId: pet._id,
-                    petName: pet.name,
-                    receiverId: pet.post_user?._id,
-                    receiverName: pet.post_user?.name,
-                  },
-                });
-              }
-            }}
-            sx={{
-              background: "linear-gradient(to right, #00bcd4, #ff7043)",
-              textTransform: "none",
-              fontSize: { xs: "14px", sm: "12px", lg: "14px" },
-            }}
-          >
-            Meet {pet.name?.split(" ")[0]} {/* Takes only the first word */}
-          </Button>
-        </Box>
+          Meet {pet.name?.split(" ")[0]}
+        </Button>
 
         {/* Posted By */}
         {pet.post_user?.name && (
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              gap: 1,
-              mt: 1,
-            }}
-          >
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1, mt: 0.5 }}>
             <Avatar
               src={pet.post_user?.avatar || "/default-avatar.png"}
               alt={pet.post_user?.name}
-              sx={{ width: 24, height: 24, fontSize: 12 }}
+              sx={{ width: 20, height: 20, fontSize: 10 }}
             />
-            <Typography variant="body2" color="text.secondary">
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              sx={{ fontSize: 10 }}
+            >
               Posted by: {pet.post_user?.name}
             </Typography>
           </Box>
