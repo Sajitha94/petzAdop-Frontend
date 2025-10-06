@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./App.css";
 import Header from "./components/Header";
 import SearchBar from "./components/SearchBar";
@@ -18,44 +18,12 @@ import { Box, Button, Typography } from "@mui/material";
 function App() {
   const location = useLocation();
   const hideHeaderFooter = ["/login", "/register"].includes(location.pathname);
-  const dummyPets = [
-    {
-      id: 1,
-      name: "Charlie",
-      breed: "Golden Retriever",
-      size: "Large",
-      gender: "Male",
-      age: 2,
-      location: "San Francisco, CA",
-      rating: 4.8,
-      description: "Charlie is a friendly golden retriever...",
-      image: "/cat1.png",
-    },
-    {
-      id: 2,
-      name: "Bella",
-      breed: "Persian Cat",
-      size: "Small",
-      gender: "Female",
-      age: 1,
-      location: "Los Angeles, CA",
-      rating: 4.5,
-      description: "Bella is calm and affectionate...",
-      image: "/cat1.png",
-    },
-    {
-      id: 3,
-      name: "Max",
-      breed: "Beagle",
-      size: "Medium",
-      gender: "Male",
-      age: 3,
-      location: "New York, NY",
-      rating: 4.2,
-      description: "Max is energetic and playful...",
-      image: "/cat1.png",
-    },
-  ];
+  useEffect(() => {
+    alert(
+      "📢 Please refer to the GitHub repository for project screenshots and details!"
+    );
+  }, []);
+
   return (
     <>
       <Header />
