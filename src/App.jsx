@@ -14,6 +14,7 @@ import SearchPage from "./pages/SearchPage";
 import HomePage from "./pages/HomePage";
 import ChatPage from "./pages/Chat";
 import ForgotPasswordPage from "./auth/ForgotPage";
+import { Box, Button, Typography } from "@mui/material";
 function App() {
   const location = useLocation();
   const hideHeaderFooter = ["/login", "/register"].includes(location.pathname);
@@ -58,20 +59,22 @@ function App() {
   return (
     <>
       <Header />
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/petdetails/:id" element={<PetDetailsPage />} />
+      <Box sx={{ pt: { xs: 8, sm: 10 } }}>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/petdetails/:id" element={<PetDetailsPage />} />
 
-        <Route path="/postpet" element={<PostPetForm />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="/forgotpage" element={<ForgotPasswordPage />} />
+          <Route path="/postpet" element={<PostPetForm />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/forgotpage" element={<ForgotPasswordPage />} />
 
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="/profile" element={<ProfilePage />} />
-        <Route path="/searchpage" element={<SearchPage />} />
-        <Route path="/chat" element={<ChatPage />} />
-      </Routes>
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/searchpage" element={<SearchPage />} />
+          <Route path="/chat" element={<ChatPage />} />
+        </Routes>
+      </Box>
       {!hideHeaderFooter && <Footer />}
     </>
   );
