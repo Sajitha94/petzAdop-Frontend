@@ -10,6 +10,72 @@
 - **Frontend Repo:** [https://github.com/Sajitha94/petzAdop-Frontend](https://github.com/Sajitha94/petzAdop-Frontend)
 - **Backend Repo:** [https://github.com/Sajitha94/petzAdop-Backend](https://github.com/Sajitha94/petzAdop-Backend)
 
+## 🐶 How to Explore
+
+## 🖼️ Preview
+
+### 🏠 Home Page
+
+![Home Page](image.png)
+
+---
+
+### 🔍 Search Page
+
+![Search Page](image-1.png)
+
+---
+
+### 👤 Profile Page
+
+![Profile Page](image-4.png)
+
+---
+
+### 🐾 Pet Details Page
+
+![Pet Details Page](image-5.png)
+
+### 🏠 Home Page
+
+- Displays **adoptable pets** posted by shelters and **foster organizations**.
+- Users can browse available pets and view basic details such as breed, age, size, and location.
+
+---
+
+### 🐾 Pet Details Page
+
+- Shows complete **pet information** including description, breed, gender, and location.
+- Displays a **review section** where adopters can share feedback.
+- Only adopters whose adoption requests are **accepted by the shelter** can submit reviews for adopted pets.
+
+---
+
+### 👤 Profile Page
+
+Includes multiple sections:
+
+- **Favorite List** – Pets you have liked or saved.
+- **Your Adopt Pets Posts** – Pets you have listed for adoption.
+- **Foster Pets Requests List** – Requests made or received for fostering.
+- **Adoption Requests List** – Requests made for pet adoption.
+- **Adoption Requests Tracking Status** – Track the progress of your adoption requests.
+- **Foster Requests Tracking Status** – Track the progress of your foster requests.
+
+---
+
+### 🌟 Reviews
+
+- **Adoption Reviews:** Adopters whose requests are **approved by the shelter** can post reviews for their adopted pets in the profile page .
+- **Foster Reviews:** Foster parents whose requests are **approved by a foster organization** can rate and review their fostering experience in the profile page.
+
+---
+
+### 🔍 Search Page
+
+- Allows users to search pets by **breed**, **age**, **size**, **location**, or **name**.
+- Helps quickly find pets that match specific preferences.
+
 ---
 
 ## 📘 Overview
