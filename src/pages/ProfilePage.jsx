@@ -900,15 +900,15 @@ function ProfilePage() {
                             direction={{ xs: "column", sm: "row" }}
                             spacing={1}
                             sx={{
-                              width: { xs: "100%", sm: "auto" },
-                              mt: { xs: 1, sm: 0 },
+                              minWidth: { xs: "100%", sm: "auto" },
+                              justifyContent: "flex-end",
+                              alignItems: "center",
                             }}
                           >
                             <Button
                               variant="contained"
                               color="success"
                               size="small"
-                              fullWidth={true}
                               onClick={() =>
                                 handleUpdateRequestStatus(
                                   pet._id,
@@ -923,7 +923,6 @@ function ProfilePage() {
                               variant="contained"
                               color="error"
                               size="small"
-                              fullWidth={true}
                               onClick={() =>
                                 handleUpdateRequestStatus(
                                   pet._id,
@@ -941,8 +940,8 @@ function ProfilePage() {
                               color:
                                 req.status === "accepted" ? "green" : "red",
                               fontWeight: "bold",
-                              textAlign: { xs: "center", sm: "left" },
-                              width: "100%",
+                              textAlign: { xs: "center", sm: "right" },
+                              minWidth: { xs: "100%", sm: "120px" },
                             }}
                           >
                             {req.status === "accepted"
