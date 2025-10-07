@@ -12,6 +12,18 @@
 
 ## 🐶 How to Explore
 
+## Login Credentials
+
+### 🧍‍♀️ Adopter User
+
+- **Username:** sajithasv94@gmail.com
+- **Password:** saji123
+
+### 🏠 Foster Organization
+
+- **Username:** sajithasivakumar31@gmail.com
+- **Password:** saji123
+
 ## 🖼️ Preview
 
 ### 🏠 Home Page
