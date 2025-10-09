@@ -5,11 +5,17 @@ import { API_BASE_URL } from "../config";
 import { jwtDecode } from "jwt-decode";
 import { useLocation } from "react-router-dom";
 import MenuIcon from "@mui/icons-material/Menu";
+import { fetchWithAuth } from "../utils/fetchWithAuth";
+import { useAuth } from "../context/useContext";
+import { useNavigate } from "react-router-dom";
 
 function ChatPage() {
-  const token = localStorage.getItem("token");
-  const decoded = jwtDecode(token);
-  const userId = decoded.id;
+  const { setUser } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { petId, petName, receiverId, receiverName } = location.state || {};
+
+  const [userId, setUserId] = useState(null);
   const [conversations, setConversations] = useState([]);
   const [userProfiles, setUserProfiles] = useState({});
   const [selectedChat, setSelectedChat] = useState(null);
@@ -17,152 +23,180 @@ function ChatPage() {
   const [newMessage, setNewMessage] = useState("");
   const [unreadCounts, setUnreadCounts] = useState({});
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
-  const location = useLocation();
-  const { petId, petName, receiverId, receiverName } = location.state || {};
 
+  // ✅ Decode token and get user ID
   useEffect(() => {
-    const fetchConversations = async () => {
-      try {
-        const res = await fetch(`${API_BASE_URL}/api/chat/${userId}`);
-        const data = await res.json();
-        if (data.success) {
-          let convos = data.messages;
-          if (receiverId) {
-            const exists = convos.find((c) => c.userId === receiverId);
-            if (!exists) {
-              convos = [
-                {
-                  userId: receiverId,
-                  name: receiverName || petName,
-                  lastMessage: "",
-                  avatar: "/shelter1.png",
-                  petId,
-                  petName,
-                },
-                ...convos,
-              ];
-            }
-          }
-          setConversations(convos);
-          const profileMap = {};
-          await Promise.all(
-            convos.map(async (c) => {
-              try {
-                const profileRes = await fetch(
-                  `${API_BASE_URL}/api/auth/profile/${c.userId}`
-                );
-                const profileData = await profileRes.json();
-                if (profileData.status === "success") {
-                  profileMap[c.userId] = profileData.data.profilePictures?.[0]
-                    ? `${API_BASE_URL}/uploads/${profileData.data.profilePictures[0]}`
-                    : "/shelter1.png";
-                } else {
-                  profileMap[c.userId] = "/shelter1.png";
-                }
-              } catch (err) {
-                profileMap[c.userId] = "/shelter1.png";
-              }
-            })
-          );
-          setUserProfiles(profileMap);
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+    try {
+      const decoded = jwtDecode(token);
+      setUserId(decoded.id);
+    } catch (err) {
+      console.error("Invalid or expired token:", err);
+      localStorage.removeItem("token");
+      setUser(null);
+      navigate("/login");
+    }
+  }, [navigate, setUser]);
 
-          if (receiverId) {
-            setSelectedChat({
-              ...convos.find((c) => c.userId === receiverId),
-              avatar: profileMap[receiverId] || "/shelter1.png",
-            });
-          } else if (convos.length) {
-            setSelectedChat({
-              ...convos[0],
-              avatar: profileMap[convos[0].userId],
-            });
+  // ✅ Fetch Conversations
+  useEffect(() => {
+    if (!userId) return;
+    const fetchConversations = async () => {
+      const data = await fetchWithAuth(
+        `${API_BASE_URL}/api/chat/${userId}`,
+        {},
+        navigate,
+        setUser
+      );
+
+      if (data?.success) {
+        let convos = data.messages;
+        if (receiverId) {
+          const exists = convos.find((c) => c.userId === receiverId);
+          if (!exists) {
+            convos = [
+              {
+                userId: receiverId,
+                name: receiverName || petName,
+                lastMessage: "",
+                avatar: "/shelter1.png",
+                petId,
+                petName,
+              },
+              ...convos,
+            ];
           }
         }
-      } catch (err) {
-        console.error(err);
+
+        setConversations(convos);
+
+        // ✅ Fetch profile images
+        const profileMap = {};
+        await Promise.all(
+          convos.map(async (c) => {
+            const profileData = await fetchWithAuth(
+              `${API_BASE_URL}/api/auth/profile/${c.userId}`,
+              {},
+              navigate,
+              setUser
+            );
+            if (profileData?.status === "success") {
+              profileMap[c.userId] = profileData.data.profilePictures?.[0]
+                ? `${API_BASE_URL}/uploads/${profileData.data.profilePictures[0]}`
+                : "/shelter1.png";
+            } else {
+              profileMap[c.userId] = "/shelter1.png";
+            }
+          })
+        );
+        setUserProfiles(profileMap);
+
+        // ✅ Auto-select receiver or first chat
+        if (receiverId) {
+          setSelectedChat({
+            ...convos.find((c) => c.userId === receiverId),
+            avatar: profileMap[receiverId] || "/shelter1.png",
+          });
+        } else if (convos.length) {
+          setSelectedChat({
+            ...convos[0],
+            avatar: profileMap[convos[0].userId],
+          });
+        }
       }
     };
-    fetchConversations();
-  }, [userId, receiverId, receiverName, petId, petName]);
 
+    fetchConversations();
+  }, [userId, receiverId, receiverName, petId, petName, navigate, setUser]);
+
+  // ✅ Fetch Messages
   useEffect(() => {
     if (!selectedChat) return;
+
     const fetchMessages = async () => {
-      try {
-        const receiverId = selectedChat.userId;
-        const res = await fetch(
-          `${API_BASE_URL}/api/chat/${userId}/${receiverId}`
-        );
-        const data = await res.json();
-        if (data.success) {
-          setMessages(data.messages);
-          if (data.messages.length > 0) {
-            const lastMsg = data.messages[data.messages.length - 1];
-            setConversations((prev) =>
-              prev.map((c) =>
-                c.userId === receiverId
-                  ? { ...c, lastMessage: lastMsg.message }
-                  : c
-              )
-            );
-          }
+      const data = await fetchWithAuth(
+        `${API_BASE_URL}/api/chat/${userId}/${selectedChat.userId}`,
+        {},
+        navigate,
+        setUser
+      );
+      if (data?.success) {
+        setMessages(data.messages);
+        if (data.messages.length > 0) {
+          const lastMsg = data.messages[data.messages.length - 1];
+          setConversations((prev) =>
+            prev.map((c) =>
+              c.userId === selectedChat.userId
+                ? { ...c, lastMessage: lastMsg.message }
+                : c
+            )
+          );
         }
-      } catch (err) {
-        console.error(err);
       }
     };
+
     fetchMessages();
     const interval = setInterval(fetchMessages, 3000);
     return () => clearInterval(interval);
-  }, [selectedChat, userId]);
+  }, [selectedChat, userId, navigate, setUser]);
 
+  // ✅ Fetch Unread Counts
   useEffect(() => {
+    if (!userId) return;
+
     const fetchUnreadCounts = async () => {
-      try {
-        const res = await fetch(`${API_BASE_URL}/api/chat/unread/${userId}`);
-        const data = await res.json();
-        if (data.success) {
-          const unreadMap = {};
-          data.counts.forEach((c) => {
-            unreadMap[c.userId] = c.unreadCount;
-          });
-          setUnreadCounts(unreadMap);
-        }
-      } catch (err) {
-        console.error(err);
+      const data = await fetchWithAuth(
+        `${API_BASE_URL}/api/chat/unread/${userId}`,
+        {},
+        navigate,
+        setUser
+      );
+      if (data?.success) {
+        const unreadMap = {};
+        data.counts.forEach((c) => {
+          unreadMap[c.userId] = c.unreadCount;
+        });
+        setUnreadCounts(unreadMap);
       }
     };
+
     fetchUnreadCounts();
     const interval = setInterval(fetchUnreadCounts, 3000);
     return () => clearInterval(interval);
-  }, [userId]);
+  }, [userId, navigate, setUser]);
 
+  // ✅ Send Message
   const handleSend = async () => {
     if (!newMessage.trim()) return;
-    try {
-      const res = await fetch(`${API_BASE_URL}/api/chat`, {
+
+    const data = await fetchWithAuth(
+      `${API_BASE_URL}/api/chat`,
+      {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           sender: userId,
           receiver: selectedChat.userId,
           message: newMessage,
         }),
-      });
-      const data = await res.json();
-      if (data.success) {
-        setMessages([...messages, data.chat]);
-        setNewMessage("");
-        setConversations((prev) =>
-          prev.map((c) =>
-            c.userId === selectedChat.userId
-              ? { ...c, lastMessage: data.chat.message }
-              : c
-          )
-        );
-      }
-    } catch (err) {
-      console.error(err);
+      },
+      navigate,
+      setUser
+    );
+
+    if (data?.success) {
+      setMessages((prev) => [...prev, data.chat]);
+      setNewMessage("");
+      setConversations((prev) =>
+        prev.map((c) =>
+          c.userId === selectedChat.userId
+            ? { ...c, lastMessage: data.chat.message }
+            : c
+        )
+      );
     }
   };
 

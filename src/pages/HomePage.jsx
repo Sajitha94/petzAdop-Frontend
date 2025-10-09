@@ -25,7 +25,11 @@ function HomePage() {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
-
+      if (data.status === "error" && data.message.includes("Unauthorized")) {
+        setMessage("❌ Session expired. Please login again.");
+        navigate("/login");
+        return;
+      }
       if (res.ok) {
         // Filter pets with petsStatus === 1
         const activePets = data.pets.filter((pet) => pet.petsStatus === 1);
@@ -45,7 +49,11 @@ function HomePage() {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
-
+      if (data.status === "error" && data.message.includes("Unauthorized")) {
+        setMessage("❌ Session expired. Please login again.");
+        navigate("/login");
+        return;
+      }
       if (res.ok) {
         setFosterPets(data.data); // backend sends data under "data"
       }
@@ -100,6 +108,11 @@ function HomePage() {
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = await res.json();
+        if (data.status === "error" && data.message.includes("Unauthorized")) {
+          setMessage("❌ Session expired. Please login again.");
+          navigate("/login");
+          return;
+        }
         if (res.ok) setUser(data.data);
       } catch (err) {
         console.error(err);

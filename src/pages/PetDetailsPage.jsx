@@ -22,13 +22,15 @@ import { API_BASE_URL } from "../config";
 import { Dialog } from "@mui/material";
 import PostPetForm from "./PostPetForm";
 import { jwtDecode } from "jwt-decode";
+import { useAuth } from "../context/useContext";
 
 function PetDetailsPage({ fosterOrgId }) {
   const location = useLocation();
   const { id } = useParams();
   const navigate = useNavigate();
   const [pet, setPet] = useState(null);
-  const [user, setUser] = useState(null);
+  const [userType, setUserType] = useState(null);
+  const { user, setUser } = useAuth();
   const [mediaFiles, setMediaFiles] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [openForm, setOpenForm] = useState(false);
@@ -96,7 +98,7 @@ function PetDetailsPage({ fosterOrgId }) {
             const files = [...(data.data.profilePictures || [])];
             setMediaFiles(files);
           } else {
-            setUser(data.data); // show owner as "user"
+            setUserType(data.data); // show owner as "user"
           }
         }
       } catch (err) {
@@ -109,13 +111,13 @@ function PetDetailsPage({ fosterOrgId }) {
 
   useEffect(() => {
     const fetchFosterPets = async () => {
-      if (!pet?.usertype && !user?.usertype) return;
+      if (!pet?.usertype && !userType?.usertype) return;
 
       const orgId =
         pet?.usertype === "foster organization"
           ? pet._id
-          : user?.usertype === "foster organization"
-          ? user._id
+          : userType?.usertype === "foster organization"
+          ? userType._id
           : null;
 
       if (!orgId) return;
@@ -136,7 +138,7 @@ function PetDetailsPage({ fosterOrgId }) {
     };
 
     fetchFosterPets();
-  }, [pet, user]);
+  }, [pet, userType]);
 
   useEffect(() => {
     const fetchOrgReviews = async () => {
@@ -156,6 +158,7 @@ function PetDetailsPage({ fosterOrgId }) {
         );
 
         const data = await res.json();
+
         if (data.status === "success") {
           setOrgReviews(data.reviews);
         } else {
@@ -176,8 +179,8 @@ function PetDetailsPage({ fosterOrgId }) {
         userId = pet?._id;
       } else if (pet?.post_user?._id) {
         userId = pet.post_user._id;
-      } else if (user?._id) {
-        userId = user._id;
+      } else if (userType?._id) {
+        userId = userType._id;
       }
 
       if (!userId) return;
@@ -208,7 +211,7 @@ function PetDetailsPage({ fosterOrgId }) {
     };
 
     fetchUserRating();
-  }, [pet, user, pageType]);
+  }, [pet, userType, pageType]);
 
   const handlePrev = () =>
     setCurrentIndex((prev) => (prev > 0 ? prev - 1 : prev));
@@ -235,6 +238,16 @@ function PetDetailsPage({ fosterOrgId }) {
       });
 
       const data = await res.json();
+      if (data.status === "error" && data.message.includes("Unauthorized")) {
+        alert("❌ Session expired. Please login again.");
+
+        localStorage.removeItem("token");
+
+        setUser(null);
+        navigate("/login");
+        return;
+      }
+
       if (res.ok) alert(data.message);
       else alert(data.message || "Failed to send adoption request");
     } catch (err) {
@@ -493,10 +506,10 @@ function PetDetailsPage({ fosterOrgId }) {
                 Shelter Information
               </Typography>
               <Typography variant="subtitle1" fontWeight="bold">
-                {user?.name}
+                {userType?.name}
               </Typography>
               <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                {user?.location}
+                {userType?.location}
               </Typography>
 
               <Stack spacing={1}>
@@ -511,7 +524,9 @@ function PetDetailsPage({ fosterOrgId }) {
                   }}
                 >
                   <PhoneIcon sx={{ mr: 1, color: "text.secondary" }} />
-                  <Typography variant="body2">{user?.phonenumber}</Typography>
+                  <Typography variant="body2">
+                    {userType?.phonenumber}
+                  </Typography>
                 </Box>
                 <Box
                   sx={{
@@ -524,7 +539,7 @@ function PetDetailsPage({ fosterOrgId }) {
                   }}
                 >
                   <EmailIcon sx={{ mr: 1, color: "text.secondary" }} />
-                  <Typography variant="body2">{user?.email}</Typography>
+                  <Typography variant="body2">{userType?.email}</Typography>
                 </Box>
                 {userRating.totalReviews > 0 && (
                   <Box sx={{ display: "flex", alignItems: "center" }}>

@@ -20,10 +20,12 @@ import FavoriteIcon from "@mui/icons-material/Favorite";
 import { useState } from "react";
 import { API_BASE_URL } from "../config";
 import { useEffect } from "react";
+import { useAuth } from "../context/useContext";
 
 function PetCard({ pet = defaultPet, type = "pet", userFavorites = [] }) {
   const navigate = useNavigate();
   const [currentIndex, setCurrentIndex] = useState(0);
+  const { user, setUser } = useAuth();
   const images = pet.photo || []; // array of image filenames
   const videos = pet.video ? [pet.video] : []; // array with one video if exists
   const mediaFiles = [...images, ...videos]; // combined
@@ -91,6 +93,29 @@ function PetCard({ pet = defaultPet, type = "pet", userFavorites = [] }) {
       });
 
       const data = await res.json();
+
+      if (data.status === "error" && data.message.includes("Unauthorized")) {
+        alert("❌ Session expired. Please login again.");
+
+        localStorage.removeItem("token");
+
+        setUser(null);
+        navigate("/login");
+        return;
+      }
+
+      if (data.status === "error" && data.message.includes("Unauthorized")) {
+        console.log("saji data", data);
+        alert("❌ Session expired. Please login again.");
+
+        // 🚨 Clear token from localStorage
+        localStorage.removeItem("token");
+
+        // Redirect to login
+        navigate("/login");
+        return;
+      }
+
       if (res.ok) {
         setIsFavorite(!isFavorite);
       } else {

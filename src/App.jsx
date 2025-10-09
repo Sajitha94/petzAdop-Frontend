@@ -18,18 +18,6 @@ import { Box, Button, Typography } from "@mui/material";
 function App() {
   const location = useLocation();
   const hideHeaderFooter = ["/login", "/register"].includes(location.pathname);
-  useEffect(() => {
-    alert(`📢 Database is clear, so please register as a new user.
-Refer to the GitHub repository for project screenshots and details.
-
-🔐 Adopter User Login Credentials:
-Username: sajithasv94@gmail.com
-Password: saji123
-
-🏠 Foster Organization Login Credentials:
-Username: sajithasivakumar31@gmail.com
-Password: saji123`);
-  }, []);
 
   return (
     <>

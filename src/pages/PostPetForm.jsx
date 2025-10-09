@@ -13,6 +13,7 @@ import { useLocation } from "react-router-dom";
 import { useEffect } from "react";
 import { API_BASE_URL } from "../config";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/useContext";
 
 export default function PostPetForm({
   initialData,
@@ -22,6 +23,7 @@ export default function PostPetForm({
 }) {
   const location = useLocation();
   const navigate = useNavigate();
+  const { user, setUser } = useAuth();
   const pet = location.state?.pet || initialData || null;
   const [formData, setFormData] = useState(
     initialData || {
@@ -115,6 +117,16 @@ export default function PostPetForm({
           body: data,
         });
         const result = await response.json();
+        if (
+          result.status === "error" &&
+          result.message.includes("Unauthorized")
+        ) {
+          alert("❌ Session expired. Please login again.");
+          localStorage.removeItem("token");
+          setUser(null);
+          navigate("/login");
+          return;
+        }
         if (response.ok) {
           setMessage("Foster pet posted successfully ✅");
 
@@ -142,6 +154,17 @@ export default function PostPetForm({
         });
 
         const result = await response.json();
+
+        if (
+          result.status === "error" &&
+          result.message.includes("Unauthorized")
+        ) {
+          alert("❌ Session expired. Please login again.");
+          localStorage.removeItem("token");
+          setUser(null);
+          navigate("/login");
+          return;
+        }
 
         if (response.ok) {
           setMessage(

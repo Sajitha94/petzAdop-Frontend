@@ -58,7 +58,16 @@ export default function Header() {
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = await res.json();
-
+        console.log("saji1", data);
+        if (data.status === "error" && data.message.includes("Unauthorized")) {
+          console.log("saji data", data);
+          alert("❌ Session expired. Please login again.");
+          localStorage.removeItem("token");
+          setUser(null); // clears from context
+          handleCloseUserMenu();
+          navigate("/login");
+          return;
+        }
         if (data.status === "success") setUser(data.data);
       } catch (err) {
         console.error("Error fetching user profile:", err);
