@@ -196,6 +196,7 @@ function PetDetailsPage({ fosterOrgId }) {
         );
 
         const data = await res.json();
+        console.log(data, "rat");
 
         if (res.ok) {
           setUserRating({
@@ -872,69 +873,78 @@ function PetDetailsPage({ fosterOrgId }) {
           </Stack>
         </Box>
       )}
-      {/* userRating */}
-      {userRating.petReviews.length > 0 &&
-        userRating.petReviews.map((petData) => (
+      {/* User Reviews Section */}
+      {userRating.petReviews.length > 0 && (
+        <Box sx={{ width: "100%", maxWidth: 900, mx: "auto", mb: 4 }}>
+          <Typography variant="h6" fontWeight="bold" sx={{ mb: 3 }}>
+            User Reviews
+          </Typography>
+
           <Box
-            key={petData.petName}
-            sx={{ mb: 4, width: "100%", maxWidth: 900 }}
+            sx={{
+              display: "grid",
+              gridTemplateColumns: {
+                xs: "1fr", // 1 column on mobile
+                sm: "1fr 1fr", // 2 columns on tablet and above
+              },
+              gap: 3,
+            }}
           >
-            <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>
-              User Reviews
-            </Typography>
-            <Box
-              sx={{
-                display: "flex",
-                flexWrap: "wrap", // allow wrapping to next line
-                gap: 2, // space between cards
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
-              {petData.reviews.length > 0 ? (
-                petData.reviews.map((review, index) => (
-                  <Card
-                    key={index}
-                    sx={{
-                      borderRadius: 3,
-                      border: "1px solid #ddd",
-                      flex: "1 1 calc(33% - 16px)", // 3 cards per row with gap
-                    }}
-                  >
-                    <CardContent>
-                      <Typography variant="subtitle1" fontWeight="bold">
-                        {review.source === "FosterReview"
-                          ? review.organization || "Anonymous"
-                          : "Adopter"}
-                      </Typography>
-                      <Rating
-                        value={review.rating || 0}
-                        readOnly
-                        precision={0.5}
-                      />
-                      <Typography variant="body2" sx={{ mt: 1 }}>
-                        {review.comment}
-                      </Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        {review.source === "FosterReview"
-                          ? `Pet: ${review.pet} • ${new Date(
-                              review.createdAt
-                            ).toLocaleDateString()}`
-                          : `${new Date(
-                              review.createdAt
-                            ).toLocaleDateString()}`}
-                      </Typography>
-                    </CardContent>
-                  </Card>
-                ))
-              ) : (
-                <Typography variant="body2" color="text.secondary">
-                  No reviews yet.
-                </Typography>
-              )}
-            </Box>
+            {userRating.petReviews.flatMap((petData) =>
+              petData.reviews.map((review, index) => (
+                <Card
+                  key={`${petData.petName}-${index}`}
+                  sx={{
+                    borderRadius: 3,
+                    border: "1px solid #ddd",
+                    boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+                    transition: "transform 0.2s",
+                    "&:hover": { transform: "translateY(-4px)" },
+                  }}
+                >
+                  <CardContent>
+                    <Typography variant="subtitle1" fontWeight="bold">
+                      {review.source === "FosterReview"
+                        ? review.organization || "Anonymous"
+                        : review.reviewerName || "Anonymous"}
+                    </Typography>
+
+                    <Rating
+                      value={review.rating || 0}
+                      readOnly
+                      precision={0.5}
+                      sx={{ mt: 1 }}
+                    />
+
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        mt: 1.5,
+                        minHeight: 40,
+                        color: "text.primary",
+                      }}
+                    >
+                      {review.comment}
+                    </Typography>
+
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                      sx={{ display: "block", mt: 1 }}
+                    >
+                      {review.source === "FosterReview"
+                        ? `Pet: ${review.pet} • ${new Date(
+                            review.createdAt
+                          ).toLocaleDateString()}`
+                        : `${new Date(review.createdAt).toLocaleDateString()}`}
+                    </Typography>
+                  </CardContent>
+                </Card>
+              ))
+            )}
           </Box>
-        ))}
+        </Box>
+      )}
 
       <Dialog open={openForm} onClose={handleCloseForm} fullWidth maxWidth="md">
         <PostPetForm
