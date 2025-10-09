@@ -169,7 +169,13 @@ function RegisterPage() {
       });
 
       const data = await res.json();
-
+      if (data.status === "error" && data.message?.includes("Unauthorized")) {
+        alert("❌ Session expired. Please login again.");
+        localStorage.removeItem("token");
+        setUser(null);
+        navigate("/login");
+        return null;
+      }
       if (res.ok) {
         // ✅ If backend returns a new token (for registration or update)
         if (data.token) {

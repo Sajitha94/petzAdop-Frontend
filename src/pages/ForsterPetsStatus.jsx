@@ -44,7 +44,13 @@ function ForsterPetsStatus() {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
-
+      if (data.status === "error" && data.message?.includes("Unauthorized")) {
+        alert("❌ Session expired. Please login again.");
+        localStorage.removeItem("token");
+        setUser(null);
+        navigate("/login");
+        return null;
+      }
       // backend might return { status: 'success', data: [...] } or raw array
     } catch (err) {
       console.error("fetchReviews error:", err);
@@ -58,6 +64,13 @@ function ForsterPetsStatus() {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
+      if (data.status === "error" && data.message?.includes("Unauthorized")) {
+        alert("❌ Session expired. Please login again.");
+        localStorage.removeItem("token");
+        setUser(null);
+        navigate("/login");
+        return null;
+      }
       if (data.status === "success") {
         // Convert array of reviews into object keyed by petId
         const reviewsMap = {};
@@ -86,6 +99,17 @@ function ForsterPetsStatus() {
           }
         );
         const userData = await userRes.json();
+
+        if (
+          userData.status === "error" &&
+          userData.message?.includes("Unauthorized")
+        ) {
+          alert("❌ Session expired. Please login again.");
+          localStorage.removeItem("token");
+          setUser(null);
+          navigate("/login");
+          return null;
+        }
         if (userData.status === "success") setUser(userData.data);
 
         // Fetch pets posted by the user
@@ -96,7 +120,16 @@ function ForsterPetsStatus() {
           }
         );
         const petData = await petRes.json();
-
+        if (
+          petData.status === "error" &&
+          petData.message?.includes("Unauthorized")
+        ) {
+          alert("❌ Session expired. Please login again.");
+          localStorage.removeItem("token");
+          setUser(null);
+          navigate("/login");
+          return null;
+        }
         // Fetch foster pets if user is foster organization
 
         const fosterRes = await fetch(
@@ -145,7 +178,13 @@ function ForsterPetsStatus() {
       );
 
       const data = await res.json();
-
+      if (data.status === "error" && data.message?.includes("Unauthorized")) {
+        alert("❌ Session expired. Please login again.");
+        localStorage.removeItem("token");
+        setUser(null);
+        navigate("/login");
+        return null;
+      }
       if (res.ok) {
         // Update state locally
         setFosterPets((prev) =>
@@ -175,35 +214,54 @@ function ForsterPetsStatus() {
       return;
     }
 
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("Session expired. Please login again.");
+      localStorage.removeItem("token");
+      setUser(null);
+      navigate("/login");
+      return;
+    }
+
     try {
-      const token = localStorage.getItem("token");
       const res = await axios.post(
         `${API_BASE_URL}/api/foster-reviews`,
         { petId, rating, comment },
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
+      // ✅ Success
       if (res.status === 201) {
-        // Store submitted review
         setSubmittedReviews((prev) => ({
           ...prev,
           [petId]: res.data.newReview,
         }));
 
-        // Reset input
         setFosterReviews((prev) => ({
           ...prev,
           [petId]: { rating: 0, comment: "" },
         }));
+
+        alert("✅ Review submitted successfully!");
       }
     } catch (error) {
-      console.error(error);
+      console.error("❌ Error submitting review:", error);
+
+      // 🛑 Token expired or unauthorized
+      if (error.response?.status === 401) {
+        alert("Session expired. Please login again.");
+        localStorage.removeItem("token");
+        setUser(null);
+        navigate("/login");
+        return;
+      }
+
       alert(
-        error.response?.data?.message || "❌ Failed to submit foster review"
+        error.response?.data?.message ||
+          "❌ Failed to submit foster review. Please try again."
       );
     }
   };
-
   const CustomStepIcon = (props) => {
     const { active, completed, status } = props;
 

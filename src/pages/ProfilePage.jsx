@@ -93,7 +93,16 @@ function ProfilePage() {
       });
 
       const result = await response.json();
-
+      if (
+        result.status === "error" &&
+        result.message?.includes("Unauthorized")
+      ) {
+        alert("❌ Session expired. Please login again.");
+        localStorage.removeItem("token");
+        setUser(null);
+        navigate("/login");
+        return null;
+      }
       if (response.ok) {
         alert("Pet deleted successfully ✅");
         // Update state so the UI removes the deleted pet
@@ -126,6 +135,16 @@ function ProfilePage() {
       );
 
       const result = await response.json();
+      if (
+        result.status === "error" &&
+        result.message?.includes("Unauthorized")
+      ) {
+        alert("❌ Session expired. Please login again.");
+        localStorage.removeItem("token");
+        setUser(null);
+        navigate("/login");
+        return null;
+      }
       if (response.ok) {
         setPets((prev) =>
           prev.map((p) =>
@@ -162,6 +181,17 @@ function ProfilePage() {
       );
 
       const result = await response.json();
+
+      if (
+        result.status === "error" &&
+        result.message?.includes("Unauthorized")
+      ) {
+        alert("❌ Session expired. Please login again.");
+        localStorage.removeItem("token");
+        setUser(null);
+        navigate("/login");
+        return null;
+      }
       if (response.ok) {
         setPets((prev) =>
           prev.map((p) => (p._id === petId ? { ...p, video: null } : p))

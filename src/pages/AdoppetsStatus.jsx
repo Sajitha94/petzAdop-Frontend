@@ -57,7 +57,15 @@ function AdoppetsStatus() {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
+      console.log(data);
 
+      if (data.status === "error" && data.message?.includes("Unauthorized")) {
+        alert("❌ Session expired. Please login again.");
+        localStorage.removeItem("token");
+        setUser(null);
+        navigate("/login");
+        return null;
+      }
       // backend might return { status: 'success', data: [...] } or raw array
       setReviews(data.data ?? data);
     } catch (err) {
@@ -88,7 +96,16 @@ function AdoppetsStatus() {
           }
         );
         const petData = await petRes.json();
-        console.log(petData, "petdat");
+        if (
+          petData.status === "error" &&
+          petData.message?.includes("Unauthorized")
+        ) {
+          alert("❌ Session expired. Please login again.");
+          localStorage.removeItem("token");
+          setUser(null);
+          navigate("/login");
+          return null;
+        }
 
         if (petData.status === "success") {
           const userPets = petData.pets.filter(
@@ -176,6 +193,13 @@ function AdoppetsStatus() {
       );
 
       const data = await res.json();
+      if (data.status === "error" && data.message?.includes("Unauthorized")) {
+        alert("❌ Session expired. Please login again.");
+        localStorage.removeItem("token");
+        setUser(null);
+        navigate("/login");
+        return null;
+      }
       if (res.ok) {
         alert(data.message);
         // Refresh pets to update the requests' status
@@ -214,7 +238,13 @@ function AdoppetsStatus() {
       );
 
       const data = await res.json();
-
+      if (data.status === "error" && data.message?.includes("Unauthorized")) {
+        alert("❌ Session expired. Please login again.");
+        localStorage.removeItem("token");
+        setUser(null);
+        navigate("/login");
+        return null;
+      }
       if (res.ok) {
         // Update state locally
         setFosterPets((prev) =>
@@ -241,13 +271,20 @@ function AdoppetsStatus() {
     const data = reviewsInput[item._id];
     if (!data?.comment || !data?.rating) return;
 
+    if (!token) {
+      alert("Session expired. Please log in again.");
+      localStorage.removeItem("token");
+      setUser(null);
+      navigate("/login");
+      return;
+    }
+
     try {
-      // Call backend API
-      await fetch(`${API_BASE_URL}/api/reviews`, {
+      const res = await fetch(`${API_BASE_URL}/api/reviews`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`, // if needed
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           adopter: item.petInfo.id,
@@ -256,7 +293,19 @@ function AdoppetsStatus() {
           rating: data.rating,
         }),
       });
-      // Update local state: add review to this item
+
+      const result = await res.json();
+
+      // 🛑 Token invalid or expired
+      if (res.status === 401 || result?.message?.includes("Unauthorized")) {
+        alert("❌ Session expired. Please login again.");
+        localStorage.removeItem("token");
+        setUser(null);
+        navigate("/login");
+        return;
+      }
+
+      // ✅ On success, update local UI state
       setAdopRequestPets((prev) =>
         prev.map((req) =>
           req._id === item._id
@@ -272,15 +321,16 @@ function AdoppetsStatus() {
         )
       );
 
-      // Clear input for this card
+      // Clear input
       setReviewsInput((prev) => ({
         ...prev,
         [item._id]: { comment: "", rating: 0 },
       }));
     } catch (err) {
-      console.error(err);
+      console.error("Error submitting review:", err);
     }
   };
+
   const handleFosterReviewSubmit = async (petId) => {
     const { rating, comment } = fosterReviews[petId] || {};
     if (!rating || !comment) {
