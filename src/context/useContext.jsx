@@ -12,7 +12,12 @@ export function AuthProvider({ children }) {
     if (token) {
       try {
         const decoded = jwtDecode(token);
-        setUser({ name: decoded.name, role: decoded.role });
+
+        setUser({
+          name: decoded.name,
+          role: decoded.role,
+          _id: decoded.name._id,
+        });
       } catch {
         setUser(null);
       }

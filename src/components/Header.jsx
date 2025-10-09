@@ -26,6 +26,7 @@ export default function Header() {
   const navigate = useNavigate();
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
+  const [anchorElAccount, setAnchorElAccount] = React.useState(null);
 
   const handleOpenNavMenu = (event) => setAnchorElNav(event.currentTarget);
   const handleCloseNavMenu = () => setAnchorElNav(null);
@@ -58,9 +59,7 @@ export default function Header() {
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = await res.json();
-        console.log("saji1", data);
         if (data.status === "error" && data.message.includes("Unauthorized")) {
-          console.log("saji data", data);
           alert("❌ Session expired. Please login again.");
           localStorage.removeItem("token");
           setUser(null); // clears from context
@@ -102,7 +101,6 @@ export default function Header() {
           >
             <img src={PetzAdop} alt="logo" className="w-32 h-12" />
           </Box>
-
           {/* Navigation Links */}
           <Box
             sx={{
@@ -111,20 +109,74 @@ export default function Header() {
               gap: 2,
             }}
           >
-            {pages.map((page) => (
-              <Button
-                key={page.name}
-                sx={{
-                  textTransform: "none",
-                  fontSize: "16px",
-                  color: "black",
-                  "&:hover": { color: "#00bcd4" },
-                }}
-                onClick={() => navigate(page.path)}
-              >
-                {page.name}
-              </Button>
-            ))}
+            {pages.map((page) => {
+              if (page.name === "Account") {
+                // Only show Account dropdown if user exists
+                if (!user) return null;
+
+                return (
+                  <React.Fragment key={page.name}>
+                    <Button
+                      sx={{
+                        textTransform: "none",
+                        fontSize: "16px",
+                        color: "black",
+                        "&:hover": { color: "#00bcd4" },
+                      }}
+                      onClick={(e) => setAnchorElAccount(e.currentTarget)}
+                    >
+                      {page.name}
+                    </Button>
+                    <Menu
+                      anchorEl={anchorElAccount}
+                      open={Boolean(anchorElAccount)}
+                      onClose={() => setAnchorElAccount(null)}
+                      anchorOrigin={{
+                        vertical: "bottom",
+                        horizontal: "center",
+                      }}
+                      transformOrigin={{
+                        vertical: "top",
+                        horizontal: "center",
+                      }}
+                      keepMounted
+                    >
+                      <MenuItem
+                        onClick={() => {
+                          setAnchorElAccount(null);
+                          navigate("/adopted-pets-status");
+                        }}
+                      >
+                        <Typography>Adopted Pets Status</Typography>
+                      </MenuItem>
+                      <MenuItem
+                        onClick={() => {
+                          setAnchorElAccount(null);
+                          navigate("/foster-pets-status");
+                        }}
+                      >
+                        <Typography>Foster Pets Status</Typography>
+                      </MenuItem>
+                    </Menu>
+                  </React.Fragment>
+                );
+              } else {
+                return (
+                  <Button
+                    key={page.name}
+                    sx={{
+                      textTransform: "none",
+                      fontSize: "16px",
+                      color: "black",
+                      "&:hover": { color: "#00bcd4" },
+                    }}
+                    onClick={() => navigate(page.path)}
+                  >
+                    {page.name}
+                  </Button>
+                );
+              }
+            })}
           </Box>
 
           {/* Mobile Menu */}
@@ -157,7 +209,6 @@ export default function Header() {
               ))}
             </Menu>
           </Box>
-
           {/* Profile Avatar or Login */}
           <Box sx={{ flexGrow: 0 }}>
             {user ? (

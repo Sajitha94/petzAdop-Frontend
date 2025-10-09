@@ -105,7 +105,6 @@ function PetCard({ pet = defaultPet, type = "pet", userFavorites = [] }) {
       }
 
       if (data.status === "error" && data.message.includes("Unauthorized")) {
-        console.log("saji data", data);
         alert("❌ Session expired. Please login again.");
 
         // 🚨 Clear token from localStorage
@@ -334,7 +333,7 @@ function PetCard({ pet = defaultPet, type = "pet", userFavorites = [] }) {
                 </Box>
               )}
             </Box>
-            {pet.post_user?._id === user._id && (
+            {user && pet.post_user?.name === user.name && (
               <Typography
                 variant="body2"
                 color="green"
