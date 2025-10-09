@@ -269,13 +269,26 @@ function AdoppetsStatus() {
 
   const handleSubmitReview = async (item) => {
     const data = reviewsInput[item._id];
-    if (!data?.comment || !data?.rating) return;
+    const token = localStorage.getItem("token");
 
+    // Check if token is missing
     if (!token) {
       alert("Session expired. Please log in again.");
       localStorage.removeItem("token");
       setUser(null);
       navigate("/login");
+      return;
+    }
+
+    // Validation
+    if (!data?.rating && !data?.comment) {
+      alert("Please provide both a star rating and a comment");
+      return;
+    } else if (!data?.rating) {
+      alert("Please select a star rating");
+      return;
+    } else if (!data?.comment) {
+      alert("Please write a comment");
       return;
     }
 
@@ -305,65 +318,35 @@ function AdoppetsStatus() {
         return;
       }
 
-      // ✅ On success, update local UI state
-      setAdopRequestPets((prev) =>
-        prev.map((req) =>
-          req._id === item._id
-            ? {
-                ...req,
-                review: {
-                  comment: data.comment,
-                  rating: data.rating,
-                  createdAt: new Date(),
-                },
-              }
-            : req
-        )
-      );
+      // ✅ On success, update UI
+      if (res.ok) {
+        alert("✅ Review submitted successfully!");
+        setAdopRequestPets((prev) =>
+          prev.map((req) =>
+            req._id === item._id
+              ? {
+                  ...req,
+                  review: {
+                    comment: data.comment,
+                    rating: data.rating,
+                    createdAt: new Date(),
+                  },
+                }
+              : req
+          )
+        );
 
-      // Clear input
-      setReviewsInput((prev) => ({
-        ...prev,
-        [item._id]: { comment: "", rating: 0 },
-      }));
+        // Clear input
+        setReviewsInput((prev) => ({
+          ...prev,
+          [item._id]: { comment: "", rating: 0 },
+        }));
+      } else {
+        alert(result.message || "Failed to submit review");
+      }
     } catch (err) {
       console.error("Error submitting review:", err);
-    }
-  };
-
-  const handleFosterReviewSubmit = async (petId) => {
-    const { rating, comment } = fosterReviews[petId] || {};
-    if (!rating || !comment) {
-      alert("Please provide both rating and comment");
-      return;
-    }
-
-    try {
-      const token = localStorage.getItem("token");
-      const res = await axios.post(
-        `${API_BASE_URL}/api/foster-reviews`,
-        { petId, rating, comment },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-
-      if (res.status === 201) {
-        // Store submitted review
-        setSubmittedReviews((prev) => ({
-          ...prev,
-          [petId]: res.data.newReview,
-        }));
-
-        // Reset input
-        setFosterReviews((prev) => ({
-          ...prev,
-          [petId]: { rating: 0, comment: "" },
-        }));
-      }
-    } catch (error) {
-      console.error(error);
-      alert(
-        error.response?.data?.message || "❌ Failed to submit foster review"
-      );
+      alert("❌ Something went wrong while submitting review");
     }
   };
 
