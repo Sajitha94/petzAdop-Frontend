@@ -15,12 +15,20 @@ import HomePage from "./pages/HomePage";
 import ChatPage from "./pages/Chat";
 import ForgotPasswordPage from "./auth/ForgotPage";
 import { Box, Button, Typography } from "@mui/material";
+import AdoppetsStatus from "./pages/AdoppetsStatus";
+import ForsterPetsStatus from "./pages/ForsterPetsStatus";
 function App() {
   const location = useLocation();
   const hideHeaderFooter = ["/login", "/register"].includes(location.pathname);
 
   return (
-    <>
+    <Box
+      sx={{
+        p: { xs: 2, sm: 4 },
+        backgroundColor: "#f9f9f9",
+        minHeight: "100vh",
+      }}
+    >
       <Header />
       <Box sx={{ pt: { xs: 8, sm: 10 } }}>
         <Routes>
@@ -36,10 +44,13 @@ function App() {
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/searchpage" element={<SearchPage />} />
           <Route path="/chat" element={<ChatPage />} />
+          <Route path="/adopted-pets-status" element={<AdoppetsStatus />} />
+          <Route path="/foster-pets-status" element={<ForsterPetsStatus />} />
+
         </Routes>
       </Box>
       {!hideHeaderFooter && <Footer />}
-    </>
+    </Box>
   );
 }
 

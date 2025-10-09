@@ -144,11 +144,20 @@ export default function Header() {
                       <MenuItem
                         onClick={() => {
                           setAnchorElAccount(null);
+                          navigate("/profile");
+                        }}
+                      >
+                        <Typography>Profile</Typography>
+                      </MenuItem>
+                      <MenuItem
+                        onClick={() => {
+                          setAnchorElAccount(null);
                           navigate("/adopted-pets-status");
                         }}
                       >
                         <Typography>Adopted Pets Status</Typography>
                       </MenuItem>
+
                       <MenuItem
                         onClick={() => {
                           setAnchorElAccount(null);
