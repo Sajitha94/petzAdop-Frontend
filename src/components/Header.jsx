@@ -27,7 +27,7 @@ export default function Header() {
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
   const [anchorElAccount, setAnchorElAccount] = React.useState(null);
-
+  const token = localStorage.getItem("token");
   const handleOpenNavMenu = (event) => setAnchorElNav(event.currentTarget);
   const handleCloseNavMenu = () => setAnchorElNav(null);
   const handleOpenUserMenu = (event) => setAnchorElUser(event.currentTarget);
@@ -53,27 +53,32 @@ export default function Header() {
         if (!token) return;
 
         const decoded = jwtDecode(token);
-
         const userId = decoded.id;
+
         const res = await fetch(`${API_BASE_URL}/api/auth/profile/${userId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = await res.json();
+
         if (data.status === "error" && data.message.includes("Unauthorized")) {
           alert("❌ Session expired. Please login again.");
           localStorage.removeItem("token");
-          setUser(null); // clears from context
-          handleCloseUserMenu();
+          setUser(null);
           navigate("/login");
           return;
         }
-        if (data.status === "success") setUser(data.data);
+
+        if (data.status === "success") {
+          setUser(data.data);
+        }
       } catch (err) {
         console.error("Error fetching user profile:", err);
       }
     };
+
+    // ✅ Run on mount or whenever token changes
     fetchUser();
-  }, []);
+  }, [token]); // <-- listen for token change
 
   return (
     <AppBar
@@ -220,7 +225,7 @@ export default function Header() {
           </Box>
           {/* Profile Avatar or Login */}
           <Box sx={{ flexGrow: 0 }}>
-            {user ? (
+            {user && token ? (
               <>
                 <Tooltip title={user.name}>
                   <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
@@ -235,22 +240,13 @@ export default function Header() {
                   </IconButton>
                 </Tooltip>
 
-                {/* ✅ FIXED MENU POSITION */}
                 <Menu
-                  sx={{
-                    mt: 1.5, // ✅ better vertical spacing
-                  }}
+                  sx={{ mt: 1.5 }}
                   anchorEl={anchorElUser}
                   open={Boolean(anchorElUser)}
                   onClose={handleCloseUserMenu}
-                  anchorOrigin={{
-                    vertical: "bottom",
-                    horizontal: "right", // ✅ align to right of Avatar
-                  }}
-                  transformOrigin={{
-                    vertical: "top",
-                    horizontal: "right", // ✅ ensures correct alignment
-                  }}
+                  anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+                  transformOrigin={{ vertical: "top", horizontal: "right" }}
                   keepMounted
                 >
                   {settings.map((setting) =>
