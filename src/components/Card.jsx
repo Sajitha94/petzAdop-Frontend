@@ -306,21 +306,42 @@ function PetCard({ pet = defaultPet, type = "pet", userFavorites = [] }) {
             sx={{
               display: "flex",
               alignItems: "center",
+              justifyContent: "space-between",
               gap: 1,
               mt: 0.5,
               color: "text.secondary",
               fontSize: 12,
             }}
           >
-            {pet.age && (
-              <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-                <CalendarTodayIcon fontSize="small" /> {pet.age} years
-              </Box>
-            )}
-            {pet.location && (
-              <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-                <LocationOnIcon fontSize="small" /> {pet.location}
-              </Box>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 1,
+                mt: 0.5,
+                color: "text.secondary",
+                fontSize: 12,
+              }}
+            >
+              {pet.age && (
+                <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                  <CalendarTodayIcon fontSize="small" /> {pet.age} years
+                </Box>
+              )}
+              {pet.location && (
+                <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                  <LocationOnIcon fontSize="small" /> {pet.location}
+                </Box>
+              )}
+            </Box>
+            {pet.post_user?._id === user._id && (
+              <Typography
+                variant="body2"
+                color="green"
+                sx={{ fontSize: 12, fontWeight: "bold" }}
+              >
+                Own Post
+              </Typography>
             )}
           </Box>
         )}
