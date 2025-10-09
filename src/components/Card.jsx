@@ -51,6 +51,12 @@ function PetCard({ pet = defaultPet, type = "pet", userFavorites = [] }) {
       });
     }
   };
+  console.log(pet, "ppt");
+  useEffect(() => {
+    if (userFavorites.some((fav) => fav._id === pet._id)) {
+      setIsFavorite(true);
+    }
+  }, [userFavorites, pet._id]);
 
   useEffect(() => {
     const fetchRating = async () => {
