@@ -134,11 +134,11 @@ function PetCard({ pet = defaultPet, type = "pet", userFavorites = [] }) {
     <Card
       className="flex flex-col justify-between p-2 gap-3"
       sx={{
-        width: 300, // fixed width
+        width: 290, // fixed width
         height: 500, // fixed height
         maxWidth: 300,
         maxHeight: 500,
-        minWidth: 300,
+        // minWidth: 300,
         minHeight: 500,
         mx: "auto",
       }}
@@ -254,7 +254,9 @@ function PetCard({ pet = defaultPet, type = "pet", userFavorites = [] }) {
       </Box>
 
       {/* Content */}
-      <CardContent sx={{ padding: 1, height: "35%", overflow: "hidden" }}>
+      <CardContent
+        sx={{ padding: 1, paddingBottom: 0, height: "35%", overflow: "hidden" }}
+      >
         {/* Name + Rating */}
         <Box
           sx={{
@@ -378,6 +380,7 @@ function PetCard({ pet = defaultPet, type = "pet", userFavorites = [] }) {
           flexDirection: "column",
           justifyContent: "space-between",
           height: "15%",
+          padding: 0,
         }}
       >
         {/* Meet Button */}
